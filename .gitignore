@@ -41,3 +41,9 @@ out
 test-output
 atlassian-ide-plugin.xml
 .gradletasknamecache
+
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws

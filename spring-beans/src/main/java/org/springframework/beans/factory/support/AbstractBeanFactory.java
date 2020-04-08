@@ -133,17 +133,25 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	@Nullable
 	private BeanExpressionResolver beanExpressionResolver;
 
-	/** Spring ConversionService to use instead of PropertyEditors. */
+	/**
+	 * 要使用的Spring转换服务，而不是PropertyEditors
+	 * Spring ConversionService to use instead of PropertyEditors. */
 	@Nullable
 	private ConversionService conversionService;
 
-	/** Custom PropertyEditorRegistrars to apply to the beans of this factory. */
+	/**
+	 * 要应用于此工厂的bean的自定义属性编辑或注册。
+	 * Custom PropertyEditorRegistrars to apply to the beans of this factory. */
 	private final Set<PropertyEditorRegistrar> propertyEditorRegistrars = new LinkedHashSet<>(4);
 
-	/** Custom PropertyEditors to apply to the beans of this factory. */
+	/**
+	 * 要应用于此工厂的bean的自定义属性编辑器。
+	 * Custom PropertyEditors to apply to the beans of this factory. */
 	private final Map<Class<?>, Class<? extends PropertyEditor>> customEditors = new HashMap<>(4);
 
-	/** A custom TypeConverter to use, overriding the default PropertyEditor mechanism. */
+	/**
+	 * 定义类型转换方法的接口(采用 PropertyEditor 实现)
+	 * A custom TypeConverter to use, overriding the default PropertyEditor mechanism. */
 	@Nullable
 	private TypeConverter typeConverter;
 
@@ -169,6 +177,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/** Map from bean name to merged RootBeanDefinition. */
 	private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
 
+	/** 已创建至少一次的bean的名称。 */
 	/** Names of beans that have already been created at least once. */
 	private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
@@ -245,6 +254,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		final String beanName = transformedBeanName(name);
 		Object bean;
 
+		// 检查单例缓存中是否有手动注册的单例。
 		// Eagerly check singleton cache for manually registered singletons.
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
@@ -261,12 +271,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 
 		else {
+
+			// 如果我们已经在创建这个bean实例，则失败：我们可以在循环引用中进行组合。
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
+			// 检查此工厂中是否存在bean定义。
 			// Check if bean definition exists in this factory.
 			BeanFactory parentBeanFactory = getParentBeanFactory();
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
@@ -289,18 +302,22 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 			}
 
+			// 仅类型检查
 			if (!typeCheckOnly) {
 				markBeanAsCreated(beanName);
 			}
 
 			try {
+				// 处理 <bean parent="xxx" ...> parent 属性
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
+				// 保证当前bean所依赖的bean的初始化。
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
+						// 检查依赖是否已注册
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
@@ -1188,6 +1205,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @return the transformed bean name
 	 */
 	protected String transformedBeanName(String name) {
+		// 第一步: 转换 bean 名字，去掉特殊的 & $ # 如: beanFactory$user
+		// 第二步: 将 alias 名称解析，bean 名称(确定原始名称，将别名解析为规范名称。)
 		return canonicalName(BeanFactoryUtils.transformedBeanName(name));
 	}
 
@@ -1768,6 +1787,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	}
 
 	/**
+	 * 获取给定bean实例的对象，或者
+	 * 实例本身或其创建的对象（以FactoryBean为例）。
+	 *
 	 * Get the object for the given bean instance, either the bean
 	 * instance itself or its created object in case of a FactoryBean.
 	 * @param beanInstance the shared bean instance

@@ -85,6 +85,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 		this.registry = registry;
 
+		// 如果是一个 applicationContext 子类，就是一件实现 ResourceLoader 的，那么久可以强转不需要 创建一个 PatternResolver
 		// Determine ResourceLoader to use.
 		if (this.registry instanceof ResourceLoader) {
 			this.resourceLoader = (ResourceLoader) this.registry;
@@ -93,6 +94,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 			this.resourceLoader = new PathMatchingResourcePatternResolver();
 		}
 
+		// 初始化环境变量。
 		// Inherit Environment if possible
 		if (this.registry instanceof EnvironmentCapable) {
 			this.environment = ((EnvironmentCapable) this.registry).getEnvironment();

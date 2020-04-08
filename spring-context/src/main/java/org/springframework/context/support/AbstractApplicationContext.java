@@ -515,9 +515,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
+            // 准备刷新此上下文，准备一些资源，这只一些开关状态
+            // 初始化 listeners 容器 和 events 容器
 			// Prepare this context for refreshing.
 			prepareRefresh();
 
+			// 回去 beanFactory，如果有直接返回，没有创建，并设置 BeanFactory 一些默认属性
+            // 加载 loadBeanDefinitions(读取 xml 配置文件)
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
@@ -525,6 +529,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareBeanFactory(beanFactory);
 
 			try {
+				// 允许在上下文子类中对bean工厂进行后处理。
 				// Allows post-processing of the bean factory in context subclasses.
 				postProcessBeanFactory(beanFactory);
 
@@ -599,6 +604,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Initialize any placeholder property sources in the context environment.
 		initPropertySources();
 
+		// 校验必填的 properties
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
 		getEnvironment().validateRequiredProperties();

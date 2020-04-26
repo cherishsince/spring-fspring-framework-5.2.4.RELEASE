@@ -59,6 +59,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
+		// 允许发放覆盖的采用 cglib，否则通过反射获取默认的 constructor 进行 实例化
 		// Don't override the class with CGLIB if no overrides.
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;

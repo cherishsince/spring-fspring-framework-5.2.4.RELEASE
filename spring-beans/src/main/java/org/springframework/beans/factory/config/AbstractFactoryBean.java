@@ -40,34 +40,52 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 
 /**
+ * {@link FactoryBean}实现的简单模板超类
+ * 根据标志创建单例对象或原型对象。
+ * <p>
  * Simple template superclass for {@link FactoryBean} implementations that
  * creates a singleton or a prototype object, depending on a flag.
+ * <p>
+ * 如果“singleton”标志是{@code true}（默认值），
+ * 这个类将创建它只创建一次的对象
+ * 初始化并随后返回所述单例实例
+ * 对{@link#getObject（）}方法的所有调用。
  *
  * <p>If the "singleton" flag is {@code true} (the default),
  * this class will create the object that it creates exactly once
  * on initialization and subsequently return said singleton instance
  * on all calls to the {@link #getObject()} method.
+ * <p>
+ * 否则，该类将在每次
+ * {@link#getObject（）}方法被调用。子类负责
+ * 用于实现抽象的{@link#createInstance（）}模板
+ * 方法来实际创建要公开的对象。
  *
  * <p>Else, this class will create a new instance every time the
  * {@link #getObject()} method is invoked. Subclasses are responsible
  * for implementing the abstract {@link #createInstance()} template
  * method to actually create the object(s) to expose.
  *
+ * @param <T> the bean type
  * @author Juergen Hoeller
  * @author Keith Donald
- * @since 1.0.2
- * @param <T> the bean type
  * @see #setSingleton
  * @see #createInstance()
+ * @since 1.0.2
  */
 public abstract class AbstractFactoryBean<T>
 		implements FactoryBean<T>, BeanClassLoaderAware, BeanFactoryAware, InitializingBean, DisposableBean {
 
-	/** Logger available to subclasses. */
+	/**
+	 * Logger available to subclasses.
+	 */
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private boolean singleton = true;
 
+	/**
+	 * 获取的 Thread 的 classLoader
+	 */
 	@Nullable
 	private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
@@ -119,6 +137,7 @@ public abstract class AbstractFactoryBean<T>
 	 * runs in. This is typically a fresh instance for each call,
 	 * since TypeConverters are usually <i>not</i> thread-safe.
 	 * <p>Falls back to a SimpleTypeConverter when not running in a BeanFactory.
+	 *
 	 * @see ConfigurableBeanFactory#getTypeConverter()
 	 * @see org.springframework.beans.SimpleTypeConverter
 	 */
@@ -126,8 +145,7 @@ public abstract class AbstractFactoryBean<T>
 		BeanFactory beanFactory = getBeanFactory();
 		if (beanFactory instanceof ConfigurableBeanFactory) {
 			return ((ConfigurableBeanFactory) beanFactory).getTypeConverter();
-		}
-		else {
+		} else {
 			return new SimpleTypeConverter();
 		}
 	}
@@ -147,6 +165,7 @@ public abstract class AbstractFactoryBean<T>
 
 	/**
 	 * Expose the singleton instance or create a new prototype instance.
+	 *
 	 * @see #createInstance()
 	 * @see #getEarlySingletonInterfaces()
 	 */
@@ -154,8 +173,7 @@ public abstract class AbstractFactoryBean<T>
 	public final T getObject() throws Exception {
 		if (isSingleton()) {
 			return (this.initialized ? this.singletonInstance : getEarlySingletonInstance());
-		}
-		else {
+		} else {
 			return createInstance();
 		}
 	}
@@ -180,6 +198,7 @@ public abstract class AbstractFactoryBean<T>
 
 	/**
 	 * Expose the singleton instance (for access through the 'early singleton' proxy).
+	 *
 	 * @return the singleton instance that this FactoryBean holds
 	 * @throws IllegalStateException if the singleton instance is not initialized
 	 */
@@ -191,6 +210,7 @@ public abstract class AbstractFactoryBean<T>
 
 	/**
 	 * Destroy the singleton instance, if any.
+	 *
 	 * @see #destroyInstance(Object)
 	 */
 	@Override
@@ -204,6 +224,7 @@ public abstract class AbstractFactoryBean<T>
 	/**
 	 * This abstract method declaration mirrors the method in the FactoryBean
 	 * interface, for a consistent offering of abstract template methods.
+	 *
 	 * @see org.springframework.beans.factory.FactoryBean#getObjectType()
 	 */
 	@Override
@@ -211,10 +232,16 @@ public abstract class AbstractFactoryBean<T>
 	public abstract Class<?> getObjectType();
 
 	/**
+	 * 子类必须重写才能构造的模板方法
+	 * 此工厂返回的对象。
+	 * <p>在初始化此FactoryBean时调用
+	 * 一个单例；否则，在每个{@link#getObject（）}调用上。
+	 * <p>
 	 * Template method that subclasses must override to construct
 	 * the object returned by this factory.
 	 * <p>Invoked on initialization of this FactoryBean in case of
 	 * a singleton; else, on each {@link #getObject()} call.
+	 *
 	 * @return the object returned by this factory
 	 * @throws Exception if an exception occurred during object creation
 	 * @see #getObject()
@@ -229,6 +256,7 @@ public abstract class AbstractFactoryBean<T>
 	 * provided that it is an interface, or {@code null} otherwise. The latter
 	 * indicates that early singleton access is not supported by this FactoryBean.
 	 * This will lead to a FactoryBeanNotInitializedException getting thrown.
+	 *
 	 * @return the interfaces to use for 'early singletons',
 	 * or {@code null} to indicate a FactoryBeanNotInitializedException
 	 * @see org.springframework.beans.factory.FactoryBeanNotInitializedException
@@ -236,15 +264,16 @@ public abstract class AbstractFactoryBean<T>
 	@Nullable
 	protected Class<?>[] getEarlySingletonInterfaces() {
 		Class<?> type = getObjectType();
-		return (type != null && type.isInterface() ? new Class<?>[] {type} : null);
+		return (type != null && type.isInterface() ? new Class<?>[]{type} : null);
 	}
 
 	/**
 	 * Callback for destroying a singleton instance. Subclasses may
 	 * override this to destroy the previously created instance.
 	 * <p>The default implementation is empty.
+	 *
 	 * @param instance the singleton instance, as returned by
-	 * {@link #createInstance()}
+	 *                 {@link #createInstance()}
 	 * @throws Exception in case of shutdown errors
 	 * @see #createInstance()
 	 */
@@ -262,19 +291,16 @@ public abstract class AbstractFactoryBean<T>
 			if (ReflectionUtils.isEqualsMethod(method)) {
 				// Only consider equal when proxies are identical.
 				return (proxy == args[0]);
-			}
-			else if (ReflectionUtils.isHashCodeMethod(method)) {
+			} else if (ReflectionUtils.isHashCodeMethod(method)) {
 				// Use hashCode of reference proxy.
 				return System.identityHashCode(proxy);
-			}
-			else if (!initialized && ReflectionUtils.isToStringMethod(method)) {
+			} else if (!initialized && ReflectionUtils.isToStringMethod(method)) {
 				return "Early singleton proxy for interfaces " +
 						ObjectUtils.nullSafeToString(getEarlySingletonInterfaces());
 			}
 			try {
 				return method.invoke(getSingletonInstance(), args);
-			}
-			catch (InvocationTargetException ex) {
+			} catch (InvocationTargetException ex) {
 				throw ex.getTargetException();
 			}
 		}

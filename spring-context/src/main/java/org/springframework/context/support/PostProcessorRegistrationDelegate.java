@@ -75,6 +75,10 @@ final class PostProcessorRegistrationDelegate {
 				}
 			}
 
+//			不要在这里初始化FactoryBeans：我们需要保留所有常规bean
+//			未初始化以让bean工厂后处理器应用于它们！
+//			在BeanDefinitionRegistryPostProcessors 实现
+//			优先顺序，顺序和其他。
 			// Do not initialize FactoryBeans here: We need to leave all regular beans
 			// uninitialized to let the bean factory post-processors apply to them!
 			// Separate between BeanDefinitionRegistryPostProcessors that implement
@@ -270,7 +274,6 @@ final class PostProcessorRegistrationDelegate {
 	 */
 	private static void invokeBeanDefinitionRegistryPostProcessors(
 			Collection<? extends BeanDefinitionRegistryPostProcessor> postProcessors, BeanDefinitionRegistry registry) {
-
 		for (BeanDefinitionRegistryPostProcessor postProcessor : postProcessors) {
 			postProcessor.postProcessBeanDefinitionRegistry(registry);
 		}

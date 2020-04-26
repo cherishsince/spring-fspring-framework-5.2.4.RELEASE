@@ -125,12 +125,14 @@ public abstract class BeanDefinitionReaderUtils {
 		}
 		else {
 			// Top-level bean: use plain class name with unique suffix if necessary.
-			return uniqueBeanName(generatedBeanName, registry);
+            id = uniqueBeanName(generatedBeanName, registry);
 		}
 		return id;
 	}
 
 	/**
+	 * 将给定的bean名称转换为给定bean工厂的唯一bean名称，必要时将唯一的计数器作为后缀。
+	 *
 	 * Turn the given bean name into a unique bean name for the given bean factory,
 	 * appending a unique counter as suffix if necessary.
 	 * @param beanName the original bean name

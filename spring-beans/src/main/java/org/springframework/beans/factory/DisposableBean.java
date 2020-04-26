@@ -17,6 +17,11 @@
 package org.springframework.beans.factory;
 
 /**
+ * 接口将由希望在销毁时释放资源的bean实现。
+ * {@link BeanFactory}将对
+ * 作用域bean。应该是{@link org.springframework.context.ApplicationContext}
+ * 在应用程序生命周期的驱动下，在关闭时释放它的所有单例。
+ * <p>
  * Interface to be implemented by beans that want to release resources on destruction.
  * A {@link BeanFactory} will invoke the destroy method on individual destruction of a
  * scoped bean. An {@link org.springframework.context.ApplicationContext} is supposed
@@ -28,18 +33,23 @@ package org.springframework.beans.factory;
  * bean lifecycle methods, see the {@link BeanFactory BeanFactory javadocs}.
  *
  * @author Juergen Hoeller
- * @since 12.08.2003
  * @see InitializingBean
  * @see org.springframework.beans.factory.support.RootBeanDefinition#getDestroyMethodName()
  * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#destroySingletons()
  * @see org.springframework.context.ConfigurableApplicationContext#close()
+ * @since 12.08.2003
  */
 public interface DisposableBean {
 
 	/**
+	 * 在销毁bean时由包含{@code BeanFactory}的调用。
+	 * 在关闭错误时引发异常。将记录异常
+	 * 但不能让其他bean也释放它们的资源。
+	 * <p>
 	 * Invoked by the containing {@code BeanFactory} on destruction of a bean.
+	 *
 	 * @throws Exception in case of shutdown errors. Exceptions will get logged
-	 * but not rethrown to allow other beans to release their resources as well.
+	 *                   but not rethrown to allow other beans to release their resources as well.
 	 */
 	void destroy() throws Exception;
 

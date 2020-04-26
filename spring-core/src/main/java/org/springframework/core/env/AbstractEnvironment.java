@@ -48,13 +48,21 @@ import org.springframework.util.StringUtils;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
- * @since 3.1
  * @see ConfigurableEnvironment
  * @see StandardEnvironment
+ * @since 3.1
  */
 public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 
 	/**
+	 * 指示Spring忽略系统环境变量的系统属性，
+	 * 也就是说，永远不要试图通过{@link System}getenv（）检索这样的变量。
+	 * <p>默认值为“false”，返回系统环境变量检查
+	 * Spring环境属性（例如配置字符串中的占位符）不是
+	 * 否则可以解决。如果您有经验，请考虑将此标志切换为“true”
+	 * 记录来自Spring的{@code getenv}调用的警告，例如在WebSphere上
+	 * 具有严格的SecurityManager设置和AccessControlExceptions警告。
+	 * <p>
 	 * System property that instructs Spring to ignore system environment variables,
 	 * i.e. to never attempt to retrieve such a variable via {@link System#getenv()}.
 	 * <p>The default is "false", falling back to system environment variable checks if a
@@ -62,36 +70,54 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * resolvable otherwise. Consider switching this flag to "true" if you experience
 	 * log warnings from {@code getenv} calls coming from Spring, e.g. on WebSphere
 	 * with strict SecurityManager settings and AccessControlExceptions warnings.
+	 *
 	 * @see #suppressGetenvAccess()
 	 */
 	public static final String IGNORE_GETENV_PROPERTY_NAME = "spring.getenv.ignore";
 
 	/**
+	 * 要设置以指定活动配置文件的属性的名称：{@value}。值可以是逗号
+	 * 分隔符。
+	 * <p>请注意，某些shell环境（如Bash）不允许使用句点
+	 * 变量名中的字符。假设Spring的{@link SystemEnvironmentPropertySource}
+	 * 正在使用中，此属性可以指定为环境变量
+	 * {@code SPRING_PROFILES_ACTIVE}。
+	 * <p>
 	 * Name of property to set to specify active profiles: {@value}. Value may be comma
 	 * delimited.
 	 * <p>Note that certain shell environments such as Bash disallow the use of the period
 	 * character in variable names. Assuming that Spring's {@link SystemEnvironmentPropertySource}
 	 * is in use, this property may be specified as an environment variable as
 	 * {@code SPRING_PROFILES_ACTIVE}.
+	 *
 	 * @see ConfigurableEnvironment#setActiveProfiles
 	 */
 	public static final String ACTIVE_PROFILES_PROPERTY_NAME = "spring.profiles.active";
 
 	/**
+	 * 要设置为指定默认活动配置文件的属性的名称：{@value}。价值可以
+	 * 以逗号分隔。
+	 * <p>
 	 * Name of property to set to specify profiles active by default: {@value}. Value may
 	 * be comma delimited.
 	 * <p>Note that certain shell environments such as Bash disallow the use of the period
 	 * character in variable names. Assuming that Spring's {@link SystemEnvironmentPropertySource}
 	 * is in use, this property may be specified as an environment variable as
 	 * {@code SPRING_PROFILES_DEFAULT}.
+	 *
 	 * @see ConfigurableEnvironment#setDefaultProfiles
 	 */
 	public static final String DEFAULT_PROFILES_PROPERTY_NAME = "spring.profiles.default";
 
 	/**
+	 * 保留的默认配置文件名的名称：{@value}。如果没有默认配置文件名
+	 * 显式且未显式设置活动配置文件名，则此配置文件将
+	 * 默认情况下自动激活。
+	 * <p>
 	 * Name of reserved default profile name: {@value}. If no default profile names are
 	 * explicitly and no active profile names are explicitly set, this profile will
 	 * automatically be activated by default.
+	 *
 	 * @see #getReservedDefaultProfiles
 	 * @see ConfigurableEnvironment#setDefaultProfiles
 	 * @see ConfigurableEnvironment#setActiveProfiles
@@ -118,6 +144,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * {@link #customizePropertySources(MutablePropertySources)} during construction to
 	 * allow subclasses to contribute or manipulate {@link PropertySource} instances as
 	 * appropriate.
+	 *
 	 * @see #customizePropertySources(MutablePropertySources)
 	 */
 	public AbstractEnvironment() {
@@ -207,6 +234,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * Return the set of reserved default profile names. This implementation returns
 	 * {@value #RESERVED_DEFAULT_PROFILE_NAME}. Subclasses may override in order to
 	 * customize the set of reserved names.
+	 *
 	 * @see #RESERVED_DEFAULT_PROFILE_NAME
 	 * @see #doGetDefaultProfiles()
 	 */
@@ -229,6 +257,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * {@link #setActiveProfiles} or if the current set of active profiles
 	 * is empty, check for the presence of the {@value #ACTIVE_PROFILES_PROPERTY_NAME}
 	 * property and assign its value to the set of active profiles.
+	 *
 	 * @see #getActiveProfiles()
 	 * @see #ACTIVE_PROFILES_PROPERTY_NAME
 	 */
@@ -285,6 +314,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * profiles}, then check for the presence of the
 	 * {@value #DEFAULT_PROFILES_PROPERTY_NAME} property and assign its value (if any)
 	 * to the set of default profiles.
+	 *
 	 * @see #AbstractEnvironment()
 	 * @see #getDefaultProfiles()
 	 * @see #DEFAULT_PROFILES_PROPERTY_NAME
@@ -308,6 +338,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * are explicitly made active through {@link #setActiveProfiles}.
 	 * <p>Calling this method removes overrides any reserved default profiles
 	 * that may have been added during construction of the environment.
+	 *
 	 * @see #AbstractEnvironment()
 	 * @see #getReservedDefaultProfiles()
 	 */
@@ -332,8 +363,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 				if (!isProfileActive(profile.substring(1))) {
 					return true;
 				}
-			}
-			else if (isProfileActive(profile)) {
+			} else if (isProfileActive(profile)) {
 				return true;
 			}
 		}
@@ -349,6 +379,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	/**
 	 * Return whether the given profile is active, or if active profiles are empty
 	 * whether the profile should be active by default.
+	 *
 	 * @throws IllegalArgumentException per {@link #validateProfile(String)}
 	 */
 	protected boolean isProfileActive(String profile) {
@@ -362,8 +393,9 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * Validate the given profile, called internally prior to adding to the set of
 	 * active or default profiles.
 	 * <p>Subclasses may override to impose further restrictions on profile syntax.
+	 *
 	 * @throws IllegalArgumentException if the profile is null, empty, whitespace-only or
-	 * begins with the profile NOT operator (!).
+	 *                                  begins with the profile NOT operator (!).
 	 * @see #acceptsProfiles
 	 * @see #addActiveProfile
 	 * @see #setDefaultProfiles
@@ -387,16 +419,14 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	public Map<String, Object> getSystemProperties() {
 		try {
 			return (Map) System.getProperties();
-		}
-		catch (AccessControlException ex) {
+		} catch (AccessControlException ex) {
 			return (Map) new ReadOnlySystemAttributesMap() {
 				@Override
 				@Nullable
 				protected String getSystemAttribute(String attributeName) {
 					try {
 						return System.getProperty(attributeName);
-					}
-					catch (AccessControlException ex) {
+					} catch (AccessControlException ex) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Caught AccessControlException when accessing system property '" +
 									attributeName + "'; its value will be returned [null]. Reason: " + ex.getMessage());
@@ -416,16 +446,14 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 		}
 		try {
 			return (Map) System.getenv();
-		}
-		catch (AccessControlException ex) {
+		} catch (AccessControlException ex) {
 			return (Map) new ReadOnlySystemAttributesMap() {
 				@Override
 				@Nullable
 				protected String getSystemAttribute(String attributeName) {
 					try {
 						return System.getenv(attributeName);
-					}
-					catch (AccessControlException ex) {
+					} catch (AccessControlException ex) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Caught AccessControlException when accessing system environment variable '" +
 									attributeName + "'; its value will be returned [null]. Reason: " + ex.getMessage());
@@ -445,6 +473,7 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 * and therefore avoiding security manager warnings (if any).
 	 * <p>The default implementation checks for the "spring.getenv.ignore" system property,
 	 * returning {@code true} if its value equals "true" in any case.
+	 *
 	 * @see #IGNORE_GETENV_PROPERTY_NAME
 	 * @see SpringProperties#getFlag
 	 */

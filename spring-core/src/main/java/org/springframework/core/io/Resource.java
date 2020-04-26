@@ -52,6 +52,8 @@ import org.springframework.lang.Nullable;
 public interface Resource extends InputStreamSource {
 
 	/**
+	 * 文件是否存在
+	 *
 	 * Determine whether this resource actually exists in physical form.
 	 * <p>This method performs a definitive existence check, whereas the
 	 * existence of a {@code Resource} handle only guarantees a valid
@@ -60,6 +62,8 @@ public interface Resource extends InputStreamSource {
 	boolean exists();
 
 	/**
+	 * 是否可读
+	 *
 	 * Indicate whether non-empty contents of this resource can be read via
 	 * {@link #getInputStream()}.
 	 * <p>Will be {@code true} for typical resource descriptors that exist
@@ -85,6 +89,8 @@ public interface Resource extends InputStreamSource {
 	}
 
 	/**
+	 * 确定此资源是否表示文件系统中的文件。
+	 *
 	 * Determine whether this resource represents a file in a file system.
 	 * A value of {@code true} strongly suggests (but does not guarantee)
 	 * that a {@link #getFile()} call will succeed.
@@ -97,6 +103,8 @@ public interface Resource extends InputStreamSource {
 	}
 
 	/**
+	 * 返回此资源的URL
+	 *
 	 * Return a URL handle for this resource.
 	 * @throws IOException if the resource cannot be resolved as URL,
 	 * i.e. if the resource is not available as descriptor
@@ -104,6 +112,8 @@ public interface Resource extends InputStreamSource {
 	URL getURL() throws IOException;
 
 	/**
+	 * 返回此资源的URI
+	 *
 	 * Return a URI handle for this resource.
 	 * @throws IOException if the resource cannot be resolved as URI,
 	 * i.e. if the resource is not available as descriptor
@@ -112,6 +122,8 @@ public interface Resource extends InputStreamSource {
 	URI getURI() throws IOException;
 
 	/**
+	 * 获取一个文件的 file
+	 *
 	 * Return a File handle for this resource.
 	 * @throws java.io.FileNotFoundException if the resource cannot be resolved as
 	 * absolute file path, i.e. if the resource is not available in a file system

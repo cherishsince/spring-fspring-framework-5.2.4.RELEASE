@@ -41,24 +41,42 @@ package org.springframework.context;
  * application context's startup and shutdown phases.
  *
  * @author Juergen Hoeller
- * @since 2.0
  * @see SmartLifecycle
  * @see ConfigurableApplicationContext
  * @see org.springframework.jms.listener.AbstractMessageListenerContainer
  * @see org.springframework.scheduling.quartz.SchedulerFactoryBean
+ * @since 2.0
  */
 public interface Lifecycle {
 
 	/**
+	 * 启动此组件。
+	 * <p>如果组件已在运行，则不应引发异常。
+	 * <p>对于容器，这会将启动信号传播到所有
+	 * 适用的组件。
+	 * <p>
 	 * Start this component.
 	 * <p>Should not throw an exception if the component is already running.
 	 * <p>In the case of a container, this will propagate the start signal to all
 	 * components that apply.
+	 *
 	 * @see SmartLifecycle#isAutoStartup()
 	 */
 	void start();
 
 	/**
+	 * 通常以同步方式停止此组件，以便该组件
+	 * 返回此方法时完全停止。考虑实现{@link SmartLifecycle}
+	 * 当需要异步停止行为时，它的{@code stop（Runnable）}变量。
+	 * <p>请注意，此停止通知不能保证在销毁之前发出：
+	 * 在定期关机时，{@code Lifecycle}bean将首先收到停止通知
+	 * 在一般销毁回调被传播之前；但是，在
+	 * 在上下文的生存期内或在中止刷新尝试时刷新，给定bean的
+	 * 将调用销毁方法，而不预先考虑停止信号。
+	 * <p>如果组件未运行（尚未启动），则不应引发异常。
+	 * <p>对于容器，这会将停止信号传播到所有组件
+	 * 那就行了。
+	 * <p>
 	 * Stop this component, typically in a synchronous fashion, such that the component is
 	 * fully stopped upon return of this method. Consider implementing {@link SmartLifecycle}
 	 * and its {@code stop(Runnable)} variant when asynchronous stop behavior is necessary.
@@ -70,15 +88,21 @@ public interface Lifecycle {
 	 * <p>Should not throw an exception if the component is not running (not started yet).
 	 * <p>In the case of a container, this will propagate the stop signal to all components
 	 * that apply.
+	 *
 	 * @see SmartLifecycle#stop(Runnable)
 	 * @see org.springframework.beans.factory.DisposableBean#destroy()
 	 */
 	void stop();
 
 	/**
+	 * 检查此组件当前是否正在运行。
+	 * <p>对于容器，只有当<i>all</i>
+	 * 应用的组件当前正在运行。
+	 * <p>
 	 * Check whether this component is currently running.
 	 * <p>In the case of a container, this will return {@code true} only if <i>all</i>
 	 * components that apply are currently running.
+	 *
 	 * @return whether the component is currently running
 	 */
 	boolean isRunning();

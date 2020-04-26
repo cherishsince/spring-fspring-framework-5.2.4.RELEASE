@@ -59,39 +59,68 @@ public interface ApplicationContext extends EnvironmentCapable, ListableBeanFact
 		MessageSource, ApplicationEventPublisher, ResourcePatternResolver {
 
 	/**
+	 * 返回此应用程序上下文的唯一id。
+	 * <p>
 	 * Return the unique id of this application context.
+	 *
 	 * @return the unique id of the context, or {@code null} if none
 	 */
 	@Nullable
 	String getId();
 
 	/**
+	 * 返回此上下文所属的已部署应用程序的名称。
+	 * <p>
 	 * Return a name for the deployed application that this context belongs to.
+	 *
 	 * @return a name for the deployed application, or the empty String by default
 	 */
 	String getApplicationName();
 
 	/**
+	 * 返回此上下文的友好名称。
+	 * <p>
 	 * Return a friendly name for this context.
+	 *
 	 * @return a display name for this context (never {@code null})
 	 */
 	String getDisplayName();
 
 	/**
+	 * 返回首次加载此上下文时的时间戳。
+	 * <p>
 	 * Return the timestamp when this context was first loaded.
+	 *
 	 * @return the timestamp (ms) when this context was first loaded
 	 */
 	long getStartupDate();
 
 	/**
+	 * 返回父上下文，如果没有父上下文，则返回{@code null}
+	 * 这是上下文层次结构的根。
+	 * <p>
 	 * Return the parent context, or {@code null} if there is no parent
 	 * and this is the root of the context hierarchy.
+	 *
 	 * @return the parent context, or {@code null} if there is no parent
 	 */
 	@Nullable
 	ApplicationContext getParent();
 
 	/**
+	 * 为此上下文公开AutowireCapableBeanFactory功能。
+	 * <p>除了用于
+	 * 初始化存在于应用程序上下文之外的bean实例，
+	 * 对它们应用Spring bean生命周期（全部或部分）。
+	 * <p>或者，由
+	 * {@link ConfigurableApplicationContext}接口提供对
+	 * {@link AutowireCapableBeanFactory}接口也是。目前的方法主要是
+	 * 作为ApplicationContext接口上的一个方便的、特定的工具。
+	 * <p><b>注意：从4.2开始，此方法将始终抛出IllegalStateException
+	 * 关闭应用程序上下文之后。</b>在当前的Spring框架中
+	 * 版本中，只有可刷新的应用程序上下文才有这种行为；从4.2开始，
+	 * 所有应用程序上下文实现都必须遵守。
+	 * <p>
 	 * Expose AutowireCapableBeanFactory functionality for this context.
 	 * <p>This is not typically used by application code, except for the purpose of
 	 * initializing bean instances that live outside of the application context,
@@ -104,11 +133,12 @@ public interface ApplicationContext extends EnvironmentCapable, ListableBeanFact
 	 * after the application context has been closed.</b> In current Spring Framework
 	 * versions, only refreshable application contexts behave that way; as of 4.2,
 	 * all application context implementations will be required to comply.
+	 *
 	 * @return the AutowireCapableBeanFactory for this context
 	 * @throws IllegalStateException if the context does not support the
-	 * {@link AutowireCapableBeanFactory} interface, or does not hold an
-	 * autowire-capable bean factory yet (e.g. if {@code refresh()} has
-	 * never been called), or if the context has been closed already
+	 *                               {@link AutowireCapableBeanFactory} interface, or does not hold an
+	 *                               autowire-capable bean factory yet (e.g. if {@code refresh()} has
+	 *                               never been called), or if the context has been closed already
 	 * @see ConfigurableApplicationContext#refresh()
 	 * @see ConfigurableApplicationContext#getBeanFactory()
 	 */

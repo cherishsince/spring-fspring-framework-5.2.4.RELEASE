@@ -183,11 +183,14 @@ public abstract class BeanUtils {
 	public static <T> T instantiateClass(Constructor<T> ctor, Object... args) throws BeanInstantiationException {
 		Assert.notNull(ctor, "Constructor must not be null");
 		try {
+		    // 将 Bean 的构造器强制为可访问 ctor.setAccessible(true);
 			ReflectionUtils.makeAccessible(ctor);
+			// Kotlin 方式
 			if (KotlinDetector.isKotlinReflectPresent() && KotlinDetector.isKotlinType(ctor.getDeclaringClass())) {
 				return KotlinDelegate.instantiateClass(ctor, args);
 			}
 			else {
+			    //
 				Class<?>[] parameterTypes = ctor.getParameterTypes();
 				Assert.isTrue(args.length <= parameterTypes.length, "Can't specify more arguments than constructor parameters");
 				Object[] argsWithDefaultValues = new Object[args.length];

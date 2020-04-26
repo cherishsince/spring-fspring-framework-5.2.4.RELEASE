@@ -88,9 +88,11 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 		beanDefinitionReader.setResourceLoader(this);
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
+		// 初始化所有子类，beanDefinition, 子类也可以随意修改当前 beanDefinitionReader
 		// Allow a subclass to provide custom initialization of the reader,
 		// then proceed with actually loading the bean definitions.
 		initBeanDefinitionReader(beanDefinitionReader);
+		// 加载 bean，从 xml 读取配置信息
 		loadBeanDefinitions(beanDefinitionReader);
 	}
 
@@ -119,15 +121,15 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @see #getResourcePatternResolver
 	 */
 	protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
-		Resource[] configResources = getConfigResources();
-		if (configResources != null) {
-			reader.loadBeanDefinitions(configResources);
-		}
-		String[] configLocations = getConfigLocations();
-		if (configLocations != null) {
-			reader.loadBeanDefinitions(configLocations);
-		}
-	}
+        Resource[] configResources = getConfigResources();
+        if (configResources != null) {
+            reader.loadBeanDefinitions(configResources);
+        }
+        String[] configLocations = getConfigLocations();
+        if (configLocations != null) {
+            reader.loadBeanDefinitions(configLocations);
+        }
+    }
 
 	/**
 	 * Return an array of Resource objects, referring to the XML bean definition

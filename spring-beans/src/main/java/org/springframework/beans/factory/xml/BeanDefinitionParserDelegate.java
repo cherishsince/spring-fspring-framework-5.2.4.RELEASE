@@ -231,6 +231,7 @@ public class BeanDefinitionParserDelegate {
 
 	private final DocumentDefaultsDefinition defaults = new DocumentDefaultsDefinition();
 
+	// 解析状态
 	private final ParseState parseState = new ParseState();
 
 	/**
@@ -415,12 +416,14 @@ public class BeanDefinitionParserDelegate {
 		String id = ele.getAttribute(ID_ATTRIBUTE);
 		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
+		// 解析 aliases 别名，tokenizeToStringArray 就是字符串分割(不过会出去空的元素)
 		List<String> aliases = new ArrayList<>();
 		if (StringUtils.hasLength(nameAttr)) {
 			String[] nameArr = StringUtils.tokenizeToStringArray(nameAttr, MULTI_VALUE_ATTRIBUTE_DELIMITERS);
 			aliases.addAll(Arrays.asList(nameArr));
 		}
 
+		// 如果 beanName = null，那么久从 aliases 中去除第 0 个给 beanName
 		String beanName = id;
 		if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
 			beanName = aliases.remove(0);
@@ -430,10 +433,12 @@ public class BeanDefinitionParserDelegate {
 			}
 		}
 
+		// 检查 name 唯一性(this.usedNames)
 		if (containingBean == null) {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
 
+		// 创建了一个 beanDefinition，并解析 xml 属性，设置到 beanDefinition
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
 			if (!StringUtils.hasText(beanName)) {
@@ -443,12 +448,14 @@ public class BeanDefinitionParserDelegate {
 								beanDefinition, this.readerContext.getRegistry(), true);
 					}
 					else {
+                        // 生成 beanName，获取 beanDefinition.getBeanClassName() 没有就获取 parent 的，还没有就 获取beanFactory 的
+                        // 生成规则 BeanDefinitionReaderUtils.generateBeanName
 						beanName = this.readerContext.generateBeanName(beanDefinition);
 						// Register an alias for the plain bean class name, if still possible,
 						// if the generator returned the class name plus a suffix.
 						// This is expected for Spring 1.2/2.0 backwards compatibility.
 						String beanClassName = beanDefinition.getBeanClassName();
-						if (beanClassName != null &&
+                        if (beanClassName != null &&
 								beanName.startsWith(beanClassName) && beanName.length() > beanClassName.length() &&
 								!this.readerContext.getRegistry().isBeanNameInUse(beanClassName)) {
 							aliases.add(beanClassName);
@@ -500,12 +507,15 @@ public class BeanDefinitionParserDelegate {
 	public AbstractBeanDefinition parseBeanDefinitionElement(
 			Element ele, String beanName, @Nullable BeanDefinition containingBean) {
 
+	    // 解析状态 ？？？
 		this.parseState.push(new BeanEntry(beanName));
 
 		String className = null;
 		if (ele.hasAttribute(CLASS_ATTRIBUTE)) {
 			className = ele.getAttribute(CLASS_ATTRIBUTE).trim();
 		}
+
+		// 解析 xml parent，可以覆盖子类的属性
 		String parent = null;
 		if (ele.hasAttribute(PARENT_ATTRIBUTE)) {
 			parent = ele.getAttribute(PARENT_ATTRIBUTE);
@@ -514,18 +524,25 @@ public class BeanDefinitionParserDelegate {
 		try {
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
+			// 解析 xml 属性，
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 
+            // 解析 <bean> 标签下的 <meta> 标签
 			parseMetaElements(ele, bd);
+			// <lookup-method>
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
+			// <replaced-method>
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
-
+            // 解析 构造函数 参数
 			parseConstructorArgElements(ele, bd);
+			// 解析 property 属性
 			parsePropertyElements(ele, bd);
+			// 解析 Qualifier 标识(spring 多实现，需要用不同别名注入 @Qualifier 注解一样)
 			parseQualifierElements(ele, bd);
-
+            // 上下文的 context
 			bd.setResource(this.readerContext.getResource());
+			// 这里就是 ele
 			bd.setSource(extractSource(ele));
 
 			return bd;
@@ -647,9 +664,11 @@ public class BeanDefinitionParserDelegate {
 	 * Parse the meta elements underneath the given element, if any.
 	 */
 	public void parseMetaElements(Element ele, BeanMetadataAttributeAccessor attributeAccessor) {
+	    // 解析 <bean> 标签下的 <meta> 标签
 		NodeList nl = ele.getChildNodes();
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
+			// 检查 node 是否合适, 就是 http://www.springframework.org/schema/beans 标签
 			if (isCandidateElement(node) && nodeNameEquals(node, META_ELEMENT)) {
 				Element metaElement = (Element) node;
 				String key = metaElement.getAttribute(KEY_ATTRIBUTE);

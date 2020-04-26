@@ -57,7 +57,6 @@ package org.springframework.core.env;
  * of property sources prior to application context {@code refresh()}.
  *
  * @author Chris Beams
- * @since 3.1
  * @see PropertyResolver
  * @see EnvironmentCapable
  * @see ConfigurableEnvironment
@@ -67,10 +66,20 @@ package org.springframework.core.env;
  * @see org.springframework.context.ConfigurableApplicationContext#getEnvironment
  * @see org.springframework.context.ConfigurableApplicationContext#setEnvironment
  * @see org.springframework.context.support.AbstractApplicationContext#createEnvironment
+ * @since 3.1
  */
 public interface Environment extends PropertyResolver {
 
 	/**
+	 * 返回为此环境显式激活的配置文件集。配置文件
+	 * 用于创建要注册的bean定义的逻辑分组
+	 * 有条件地，例如基于部署环境。配置文件可以是
+	 * 通过设置{@linkplain AbstractEnvironment#ACTIVE_PROFILES_PROPERTY撸NAME激活
+	 * “spring.profiles.active”}作为系统属性或通过调用
+	 * {@link ConfigurableEnvironment#setActiveProfiles（String…）}。
+	 * <p>如果没有明确指定为活动的配置文件，则
+	 * {@linkplain\getDefaultProfiles（）默认配置文件}将自动激活。
+	 * <p>
 	 * Return the set of profiles explicitly made active for this environment. Profiles
 	 * are used for creating logical groupings of bean definitions to be registered
 	 * conditionally, for example based on deployment environment. Profiles can be
@@ -79,6 +88,7 @@ public interface Environment extends PropertyResolver {
 	 * {@link ConfigurableEnvironment#setActiveProfiles(String...)}.
 	 * <p>If no profiles have explicitly been specified as active, then any
 	 * {@linkplain #getDefaultProfiles() default profiles} will automatically be activated.
+	 *
 	 * @see #getDefaultProfiles
 	 * @see ConfigurableEnvironment#setActiveProfiles
 	 * @see AbstractEnvironment#ACTIVE_PROFILES_PROPERTY_NAME
@@ -86,8 +96,12 @@ public interface Environment extends PropertyResolver {
 	String[] getActiveProfiles();
 
 	/**
+	 * 当没有活动配置文件
+	 * 已显式设置。
+	 * <p>
 	 * Return the set of profiles to be active by default when no active profiles have
 	 * been set explicitly.
+	 *
 	 * @see #getActiveProfiles
 	 * @see ConfigurableEnvironment#setDefaultProfiles
 	 * @see AbstractEnvironment#DEFAULT_PROFILES_PROPERTY_NAME
@@ -95,14 +109,22 @@ public interface Environment extends PropertyResolver {
 	String[] getDefaultProfiles();
 
 	/**
+	 * 返回一个或多个给定配置文件是否处于活动状态，如果没有
+	 * 显式活动配置文件，无论一个或多个给定配置文件是否包含在
+	 * 默认配置文件集。如果个人资料以“！”开头逻辑颠倒了，
+	 * 即，如果给定的配置文件<em>不是<em>活动的，则方法将返回{@code true}。
+	 * 例如，{@code env.acceptsProfiles（“p1”，“！p2“）}将返回{@code true}如果
+	 * 配置文件“p1”处于活动状态或“p2”未处于活动状态。
+	 * <p>
 	 * Return whether one or more of the given profiles is active or, in the case of no
 	 * explicit active profiles, whether one or more of the given profiles is included in
 	 * the set of default profiles. If a profile begins with '!' the logic is inverted,
 	 * i.e. the method will return {@code true} if the given profile is <em>not</em> active.
 	 * For example, {@code env.acceptsProfiles("p1", "!p2")} will return {@code true} if
 	 * profile 'p1' is active or 'p2' is not active.
+	 *
 	 * @throws IllegalArgumentException if called with zero arguments
-	 * or if any profile is {@code null}, empty, or whitespace only
+	 *                                  or if any profile is {@code null}, empty, or whitespace only
 	 * @see #getActiveProfiles
 	 * @see #getDefaultProfiles
 	 * @see #acceptsProfiles(Profiles)
@@ -112,6 +134,9 @@ public interface Environment extends PropertyResolver {
 	boolean acceptsProfiles(String... profiles);
 
 	/**
+	 * 返回{@linkplain\getActiveProfiles（）活动配置文件}
+	 * 匹配给定的{@link Profiles}谓词。
+	 * <p>
 	 * Return whether the {@linkplain #getActiveProfiles() active profiles}
 	 * match the given {@link Profiles} predicate.
 	 */

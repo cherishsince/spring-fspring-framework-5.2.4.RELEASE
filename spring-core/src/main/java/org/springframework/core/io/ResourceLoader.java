@@ -33,19 +33,32 @@ import org.springframework.util.ResourceUtils;
  * context's resource loading strategy.
  *
  * @author Juergen Hoeller
- * @since 10.03.2004
  * @see Resource
  * @see org.springframework.core.io.support.ResourcePatternResolver
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
+ * @since 10.03.2004
  */
 public interface ResourceLoader {
 
-	/** Pseudo URL prefix for loading from the class path: "classpath:". */
+	/**
+	 * Pseudo URL prefix for loading from the class path: "classpath:".
+	 */
 	String CLASSPATH_URL_PREFIX = ResourceUtils.CLASSPATH_URL_PREFIX;
 
-
 	/**
+	 * 返回指定资源位置的资源句柄。
+	 * <p>句柄应该始终是可重用的资源描述符，
+	 * 允许多个{@link Resource#getInputStream（）}调用。
+	 * <li>必须支持完全限定的URL，例如“file:C:/test.dat”。
+	 * <li>必须支持类路径伪url，例如“classpath:test.dat”。
+	 * <li>应支持相对文件路径，例如“WEB-INF/test.dat”。
+	 * （这是特定于实现的，通常由
+	 * ApplicationContext实现。）
+	 * <p>请注意，资源句柄并不表示现有资源；
+	 * <p>
+	 * 您需要调用{@link Resource#exists}来检查是否存在。
+	 * <p>
 	 * Return a Resource handle for the specified resource location.
 	 * <p>The handle should always be a reusable resource descriptor,
 	 * allowing for multiple {@link Resource#getInputStream()} calls.
@@ -58,6 +71,7 @@ public interface ResourceLoader {
 	 * </ul>
 	 * <p>Note that a Resource handle does not imply an existing resource;
 	 * you need to invoke {@link Resource#exists} to check for existence.
+	 *
 	 * @param location the resource location
 	 * @return a corresponding Resource handle (never {@code null})
 	 * @see #CLASSPATH_URL_PREFIX
@@ -67,10 +81,16 @@ public interface ResourceLoader {
 	Resource getResource(String location);
 
 	/**
+	 * 公开此资源加载器使用的类加载器。
+	 * <p>需要直接访问类加载器的客户端可以这样做
+	 * 以统一的方式使用ResourceLoader，而不是依赖
+	 * 在线程上下文类加载器上。
+	 * <p>
 	 * Expose the ClassLoader used by this ResourceLoader.
 	 * <p>Clients which need to access the ClassLoader directly can do so
 	 * in a uniform manner with the ResourceLoader, rather than relying
 	 * on the thread context ClassLoader.
+	 *
 	 * @return the ClassLoader
 	 * (only {@code null} if even the system ClassLoader isn't accessible)
 	 * @see org.springframework.util.ClassUtils#getDefaultClassLoader()

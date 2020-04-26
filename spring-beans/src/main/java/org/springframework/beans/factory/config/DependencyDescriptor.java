@@ -52,6 +52,7 @@ import org.springframework.util.ObjectUtils;
 @SuppressWarnings("serial")
 public class DependencyDescriptor extends InjectionPoint implements Serializable {
 
+	// 依赖的 class
 	private final Class<?> declaringClass;
 
 	@Nullable
@@ -60,11 +61,13 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 	@Nullable
 	private Class<?>[] parameterTypes;
 
+	// TODO: 2020/4/13 未知
 	private int parameterIndex;
 
 	@Nullable
 	private String fieldName;
 
+	// 是否必填
 	private final boolean required;
 
 	private final boolean eager;

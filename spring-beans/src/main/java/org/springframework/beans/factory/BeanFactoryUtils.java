@@ -72,6 +72,10 @@ public abstract class BeanFactoryUtils {
 	}
 
 	/**
+	 * 转换 bean 名字，因为 beanFactory 创建的 bean 是已 beanFactory.className '&' beanName
+	 *
+	 * 如: defaultBeanFactory$userDO (在xml文件解析的时候有提到 XmlBeanDefinitionReader)
+	 *
 	 * Return the actual bean name, stripping out the factory dereference
 	 * prefix (if any, also stripping repeated factory prefixes if found).
 	 * @param name the name of the bean

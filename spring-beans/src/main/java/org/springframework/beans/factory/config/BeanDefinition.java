@@ -58,6 +58,10 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 
 	/**
+	 *
+	 * 表示{@code BeanDefinition}是主要部分的角色提示
+	 * 申请的。通常对应于用户定义的bean。
+	 *
 	 * Role hint indicating that a {@code BeanDefinition} is a major part
 	 * of the application. Typically corresponds to a user-defined bean.
 	 */

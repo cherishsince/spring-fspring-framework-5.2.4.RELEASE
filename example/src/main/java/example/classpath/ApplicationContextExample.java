@@ -1,8 +1,8 @@
-package example;
+package example.classpath;
 
-import example.beans.AccountExample;
-import example.beans.UserExample;
-import example.beans.UserServiceExample;
+import example.classpath.beans.AccountExample;
+import example.classpath.beans.UserExample;
+import example.classpath.beans.UserServiceExample;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -38,5 +38,6 @@ public class ApplicationContextExample {
         System.err.println(context.getId());
         AccountExample accountExample = context.getBean(AccountExample.class);
         System.err.println("accountExample: " + accountExample);
+        System.err.println("UserExample: " + context.getBean(UserExample.class));
     }
 }

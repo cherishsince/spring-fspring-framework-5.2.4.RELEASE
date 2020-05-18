@@ -1,4 +1,4 @@
-package example.isInstance;
+package example.classpath.isInstance;
 
 /**
  * isInstance 测试

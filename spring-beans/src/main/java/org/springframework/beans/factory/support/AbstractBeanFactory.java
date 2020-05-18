@@ -1319,6 +1319,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 
 	/**
+	 *返回一个合并的RootBeanDefinition，遍历父bean定义
+	 *如果指定的bean对应于子bean定义。
+	 *
 	 * Return a merged RootBeanDefinition, traversing the parent bean definition
 	 * if the specified bean corresponds to a child bean definition.
 	 *
@@ -1846,41 +1849,57 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	protected Object getObjectForBeanInstance(
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
+		// 如果bean不是工厂，不要让调用代码尝试取消对工厂的引用。
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
+			// 不处理 nullBean
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
 			}
+			// 不等于 FactoryBean 就抛出异常
 			if (!(beanInstance instanceof FactoryBean)) {
 				throw new BeanIsNotAFactoryException(beanName, beanInstance.getClass());
 			}
+			// RootBeanDefinition 不为 null，标记为 true
 			if (mbd != null) {
 				mbd.isFactoryBean = true;
 			}
 			return beanInstance;
 		}
 
+		//现在我们有了bean实例，它可以是一个普通的bean，也可以是一个FactoryBean。
+		//如果它是一个FactoryBean，我们使用它来创建一个bean实例，除非
+		//呼叫者实际上需要工厂的参考。
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
+		// 如果不是 factoryBean 就返回来
+		// 不是继续处理 factoryBean 情况
 		if (!(beanInstance instanceof FactoryBean)) {
 			return beanInstance;
 		}
 
+		// 处理 factoryBean
 		Object object = null;
 		if (mbd != null) {
 			mbd.isFactoryBean = true;
 		} else {
+			// 获取的是 factoryBean
 			object = getCachedObjectForFactoryBean(beanName);
 		}
+		// getCachedObjectForFactoryBean 缓存中读取不到，就执行创建
 		if (object == null) {
+			// 在这 beanInstance 会认为是一个 FactoryBean，采用 factoryBean 来获取 Object
 			// Return bean instance from factory.
 			FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
+			// containsBeanDefinition 是 defaultListableBeanFactory 里面的
+			// 检查 beanName的，BeanDefinition 是否存在
 			// Caches object obtained from FactoryBean if it is a singleton.
 			if (mbd == null && containsBeanDefinition(beanName)) {
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}
 			boolean synthetic = (mbd != null && mbd.isSynthetic());
+			// 获取Object，从FactoryBean中(这里的 factory就是beanInstance)
 			object = getObjectFromFactoryBean(factory, beanName, !synthetic);
 		}
 		return object;

@@ -1,6 +1,4 @@
-package example.beans;
-
-import java.io.Serializable;
+package example.classpath.beans;
 
 /**
  * 账户资金

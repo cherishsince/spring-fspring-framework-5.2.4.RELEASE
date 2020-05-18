@@ -34,7 +34,6 @@ public class PayloadApplicationEvent<T> extends ApplicationEvent implements Reso
 
 	private final T payload;
 
-
 	/**
 	 * Create a new PayloadApplicationEvent.
 	 * @param source the object on which the event initially occurred (never {@code null})

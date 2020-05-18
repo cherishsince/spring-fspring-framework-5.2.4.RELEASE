@@ -1,4 +1,4 @@
-package example.beans;
+package example.classpath.beans;
 
 /**
  * 用户 A

@@ -93,17 +93,21 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 	}
 
 	/**
+	 * 获取object从给定的FactoryBean公开的对象。
+	 *
 	 * Obtain an object to expose from the given FactoryBean.
 	 *
 	 * @param factory           the FactoryBean instance
 	 * @param beanName          the name of the bean
-	 * @param shouldPostProcess whether the bean is subject to post-processing
+	 * @param shouldPostProcess whether the bean is subject to post-processing bean是否进行后处理
 	 * @return the object obtained from the FactoryBean
 	 * @throws BeanCreationException if FactoryBean object creation failed
 	 * @see org.springframework.beans.factory.FactoryBean#getObject()
 	 */
 	protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
+		// 检查 singletonObjects 是否已经存在了
 		if (factory.isSingleton() && containsSingleton(beanName)) {
+			// 返回的是 singletonObjects map 集合
 			synchronized (getSingletonMutex()) {
 				Object object = this.factoryBeanObjectCache.get(beanName);
 				if (object == null) {
@@ -121,6 +125,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 							}
 							beforeSingletonCreation(beanName);
 							try {
+								// 执行 postProcess 后置处理器
 								object = postProcessObjectFromFactoryBean(object, beanName);
 							} catch (Throwable ex) {
 								throw new BeanCreationException(beanName,
@@ -137,7 +142,9 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 				return object;
 			}
 		} else {
+			// 从 factoryBeam 中调用 getObject 获取 bean
 			Object object = doGetObjectFromFactoryBean(factory, beanName);
+			// 是否需要执行 postProcess 后置处理器
 			if (shouldPostProcess) {
 				try {
 					object = postProcessObjectFromFactoryBean(object, beanName);
@@ -150,6 +157,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 	}
 
 	/**
+	 * 从给定的FactoryBean获取要公开的对象。
 	 * Obtain an object to expose from the given FactoryBean.
 	 *
 	 * @param factory  the FactoryBean instance

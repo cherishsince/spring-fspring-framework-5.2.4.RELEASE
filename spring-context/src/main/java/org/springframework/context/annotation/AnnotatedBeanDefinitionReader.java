@@ -234,6 +234,8 @@ public class AnnotatedBeanDefinitionReader {
 	}
 
 	/**
+	 * 注册一个配置bean
+	 *
 	 * Register a bean from the given bean class, deriving its metadata from
 	 * class-declared annotations.
 	 * @param beanClass the class of the bean
@@ -249,13 +251,14 @@ public class AnnotatedBeanDefinitionReader {
 	private <T> void doRegisterBean(Class<T> beanClass, @Nullable String name,
 			@Nullable Class<? extends Annotation>[] qualifiers, @Nullable Supplier<T> supplier,
 			@Nullable BeanDefinitionCustomizer[] customizers) {
-
+		// 直接创建一个 AnnotatedGenericBeanDefinition，根据beanClass1
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(beanClass);
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
 		}
-
+		// Java Supplier 供应者, 返回的是一个<T> https://my.oschina.net/willchu/blog/3192312/print
 		abd.setInstanceSupplier(supplier);
+		// 解析bean 的 scope，singleton 还是 原型
 		ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(abd);
 		abd.setScope(scopeMetadata.getScopeName());
 		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));

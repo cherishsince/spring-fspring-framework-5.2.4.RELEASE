@@ -413,18 +413,20 @@ public class BeanDefinitionParserDelegate {
 	 */
 	@Nullable
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
+		// 解析 id 和 name 属性
 		String id = ele.getAttribute(ID_ATTRIBUTE);
 		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
-		// 解析 aliases 别名，tokenizeToStringArray 就是字符串分割(不过会出去空的元素)
+		// 解析别名集合，解析 aliases 别名，tokenizeToStringArray 就是字符串分割(不过会出去空的元素)
 		List<String> aliases = new ArrayList<>();
 		if (StringUtils.hasLength(nameAttr)) {
 			String[] nameArr = StringUtils.tokenizeToStringArray(nameAttr, MULTI_VALUE_ATTRIBUTE_DELIMITERS);
 			aliases.addAll(Arrays.asList(nameArr));
 		}
 
-		// 如果 beanName = null，那么久从 aliases 中去除第 0 个给 beanName
+		// 优先用id，没有则用 aliases
 		String beanName = id;
+		// 如果 beanName = null，那么就从 aliases 中去除第 0 个给 beanName
 		if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
 			beanName = aliases.remove(0);
 			if (logger.isTraceEnabled()) {
@@ -433,23 +435,33 @@ public class BeanDefinitionParserDelegate {
 			}
 		}
 
-		// 检查 name 唯一性(this.usedNames)
+		// containingBean 是一个 beanDefinition
+		// 检查 name 唯一性(this.usedNames)，范围是全局的
 		if (containingBean == null) {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
 
 		// 创建了一个 beanDefinition，并解析 xml 属性，设置到 beanDefinition
+		// 如果解析失败返回 null
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
+			// beanName = null，采用默认生成规则生成
+			// 这里只解析 bean，没有beanName的情况，只有在<bean> 标签上没有设置，才会进入这里
 			if (!StringUtils.hasText(beanName)) {
 				try {
 					if (containingBean != null) {
+						// 根据 beanDefinition 生成唯一 beanName
 						beanName = BeanDefinitionReaderUtils.generateBeanName(
 								beanDefinition, this.readerContext.getRegistry(), true);
 					}
 					else {
                         // 生成 beanName，获取 beanDefinition.getBeanClassName() 没有就获取 parent 的，还没有就 获取beanFactory 的
                         // 生成规则 BeanDefinitionReaderUtils.generateBeanName
+
+						// 两种规则区别
+						// isInnerBean=true，采用的是 ObjectUtils.getIdentityHexString
+						// isInnerBean=true，是一个唯一的计数器每次+1，如果 obj#1, obj#2
+
 						beanName = this.readerContext.generateBeanName(beanDefinition);
 						// Register an alias for the plain bean class name, if still possible,
 						// if the generator returned the class name plus a suffix.
@@ -471,10 +483,11 @@ public class BeanDefinitionParserDelegate {
 					return null;
 				}
 			}
+			// 将aliases list 转换为 array
 			String[] aliasesArray = StringUtils.toStringArray(aliases);
+			// 创建 BeanDefinitionHolder
 			return new BeanDefinitionHolder(beanDefinition, beanName, aliasesArray);
 		}
-
 		return null;
 	}
 
@@ -484,17 +497,18 @@ public class BeanDefinitionParserDelegate {
 	 */
 	protected void checkNameUniqueness(String beanName, List<String> aliases, Element beanElement) {
 		String foundName = null;
-
+		// 检查 beanName 是否被使用
 		if (StringUtils.hasText(beanName) && this.usedNames.contains(beanName)) {
 			foundName = beanName;
 		}
 		if (foundName == null) {
 			foundName = CollectionUtils.findFirstMatch(this.usedNames, aliases);
 		}
+		// 如果 foundName 被使用，采用 problemReporter 提示错误
 		if (foundName != null) {
 			error("Bean name '" + foundName + "' is already used in this <beans> element", beanElement);
 		}
-
+		// 添加到 userNames set 集合进心cache
 		this.usedNames.add(beanName);
 		this.usedNames.addAll(aliases);
 	}
@@ -506,10 +520,10 @@ public class BeanDefinitionParserDelegate {
 	@Nullable
 	public AbstractBeanDefinition parseBeanDefinitionElement(
 			Element ele, String beanName, @Nullable BeanDefinition containingBean) {
-
-	    // 解析状态 ？？？
+		// 添加一个 parseState 状态
 		this.parseState.push(new BeanEntry(beanName));
 
+		// 解析 class 属性
 		String className = null;
 		if (ele.hasAttribute(CLASS_ATTRIBUTE)) {
 			className = ele.getAttribute(CLASS_ATTRIBUTE).trim();
@@ -522,11 +536,15 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		try {
+			// 创建 AbstractBeanDefinition
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
-
 			// 解析 xml 属性，
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
+			// 解析 description
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
+
+			// tips:
+			// 开始解析 <bean> 属性，然后放到 db中
 
             // 解析 <bean> 标签下的 <meta> 标签
 			parseMetaElements(ele, bd);

@@ -75,6 +75,8 @@ public class XmlValidationModeDetector {
 
 
 	/**
+	 * 指示当前解析位置是否位于XML注释中。
+	 *
 	 * Indicates whether or not the current parse position is inside an XML comment.
 	 */
 	private boolean inComment;
@@ -92,13 +94,16 @@ public class XmlValidationModeDetector {
 		// Peek into the file to look for DOCTYPE.
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		try {
+			// 是否是 dtd 模式
 			boolean isDtdValidated = false;
 			String content;
+			// 循环读取 xml 文件
 			while ((content = reader.readLine()) != null) {
 				content = consumeCommentTokens(content);
 				if (this.inComment || !StringUtils.hasText(content)) {
 					continue;
 				}
+				// 包含 DOCTYPE 为 DTD 模式
 				if (hasDoctype(content)) {
 					isDtdValidated = true;
 					break;
@@ -108,9 +113,11 @@ public class XmlValidationModeDetector {
 					break;
 				}
 			}
+			// 最终返回是 dtd 或 xsd 模式
 			return (isDtdValidated ? VALIDATION_DTD : VALIDATION_XSD);
 		}
 		catch (CharConversionException ex) {
+			// 异常返回 auto 自动模式
 			// Choked on some character encoding...
 			// Leave the decision up to the caller.
 			return VALIDATION_AUTO;

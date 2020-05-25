@@ -7,6 +7,8 @@
 	<!--  开启扫描注解   -->
     <context:component-scan base-package="example;com.coget.cn" />
 
+	<bean class="java.lang.Object" />
+
     <bean id="obj" class="java.lang.Object">
         <meta key="m1" value="m1V"/>
     </bean>

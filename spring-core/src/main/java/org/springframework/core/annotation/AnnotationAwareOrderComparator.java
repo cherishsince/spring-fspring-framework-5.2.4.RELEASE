@@ -26,6 +26,8 @@ import org.springframework.core.annotation.MergedAnnotations.SearchStrategy;
 import org.springframework.lang.Nullable;
 
 /**
+ * // TODO: 2020/5/19 解析
+ *
  * {@code AnnotationAwareOrderComparator} is an extension of
  * {@link OrderComparator} that supports Spring's
  * {@link org.springframework.core.Ordered} interface as well as the

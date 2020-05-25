@@ -73,6 +73,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 
 	@Override
 	public String generateBeanName(BeanDefinition definition, BeanDefinitionRegistry registry) {
+		//
 		if (definition instanceof AnnotatedBeanDefinition) {
 			String beanName = determineBeanNameFromAnnotation((AnnotatedBeanDefinition) definition);
 			if (StringUtils.hasText(beanName)) {
@@ -80,6 +81,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 				return beanName;
 			}
 		}
+		// 生产一个唯一的 beanName
 		// Fallback: generate a unique default bean name.
 		return buildDefaultBeanName(definition, registry);
 	}
@@ -92,6 +94,9 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 	@Nullable
 	protected String determineBeanNameFromAnnotation(AnnotatedBeanDefinition annotatedDef) {
 		AnnotationMetadata amd = annotatedDef.getMetadata();
+		// types 如下两个
+		// 0 = "org.springframework.context.annotation.Configuration"
+		// 1 = "org.springframework.context.annotation.ComponentScan"
 		Set<String> types = amd.getAnnotationTypes();
 		String beanName = null;
 		for (String type : types) {
@@ -157,6 +162,7 @@ public class AnnotationBeanNameGenerator implements BeanNameGenerator {
 		String beanClassName = definition.getBeanClassName();
 		Assert.state(beanClassName != null, "No bean class name set");
 		String shortClassName = ClassUtils.getShortName(beanClassName);
+		// 调用 java Introspector 将名称，转为驼峰
 		return Introspector.decapitalize(shortClassName);
 	}
 

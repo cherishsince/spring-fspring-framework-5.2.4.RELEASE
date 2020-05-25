@@ -79,21 +79,29 @@ import org.springframework.util.xml.XmlValidationModeDetector;
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 	/**
+	 * 禁用 验证模式
+	 *
 	 * Indicates that the validation should be disabled.
 	 */
 	public static final int VALIDATION_NONE = XmlValidationModeDetector.VALIDATION_NONE;
 
 	/**
+	 * 自动 验证模式
+	 *
 	 * Indicates that the validation mode should be detected automatically.
 	 */
 	public static final int VALIDATION_AUTO = XmlValidationModeDetector.VALIDATION_AUTO;
 
 	/**
+	 * DTD 验证模式
+	 *
 	 * Indicates that DTD validation should be used.
 	 */
 	public static final int VALIDATION_DTD = XmlValidationModeDetector.VALIDATION_DTD;
 
 	/**
+	 * XSD 验证模式
+	 *
 	 * Indicates that XSD validation should be used.
 	 */
 	public static final int VALIDATION_XSD = XmlValidationModeDetector.VALIDATION_XSD;
@@ -102,6 +110,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	/** Constants instance for this class. */
 	private static final Constants constants = new Constants(XmlBeanDefinitionReader.class);
 
+	// 默认为自动 验证
 	private int validationMode = VALIDATION_AUTO;
 
 	private boolean namespaceAware = false;
@@ -443,14 +452,18 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see #detectValidationMode
 	 */
 	protected int getValidationModeForResource(Resource resource) {
+		// 获取验证模式
 		int validationModeToUse = getValidationMode();
+		// 不是 default 模式，就是手动设置的，直接返回
 		if (validationModeToUse != VALIDATION_AUTO) {
 			return validationModeToUse;
 		}
+		// 自动获取校验模式
 		int detectedMode = detectValidationMode(resource);
 		if (detectedMode != VALIDATION_AUTO) {
 			return detectedMode;
 		}
+		// 最后，使用 XSD 作为默认行为
 		// Hmm, we didn't get a clear indication... Let's assume XSD,
 		// since apparently no DTD declaration has been found up until
 		// detection stopped (before finding the document's root tag).
@@ -465,6 +478,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * of the {@link #VALIDATION_AUTO} mode.
 	 */
 	protected int detectValidationMode(Resource resource) {
+		// 不可读
 		if (resource.isOpen()) {
 			throw new BeanDefinitionStoreException(
 					"Passed-in Resource [" + resource + "] contains an open stream: " +
@@ -472,7 +486,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 					"that is able to create fresh streams, or explicitly specify the validationMode " +
 					"on your XmlBeanDefinitionReader instance.");
 		}
-
+		// 读取 xml
 		InputStream inputStream;
 		try {
 			inputStream = resource.getInputStream();
@@ -485,6 +499,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		}
 
 		try {
+			// 解析 xml，获取解析模式，异常情况为 auto 模式
 			return this.validationModeDetector.detectValidationMode(inputStream);
 		}
 		catch (IOException ex) {
@@ -509,8 +524,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
 	    // 通过 BeanUtils instantiateClass 创建对象
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+		// 获取已注册的 beanDefinition 数量
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		// 1、createReaderContext(resource) 创建 readerContext 上下文就，读取的信息会保存到上下文中
+		// 2、注册 beanDefinition
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+		// 返回本次，注册的数量
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 

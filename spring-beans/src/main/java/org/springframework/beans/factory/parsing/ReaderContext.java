@@ -180,6 +180,8 @@ public class ReaderContext {
 	}
 
 	/**
+	 * 启动导入处理的事件。
+	 *
 	 * Fire an import-processed event.
 	 */
 	public void fireImportProcessed(String importedResource, Resource[] actualResources, @Nullable Object source) {

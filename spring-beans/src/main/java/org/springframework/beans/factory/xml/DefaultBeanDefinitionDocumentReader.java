@@ -229,21 +229,28 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
     }
 
     /**
+	 * 解析 import 节点，并且加载 bean definitions
+	 *
      * Parse an "import" element and load the bean definitions
      * from the given resource into the bean factory.
      */
     protected void importBeanDefinitionResource(Element ele) {
+    	// 获取 resource 属性
         String location = ele.getAttribute(RESOURCE_ATTRIBUTE);
+        // location 如果是空，就 problemReporter 记异常
         if (!StringUtils.hasText(location)) {
             getReaderContext().error("Resource location must not be empty", ele);
             return;
         }
 
+        // 使用 resolve 解析 properties 值
         // Resolve system properties: e.g. "${user.dir}"
         location = getReaderContext().getEnvironment().resolveRequiredPlaceholders(location);
 
+        // 实际是，import resource 集合，因为可以 "," 导入多个
         Set<Resource> actualResources = new LinkedHashSet<>(4);
 
+        // 判断 location 是 绝对路径 还是 相对路径
         // Discover whether the location is an absolute or relative URI
         boolean absoluteLocation = false;
         try {
@@ -253,6 +260,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
             // unless it is the well-known Spring prefix "classpath*:"
         }
 
+        // 处理：绝对路径
         // Absolute or relative?
         if (absoluteLocation) {
             try {
@@ -265,15 +273,27 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
                         "Failed to import bean definitions from URL location [" + location + "]", ele, ex);
             }
         } else {
+        	// 处理：相对路径
             // No URL -> considering resource location as relative to the current file.
             try {
+            	// 导入的数量
                 int importCount;
+                // 通过上下文的 resource，获取相对路径 location
                 Resource relativeResource = getReaderContext().getResource().createRelative(location);
+                // resource 存在
                 if (relativeResource.exists()) {
+                	// 加载 bean definition
                     importCount = getReaderContext().getReader().loadBeanDefinitions(relativeResource);
+                    // 将加载的 resource 放入集合
                     actualResources.add(relativeResource);
                 } else {
+                	// resource 不存在情况
+
+					// 获取 base location，就是当前环境的 root 路径
                     String baseLocation = getReaderContext().getResource().getURL().toString();
+                    // StringUtils.applyRelativePath(baseLocation, location)
+					// 创建一个 相对路径的path
+					// loadBeanDefinitions 加载 bean definition
                     importCount = getReaderContext().getReader().loadBeanDefinitions(
                             StringUtils.applyRelativePath(baseLocation, location), actualResources);
                 }
@@ -287,6 +307,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
                         "Failed to import bean definitions from relative location [" + location + "]", ele, ex);
             }
         }
+
+        // 发布 <import> 导入成功event事件
         Resource[] actResArray = actualResources.toArray(new Resource[0]);
         getReaderContext().fireImportProcessed(location, actResArray, extractSource(ele));
     }

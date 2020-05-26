@@ -304,6 +304,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
 
 	/**
+	 * 加载 bean definition，xml 文件加载
+	 *
 	 * Load bean definitions from the specified XML file.
 	 * @param resource the resource descriptor for the XML file
 	 * @return the number of bean definitions found
@@ -322,27 +324,33 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
 	public int loadBeanDefinitions(EncodedResource encodedResource) throws BeanDefinitionStoreException {
+		// 空值检查
 		Assert.notNull(encodedResource, "EncodedResource must not be null");
 		if (logger.isTraceEnabled()) {
 			logger.trace("Loading XML bean definitions from " + encodedResource);
 		}
 
-		// 这是一个 ThreadLocal
+		// 当前正在加载的resource，这是一个 ThreadLocal
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
+		// 如果是 null，创建一个 hashSet
 		if (currentResources == null) {
 			currentResources = new HashSet<>(4);
 			this.resourcesCurrentlyBeingLoaded.set(currentResources);
 		}
+		// 添加当前 encodedResource 失败时，抛出异常
 		if (!currentResources.add(encodedResource)) {
 			throw new BeanDefinitionStoreException(
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
-
+		// 通过 resource 的 inputStream，失败直接异常
 		try (InputStream inputStream = encodedResource.getResource().getInputStream()) {
+			// InputSource 用于解析 java 的 xml的输入流
 			InputSource inputSource = new InputSource(inputStream);
+			// 设置字符集
 			if (encodedResource.getEncoding() != null) {
 				inputSource.setEncoding(encodedResource.getEncoding());
 			}
+			// 加载 bean definitions
 			return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 		}
 		catch (IOException ex) {
@@ -350,7 +358,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 					"IOException parsing XML document from " + encodedResource.getResource(), ex);
 		}
 		finally {
+			// 处理完了，从 threadLocal 删除
 			currentResources.remove(encodedResource);
+			// 没有处理的资源了，使用 remove 从 threadLocal 删除
 			if (currentResources.isEmpty()) {
 				this.resourcesCurrentlyBeingLoaded.remove();
 			}

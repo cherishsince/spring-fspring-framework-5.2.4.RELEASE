@@ -39,6 +39,8 @@ import org.springframework.lang.Nullable;
 public interface BeanDefinitionParser {
 
 	/**
+	 * 解析 element
+	 *
 	 * Parse the specified {@link Element} and register the resulting
 	 * {@link BeanDefinition BeanDefinition(s)} with the
 	 * {@link org.springframework.beans.factory.xml.ParserContext#getRegistry() BeanDefinitionRegistry}

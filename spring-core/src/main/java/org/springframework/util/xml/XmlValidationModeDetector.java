@@ -36,28 +36,39 @@ import org.springframework.util.StringUtils;
 public class XmlValidationModeDetector {
 
 	/**
+	 * 指示应禁用验证。
+	 * <p>
 	 * Indicates that the validation should be disabled.
 	 */
 	public static final int VALIDATION_NONE = 0;
 
 	/**
+	 * 表示验证模式应该是自动猜测的，因为我们找不到
+	 * 一个明确的指示（可能被一些特殊的字符或类似的东西噎住了）。
+	 * <p>
 	 * Indicates that the validation mode should be auto-guessed, since we cannot find
 	 * a clear indication (probably choked on some special characters, or the like).
 	 */
 	public static final int VALIDATION_AUTO = 1;
 
 	/**
+	 * dtd
+	 *
 	 * Indicates that DTD validation should be used (we found a "DOCTYPE" declaration).
 	 */
 	public static final int VALIDATION_DTD = 2;
 
 	/**
+	 * xsd
+	 *
 	 * Indicates that XSD validation should be used (found no "DOCTYPE" declaration).
 	 */
 	public static final int VALIDATION_XSD = 3;
 
 
 	/**
+	 * DOCTYPE 头部
+	 *
 	 * The token in a XML document that declares the DTD to use for validation
 	 * and thus that DTD validation is being used.
 	 */
@@ -76,7 +87,7 @@ public class XmlValidationModeDetector {
 
 	/**
 	 * 指示当前解析位置是否位于XML注释中。
-	 *
+	 * <p>
 	 * Indicates whether or not the current parse position is inside an XML comment.
 	 */
 	private boolean inComment;
@@ -85,6 +96,7 @@ public class XmlValidationModeDetector {
 	/**
 	 * Detect the validation mode for the XML document in the supplied {@link InputStream}.
 	 * Note that the supplied {@link InputStream} is closed by this method before returning.
+	 *
 	 * @param inputStream the InputStream to parse
 	 * @throws IOException in case of I/O failure
 	 * @see #VALIDATION_DTD
@@ -115,14 +127,12 @@ public class XmlValidationModeDetector {
 			}
 			// 最终返回是 dtd 或 xsd 模式
 			return (isDtdValidated ? VALIDATION_DTD : VALIDATION_XSD);
-		}
-		catch (CharConversionException ex) {
+		} catch (CharConversionException ex) {
 			// 异常返回 auto 自动模式
 			// Choked on some character encoding...
 			// Leave the decision up to the caller.
 			return VALIDATION_AUTO;
-		}
-		finally {
+		} finally {
 			reader.close();
 		}
 	}
@@ -188,6 +198,7 @@ public class XmlValidationModeDetector {
 
 	/**
 	 * Try to consume the {@link #START_COMMENT} token.
+	 *
 	 * @see #commentToken(String, String, boolean)
 	 */
 	private int startComment(String line) {
@@ -205,7 +216,7 @@ public class XmlValidationModeDetector {
 	 */
 	private int commentToken(String line, String token, boolean inCommentIfPresent) {
 		int index = line.indexOf(token);
-		if (index > - 1) {
+		if (index > -1) {
 			this.inComment = inCommentIfPresent;
 		}
 		return (index == -1 ? index : index + token.length());

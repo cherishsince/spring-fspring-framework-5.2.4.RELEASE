@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns="http://www.example.org/schema/my-tag"
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		targetNamespace="http://www.example.org/schema/my-tag"
+		elementFormDefault="qualified">
+
+	<xsd:element name="my-tag">
+		<xsd:complexType>
+			<xsd:attribute name="id" type="xsd:string" />
+			<xsd:attribute name="name" type="xsd:string" />
+			<xsd:attribute name="gender" type="xsd:string" />
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

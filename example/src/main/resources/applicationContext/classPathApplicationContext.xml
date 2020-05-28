@@ -1,20 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:my="http://www.example.org/schema/my-tag"
+	   xsi:schemaLocation="
+	   http://www.example.org/schema/my-tag
+       http://www.example.org/schema/my-tag.xsd
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+">
 
 	<!--  开启扫描注解   -->
-    <context:component-scan base-package="example;com.coget.cn" />
+	<context:component-scan base-package="example;com.coget.cn"/>
 
-	<bean class="java.lang.Object" />
+	<!--  自定义标签   -->
+	<my:my-tag id="tag" name="周杰伦" gender="男" />
 
-    <bean id="obj" class="java.lang.Object">
-        <meta key="m1" value="m1V"/>
-    </bean>
-<!--    <bean id="userExample" class="example.classpath.beans.UserExample" />-->
-<!--    <bean id="accountExample" class="example.classpath.beans.AccountExample" />-->
+	<bean class="java.lang.Object"/>
+
+	<bean id="obj" class="java.lang.Object">
+		<meta key="m1" value="m1V"/>
+	</bean>
+	<!--    <bean id="userExample" class="example.classpath.beans.UserExample" />-->
+	<!--    <bean id="accountExample" class="example.classpath.beans.AccountExample" />-->
 
 	<!-- postProcessorsT1  -->
-	<bean id="postProcessorsT1" class="example.classpath.postProcessors.PostProcessorsT1" />
+	<alias name="postProcessorsT1" alias="t1a"/>
+	<alias name="postProcessorsT1" alias="t1b"/>
+	<bean id="postProcessorsT1" class="example.classpath.postProcessors.PostProcessorsT1"/>
 </beans>

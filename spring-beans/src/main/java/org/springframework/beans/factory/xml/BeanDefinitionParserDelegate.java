@@ -1416,11 +1416,15 @@ public class BeanDefinitionParserDelegate {
 	 */
 	@Nullable
 	public BeanDefinition parseCustomElement(Element ele, @Nullable BeanDefinition containingBd) {
+		// 获取xml头，命名空间，表示这个<xx> 标签是哪个uri下的
 		String namespaceUri = getNamespaceURI(ele);
+		// 没有就不处理，因为也不知道处理的规则
 		if (namespaceUri == null) {
 			return null;
 		}
+		// 获取对应的 handle，通过 uri获取。如：AopNamespaceHandler TxNamespaceHandler 等.
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
+		// 对应的 uri 如果没有处理的 handler，直接返回
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;

@@ -68,12 +68,14 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	@Override
 	public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
 			ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
-
+		// 创建一个 DocumentBuilderFactory
 		DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Using JAXP provider [" + factory.getClass().getName() + "]");
 		}
+		// 创建一个 documentBuilder，并设置解析器，和异常处理器
 		DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
+		// 开始解析 xml
 		return builder.parse(inputSource);
 	}
 
@@ -87,16 +89,21 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	 */
 	protected DocumentBuilderFactory createDocumentBuilderFactory(int validationMode, boolean namespaceAware)
 			throws ParserConfigurationException {
-
+		// 获取 DocumentBuilderFactory 实例
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		// 设置命名空间
 		factory.setNamespaceAware(namespaceAware);
-
+		// 不，禁用验证进入
 		if (validationMode != XmlValidationModeDetector.VALIDATION_NONE) {
+			// 设置验证为 true
 			factory.setValidating(true);
+			// xsd 验证
 			if (validationMode == XmlValidationModeDetector.VALIDATION_XSD) {
+				// 对XSD强制命名空间
 				// Enforce namespace aware for XSD...
 				factory.setNamespaceAware(true);
 				try {
+					// xsd 默认的验证头
 					factory.setAttribute(SCHEMA_LANGUAGE_ATTRIBUTE, XSD_SCHEMA_LANGUAGE);
 				}
 				catch (IllegalArgumentException ex) {
@@ -109,7 +116,7 @@ public class DefaultDocumentLoader implements DocumentLoader {
 				}
 			}
 		}
-
+		// 不需要验证直接返回
 		return factory;
 	}
 
@@ -127,11 +134,13 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	protected DocumentBuilder createDocumentBuilder(DocumentBuilderFactory factory,
 			@Nullable EntityResolver entityResolver, @Nullable ErrorHandler errorHandler)
 			throws ParserConfigurationException {
-
+		// 创建一个 DocumentBuilder
 		DocumentBuilder docBuilder = factory.newDocumentBuilder();
+		// 设置 entityResolver 解析器
 		if (entityResolver != null) {
 			docBuilder.setEntityResolver(entityResolver);
 		}
+		// 设置 errorHandler 异常处理器
 		if (errorHandler != null) {
 			docBuilder.setErrorHandler(errorHandler);
 		}

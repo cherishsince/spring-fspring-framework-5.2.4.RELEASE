@@ -115,25 +115,40 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	@Override
 	@Nullable
 	public NamespaceHandler resolve(String namespaceUri) {
+		// 获取所有的handle，key是 namespaceUri -> handle
 		Map<String, Object> handlerMappings = getHandlerMappings();
+
+		// tips:
+		// 这里获取的 namespaceHandle，这里是一个object 类型，有两种情况
+		// 情况一：NamespaceHandler实现，那么直接解析
+		// 情况二：是string的Class，需要ClassUtils.forName反射调用(用于一些扩展)
 		Object handlerOrClassName = handlerMappings.get(namespaceUri);
+		// 没有则直接返回
 		if (handlerOrClassName == null) {
 			return null;
 		}
+		// 检查是否是 NamespaceHandler 的实现
 		else if (handlerOrClassName instanceof NamespaceHandler) {
 			return (NamespaceHandler) handlerOrClassName;
 		}
 		else {
+			// 情况二：是一个 string 的 class package
 			String className = (String) handlerOrClassName;
 			try {
+				// 通过 classLoader 加载 class
 				Class<?> handlerClass = ClassUtils.forName(className, this.classLoader);
+				// 必须是 NamespaceHandler 的子类
 				if (!NamespaceHandler.class.isAssignableFrom(handlerClass)) {
 					throw new FatalBeanException("Class [" + className + "] for namespace [" + namespaceUri +
 							"] does not implement the [" + NamespaceHandler.class.getName() + "] interface");
 				}
+				// 创建 handlerClass 实列，并转换为 NamespaceHandler
 				NamespaceHandler namespaceHandler = (NamespaceHandler) BeanUtils.instantiateClass(handlerClass);
+				// 调用init 初始化 NamespaceHandler
 				namespaceHandler.init();
+				// 添加到 handlerMappings 方便下次使用
 				handlerMappings.put(namespaceUri, namespaceHandler);
+				// 返回创建的 NamespaceHandler
 				return namespaceHandler;
 			}
 			catch (ClassNotFoundException ex) {
@@ -148,25 +163,36 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	}
 
 	/**
+	 * 加载 NamespaceHandler 映射关系(懒加载)
+	 *
 	 * Load the specified NamespaceHandler mappings lazily.
 	 */
 	private Map<String, Object> getHandlerMappings() {
+		// 获取 handlerMappings，这是一个懒加载机制，首次为 null
 		Map<String, Object> handlerMappings = this.handlerMappings;
+		// 首次为 null 进入
 		if (handlerMappings == null) {
+			// 加锁：单曲class monitor
 			synchronized (this) {
+				// 重新获取当前handlerMappings
 				handlerMappings = this.handlerMappings;
+				// 双检操作：如果还是为 null，进行初始化 handlerMappings
 				if (handlerMappings == null) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Loading NamespaceHandler mappings from [" + this.handlerMappingsLocation + "]");
 					}
 					try {
+						// META-INF/spring.handlers 文件信息
 						Properties mappings =
 								PropertiesLoaderUtils.loadAllProperties(this.handlerMappingsLocation, this.classLoader);
 						if (logger.isTraceEnabled()) {
 							logger.trace("Loaded NamespaceHandler mappings: " + mappings);
 						}
+						// 初始化 handlerMappings 容器
 						handlerMappings = new ConcurrentHashMap<>(mappings.size());
+						// 合并 handlerMappings 和 mappings
 						CollectionUtils.mergePropertiesIntoMap(mappings, handlerMappings);
+						// 合并后重新给 this.handlerMappings
 						this.handlerMappings = handlerMappings;
 					}
 					catch (IOException ex) {
@@ -176,6 +202,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 				}
 			}
 		}
+		// 不为null 则直接返回
 		return handlerMappings;
 	}
 

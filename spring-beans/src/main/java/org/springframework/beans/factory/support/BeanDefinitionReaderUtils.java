@@ -103,27 +103,40 @@ public abstract class BeanDefinitionReaderUtils {
 	public static String generateBeanName(
 			BeanDefinition definition, BeanDefinitionRegistry registry, boolean isInnerBean)
 			throws BeanDefinitionStoreException {
-
+		// 获取 className
 		String generatedBeanName = definition.getBeanClassName();
+		// 等于 null 进入
 		if (generatedBeanName == null) {
+			// parent 上级名称，不为null 进入
 			if (definition.getParentName() != null) {
+				// parentName$child 规则
 				generatedBeanName = definition.getParentName() + "$child";
 			}
+			// factoryBean 名字不为空进入
 			else if (definition.getFactoryBeanName() != null) {
+				// factoryBean$created 规则
 				generatedBeanName = definition.getFactoryBeanName() + "$created";
 			}
 		}
+
+		// generatedBeanName 还是null，抛出异常
 		if (!StringUtils.hasText(generatedBeanName)) {
 			throw new BeanDefinitionStoreException("Unnamed bean definition specifies neither " +
 					"'class' nor 'parent' nor 'factory-bean' - can't generate bean name");
 		}
 
+		// id = generatedBeanName
 		String id = generatedBeanName;
+		// 处理是否 isInnerBean：两种生成规则
 		if (isInnerBean) {
+			// true情况：beanName + # + hashCode 只
+			// 如：user#csr234
 			// Inner bean: generate identity hashcode suffix.
 			id = generatedBeanName + GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(definition);
 		}
 		else {
+			// false情况：beanName + 编号(每次加1)
+			// 如：user#1 user#2 account#1 account#2
 			// Top-level bean: use plain class name with unique suffix if necessary.
             id = uniqueBeanName(generatedBeanName, registry);
 		}

@@ -67,8 +67,11 @@ public class UrlResource extends AbstractFileResolvingResource {
 	 */
 	public UrlResource(URI uri) throws MalformedURLException {
 		Assert.notNull(uri, "URI must not be null");
+		// uri
 		this.uri = uri;
+		// url
 		this.url = uri.toURL();
+		// 通过 StringUtils.cleanPath(originalPath); 处理的 URL
 		this.cleanedUrl = getCleanedUrl(this.url, uri.toString());
 	}
 

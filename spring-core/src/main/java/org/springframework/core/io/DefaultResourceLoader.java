@@ -98,6 +98,8 @@ public class DefaultResourceLoader implements ResourceLoader {
 	}
 
 	/**
+	 * 添加一个 ProtocolResolver
+	 *
 	 * Register the given resolver with this resource loader, allowing for
 	 * additional protocols to be handled.
 	 * <p>Any such resolver will be invoked ahead of this loader's standard
@@ -142,28 +144,37 @@ public class DefaultResourceLoader implements ResourceLoader {
 
 	@Override
 	public Resource getResource(String location) {
+		// location 不能为空
 		Assert.notNull(location, "Location must not be null");
-
+		// 获取所有 protocol 解析器
 		for (ProtocolResolver protocolResolver : getProtocolResolvers()) {
+			// 调用解析器解析 resource
 			Resource resource = protocolResolver.resolve(location, this);
+			// 不为null 直接返回
 			if (resource != null) {
 				return resource;
 			}
 		}
-
+		// 是 "/" 采用 ClassPathContextResource 加载
 		if (location.startsWith("/")) {
 			return getResourceByPath(location);
 		}
+		// classPath: 开头的进入这里
 		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
+			// 采用 ClassPathResource 来加载资源
 			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
 		}
 		else {
+			// 最后加载策略，采用 URL 方式
 			try {
+				// 同一资源加载 URL
 				// Try to parse the location as a URL...
 				URL url = new URL(location);
+				// 是文件，采用 FileUrlResource 不是文件采用 UrlResource
 				return (ResourceUtils.isFileURL(url) ? new FileUrlResource(url) : new UrlResource(url));
 			}
 			catch (MalformedURLException ex) {
+				// 没有对应的 ProtocolResolver 处理，采用 ClassPathContextResource 加载
 				// No URL -> resolve as resource path.
 				return getResourceByPath(location);
 			}

@@ -24,12 +24,16 @@ package org.springframework.core.io;
  * {@link ResourceLoader}'s context).
  *
  * @author Juergen Hoeller
- * @since 2.5
  * @see org.springframework.web.context.support.ServletContextResource
+ * @since 2.5
  */
 public interface ContextResource extends Resource {
 
 	/**
+	 * 返回包含“context”的路径。
+	 * <p>这通常是相对于特定于上下文的根目录的路径，
+	 * 例如ServletContext根或PortletContext根。
+	 * <p>
 	 * Return the path within the enclosing 'context'.
 	 * <p>This is typically path relative to a context-specific root directory,
 	 * e.g. a ServletContext root or a PortletContext root.

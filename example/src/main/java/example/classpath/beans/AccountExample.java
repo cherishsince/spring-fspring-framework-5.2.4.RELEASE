@@ -8,6 +8,10 @@ package example.classpath.beans;
  */
 public class AccountExample {
 
+	public AccountExample() {
+		System.err.println("AccountExample 构造函数.");
+	}
+
     private String username;
 
     private Integer amount;

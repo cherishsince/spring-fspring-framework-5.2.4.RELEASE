@@ -181,9 +181,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	protected void addSingleton(String beanName, Object singletonObject) {
 		synchronized (this.singletonObjects) {
+			// 单例的objects 缓存容器
 			this.singletonObjects.put(beanName, singletonObject);
+			// 删除单例缓存
 			this.singletonFactories.remove(beanName);
+			// 早期的 singleton 用于标记，正在创建进行中的 beanName
 			this.earlySingletonObjects.remove(beanName);
+			// 已经注册的
 			this.registeredSingletons.add(beanName);
 		}
 	}
@@ -253,9 +257,15 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "Bean name must not be null");
+		// 对 singletonObjects 加锁
 		synchronized (this.singletonObjects) {
+			// 获取当前 beanName 实力对象
 			Object singletonObject = this.singletonObjects.get(beanName);
+			// 如果为 null 进入
+			// tips: singletonObject 就是缓存对象，如果存在了就直接返回
 			if (singletonObject == null) {
+				// 检查一下 singletons 当前的标记，如果true
+				// 就是重复进入，一般不可能，所以直接给一个异常
 				if (this.singletonsCurrentlyInDestruction) {
 					throw new BeanCreationNotAllowedException(beanName,
 							"Singleton bean creation not allowed while singletons of this factory are in destruction " +
@@ -264,14 +274,21 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+				// 创建 singleton 之前的，钩子方法
 				beforeSingletonCreation(beanName);
+				// 用于标记是否是一个 新的单例对象
 				boolean newSingleton = false;
+				// 用于记录一下过程中发生的 exception
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
 				if (recordSuppressedExceptions) {
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					// 调用 singleton factory 获取 object 对象，没有则创建
+					// tips: singletonFactory：是外面传入的 function 函数
 					singletonObject = singletonFactory.getObject();
+					// 通过调用 getObject 后标记为 true
+					// tips: singletonFactory.getObject() 每次创建的都是一个 new 的object 对象
 					newSingleton = true;
 				} catch (IllegalStateException ex) {
 					// Has the singleton object implicitly appeared in the meantime ->
@@ -288,11 +305,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					}
 					throw ex;
 				} finally {
+					// 清理一下所记录的异常
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+					// 创建 singleton 之后的，钩子方法
 					afterSingletonCreation(beanName);
 				}
+				// 新的单例对象才添加到 cache 中
 				if (newSingleton) {
 					addSingleton(beanName, singletonObject);
 				}

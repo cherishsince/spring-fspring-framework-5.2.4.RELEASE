@@ -49,6 +49,8 @@ public class SimpleAliasRegistry implements AliasRegistry {
 
 	/**
 	 * Map from alias to canonical name.
+	 *
+	 * key alias -> value beanName
 	 */
 	private final Map<String, String> aliasMap = new ConcurrentHashMap<>(16);
 
@@ -244,16 +246,26 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * @return the transformed name
 	 */
 	public String canonicalName(String name) {
+		// 标准的名字
 		String canonicalName = name;
 		// Handle aliasing...
+		// 解析的名字
 		String resolvedName;
 		do {
+//			<alias name="postProcessorsT1" alias="t1a"/>
+//			<alias name="postProcessorsT1" alias="t1b"/>
+			// 从 alias 中获取, 获取的 是 name 值
+			// 如果 name 还是 alias 就继续找
 			resolvedName = this.aliasMap.get(canonicalName);
+			// 不为null进入
 			if (resolvedName != null) {
+				// 解析的名字给 标准的名字，然后返回
 				canonicalName = resolvedName;
 			}
 		}
+		// 解析的名字为 null 退出
 		while (resolvedName != null);
+		// 返回标准的名字
 		return canonicalName;
 	}
 

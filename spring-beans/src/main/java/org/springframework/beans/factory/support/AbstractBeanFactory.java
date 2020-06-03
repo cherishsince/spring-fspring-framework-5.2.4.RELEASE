@@ -339,7 +339,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// containsBeanDefinition 户存在，就检查 上级, beanFactory$xx 或者是 <bean parent="" ..>
 				// factory&user1 -> &user1 扫描所有 &user1
 				// Not found -> check parent.
+
+				// 获取原来的 beanName，如果有一个 & 那么返回的就是 &&beanName
 				String nameToLookup = originalBeanName(name);
+
+				// tips:
+				// 下面就是递归调用 AbstractBeanFactory, 进心解析
 				if (parentBeanFactory instanceof AbstractBeanFactory) {
 					return ((AbstractBeanFactory) parentBeanFactory).doGetBean(
 							nameToLookup, requiredType, args, typeCheckOnly);
@@ -365,20 +370,27 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// xml 解析的都是 GenericBeanDefinition，但是Bean的处理都是采用 RootBeanDefinition 所以需要转换
 				// 处理 <bean parent="xxx" ...> parent 属性，如果parent部位空，需要合并两个 BeanDefinition
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+				// 检查 abstract 对象，如果是就 throw BeanIsAbstractException
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// 保证当前bean所依赖的bean的初始化。
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
+				// tips: dependsOn 就是 标签上的 <bean id="xx" class="xx" depends-on=""/>
+				// tips: 如果循环依赖，两个指定 depends-on 为对方，是不能够创建(原型的情况)，单例可以处理。
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
-						// 检查循环依赖
+						// 若给定的依赖 bean 已经注册为依赖给定的 bean
+						// 即循环依赖的情况，抛出 BeanCreationException 异常
 						if (isDependent(beanName, dep)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
 						}
+						// 注册 dependent 依赖 bean
+						// tips: 谁依赖他，和他以来谁
 						registerDependentBean(dep, beanName);
 						try {
+							// 调用的就是 doGetBean
 							getBean(dep);
 						} catch (NoSuchBeanDefinitionException ex) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
@@ -816,6 +828,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 	@Override
 	public boolean containsLocalBean(String name) {
+		// 解析标准的名字
 		String beanName = transformedBeanName(name);
 		return ((containsSingleton(beanName) || containsBeanDefinition(beanName)) &&
 				(!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(beanName)));
@@ -1259,13 +1272,19 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	}
 
 	/**
+	 * 确定原始bean名称，将本地定义的别名解析为规范名称。
+	 *
 	 * Determine the original bean name, resolving locally defined aliases to canonical names.
 	 *
 	 * @param name the user-specified name
 	 * @return the original bean name
 	 */
 	protected String originalBeanName(String name) {
+		// tips: 获取原来的(original) beanName
+
+		// 转换为标准的 beanName
 		String beanName = transformedBeanName(name);
+		// & 开头的，那么再加上一个 &&
 		if (name.startsWith(FACTORY_BEAN_PREFIX)) {
 			beanName = FACTORY_BEAN_PREFIX + beanName;
 		}
@@ -1814,13 +1833,19 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 * @param beanName the name of the bean
 	 */
 	protected void markBeanAsCreated(String beanName) {
+		// 不存在进入 = 没创建
 		if (!this.alreadyCreated.contains(beanName)) {
+			// 对 mergedBeanDefinitions 进心加锁
 			synchronized (this.mergedBeanDefinitions) {
+				// tips: 双检
+				// 再次获取是否已经创建过
 				if (!this.alreadyCreated.contains(beanName)) {
 					// 现在让bean定义重新合并，因为我们实际上正在创建bean。。。以防它的一些元数据同时改变。
 					// Let the bean definition get re-merged now that we're actually creating
 					// the bean... just in case some of its metadata changed in the meantime.
+					// 从 mergedBeanDefinitions 中删除 beanName，并在下次访问时重新创建它。
 					clearMergedBeanDefinition(beanName);
+					// 添加到已创建 bean 集合中
 					this.alreadyCreated.add(beanName);
 				}
 			}

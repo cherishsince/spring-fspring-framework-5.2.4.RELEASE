@@ -84,13 +84,18 @@ public abstract class BeanFactoryUtils {
 	 */
 	public static String transformedBeanName(String name) {
 		Assert.notNull(name, "'name' must not be null");
+		// 不是 & 开头的直接返回
 		if (!name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
 			return name;
 		}
+		// 从已转换好的 cache中获取，没有则进行转换
 		return transformedBeanNameCache.computeIfAbsent(name, beanName -> {
 			do {
+				// 截取 beanName
 				beanName = beanName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length());
 			}
+			// 知道 beanName 不是 & 开头结束
+			// tips: 不带 & 的名称，也就是最原始的
 			while (beanName.startsWith(BeanFactory.FACTORY_BEAN_PREFIX));
 			return beanName;
 		});

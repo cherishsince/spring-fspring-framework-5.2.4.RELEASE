@@ -144,15 +144,17 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private final Map<String, Set<String>> containedBeanMap = new ConcurrentHashMap<>(16);
 
 	/**
-	 * bean名称之间依赖：bean name设置依赖bean名称。
+	 * tips: 谁依赖他
+	 * 保存的是依赖 beanName 之间的映射关系：beanName - > 依赖 beanName 的集合
 	 * <p>
 	 * Map between dependent bean names: bean name to Set of dependent bean names.
 	 */
 	private final Map<String, Set<String>> dependentBeanMap = new ConcurrentHashMap<>(64);
 
 	/**
-	 * bean名称之间依赖：bean name为bean的依赖项设置bean名称。
-	 *
+	 * tips: 他依赖谁
+	 * 保存的是依赖 beanName 之间的映射关系：依赖 beanName - > beanName 的集合
+	 * <p>
 	 * Map between depending bean names: bean name to Set of bean names for the bean's dependencies.
 	 */
 	private final Map<String, Set<String>> dependenciesForBeanMap = new ConcurrentHashMap<>(64);
@@ -203,7 +205,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
+		// tips: 这里是添加 object factory 对象
 		synchronized (this.singletonObjects) {
+			// singletonObjects 不存在进入
 			if (!this.singletonObjects.containsKey(beanName)) {
 				this.singletonFactories.put(beanName, singletonFactory);
 				this.earlySingletonObjects.remove(beanName);
@@ -229,20 +233,29 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		// 从 singletonObjects 缓存中获取 singleton 对象
 		Object singletonObject = this.singletonObjects.get(beanName);
+		// 不存在 并且 beanName 没有在创建中，进入
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			// 对 singletonObjects 进心加锁
 			synchronized (this.singletonObjects) {
+				// 从早期的容器中获取
 				singletonObject = this.earlySingletonObjects.get(beanName);
 				if (singletonObject == null && allowEarlyReference) {
+					// 从 object factory 中获取
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
+						// 通过 object factory 获取 object
 						singletonObject = singletonFactory.getObject();
+						// 添加到早期的缓存中，下次来可以直接使用
 						this.earlySingletonObjects.put(beanName, singletonObject);
+						// 将已创建的 object factory 删除，避免重复创建
 						this.singletonFactories.remove(beanName);
 					}
 				}
 			}
 		}
+		// 存在就直接返回
 		return singletonObject;
 	}
 
@@ -471,16 +484,24 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param dependentBeanName the name of the dependent bean
 	 */
 	public void registerDependentBean(String beanName, String dependentBeanName) {
+		// beanName 是依赖的 bean
+		// dependentBeanName 是 bean
+
+		// 获取原来的 beanName
 		String canonicalName = canonicalName(beanName);
 
+		// tips：谁依赖他
 		synchronized (this.dependentBeanMap) {
+			// 有就获取，没有就 new LinkedHashSet<>(8)
 			Set<String> dependentBeans =
 					this.dependentBeanMap.computeIfAbsent(canonicalName, k -> new LinkedHashSet<>(8));
+			// 添加成功 失败直接返回
 			if (!dependentBeans.add(dependentBeanName)) {
 				return;
 			}
 		}
 
+		// tips: 他依赖谁
 		synchronized (this.dependenciesForBeanMap) {
 			Set<String> dependenciesForBean =
 					this.dependenciesForBeanMap.computeIfAbsent(dependentBeanName, k -> new LinkedHashSet<>(8));
@@ -506,10 +527,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	}
 
 	private boolean isDependent(String beanName, String dependentBeanName, @Nullable Set<String> alreadySeen) {
+		// alreadySeen 已经检测的依赖 bean
 		if (alreadySeen != null && alreadySeen.contains(beanName)) {
 			return false;
 		}
+		// 获取原始 beanName
 		String canonicalName = canonicalName(beanName);
+		// 获取当前 beanName 的依赖集合
 		Set<String> dependentBeans = this.dependentBeanMap.get(canonicalName);
 		if (dependentBeans == null) {
 			return false;
@@ -518,12 +542,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			return true;
 		}
 
-		// 检查类依赖的类，依赖。
+		// 检查类依赖的类，的依赖
 		for (String transitiveDependency : dependentBeans) {
 			if (alreadySeen == null) {
 				alreadySeen = new HashSet<>();
 			}
+			// 添加到 alreadySeen 中
 			alreadySeen.add(beanName);
+			// 递推
 			if (isDependent(transitiveDependency, dependentBeanName, alreadySeen)) {
 				return true;
 			}

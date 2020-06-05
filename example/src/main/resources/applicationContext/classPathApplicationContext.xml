@@ -18,8 +18,8 @@
 	<!--  自定义标签   -->
 	<my:my-tag id="tag" name="周杰伦" gender="男" />
 
-	<bean class="java.lang.Object"/>
-	<bean id="userExample" class="example.classpath.beans.UserExample"/>
+	<bean class="java.lang.Object" />
+	<bean id="userExample" class="example.classpath.beans.UserExample" factory-method="init2"/>
 	<bean id="accountExample" class="example.classpath.beans.AccountExample"/>
 
 	<bean id="obj" class="java.lang.Object">

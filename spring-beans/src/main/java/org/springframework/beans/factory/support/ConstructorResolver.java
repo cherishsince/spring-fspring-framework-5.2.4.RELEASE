@@ -404,9 +404,13 @@ class ConstructorResolver {
 		boolean isStatic;
 		String factoryBeanName = mbd.getFactoryBeanName();
 
-		// 工厂名不为空
+		// tips:
+		// 这里分为 静态工厂、动态工厂
+
+		// 动态工厂
 		if (factoryBeanName != null) {
 			if (factoryBeanName.equals(beanName)) {
+				// 工厂bean引用指向相同的bean定义
 				throw new BeanDefinitionStoreException(mbd.getResourceDescription(), beanName,
 						"factory-bean reference points back to the same bean definition");
 			}
@@ -418,6 +422,7 @@ class ConstructorResolver {
 			factoryClass = factoryBean.getClass();
 			isStatic = false;
 		}
+		// 静态工厂
 		else {
 			// 工厂名为空，则其可能是一个静态工厂
 			// 静态工厂创建bean，必须要提供工厂的全类名
@@ -482,7 +487,7 @@ class ConstructorResolver {
 					candidates = Collections.singletonList(factoryMethodToUse);
 				}
 			}
-			// 检索所有方法，这里是对方法进行过滤
+			// 检索所有方法，这里是对方法进行过滤(过来静态的 factoryMethod)
 			if (candidates == null) {
 				candidates = new ArrayList<>();
 				Method[] rawCandidates = getCandidateMethods(factoryClass, mbd);
@@ -493,6 +498,8 @@ class ConstructorResolver {
 				}
 			}
 
+			// tips: 只有一个的时候，走这里
+			// 检查：符合 factoryMethod 只有一个的时候，走这里
 			if (candidates.size() == 1 && explicitArgs == null && !mbd.hasConstructorArgumentValues()) {
 				Method uniqueCandidate = candidates.get(0);
 				if (uniqueCandidate.getParameterCount() == 0) {
@@ -502,25 +509,38 @@ class ConstructorResolver {
 						mbd.constructorArgumentsResolved = true;
 						mbd.resolvedConstructorArguments = EMPTY_ARGS;
 					}
-					bw.setBeanInstance(instantiate(beanName, mbd, factoryBean, uniqueCandidate, EMPTY_ARGS));
+					// instantiate 调用的是 InstantiationStrategy 进心创建
+					bw.setBeanInstance(
+							instantiate(beanName, mbd, factoryBean, uniqueCandidate, EMPTY_ARGS));
 					return bw;
 				}
 			}
 
+			// 如果, factoryMethod 重载，那么先排序
 			if (candidates.size() > 1) {  // explicitly skip immutable singletonList
 				candidates.sort(AutowireUtils.EXECUTABLE_COMPARATOR);
 			}
 
+			// tips: 这里是，获取 autowiring 规则，
 			ConstructorArgumentValues resolvedValues = null;
 			boolean autowiring = (mbd.getResolvedAutowireMode() == AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR);
 			int minTypeDiffWeight = Integer.MAX_VALUE;
 			Set<Method> ambiguousFactoryMethods = null;
 
+			// tips: 应为存在多个 factoryMethod，需要检查调用那个方法
+			// tips: 第一种：检查是不是，显示指定了参数 explicitArgs
+			// tips: 第二种：只能自动检查，factoryMethod 一个个尝试，成功的那个就是
+			// tips: minNrOfArgs 计算的是最小，参数值
 			int minNrOfArgs;
+			// 指定了参数，进入这里
 			if (explicitArgs != null) {
 				minNrOfArgs = explicitArgs.length;
 			}
 			else {
+				// tips: 检查这个bean，构造器是否有参数
+
+				// 我们没有以编程方式传入的参数，因此需要解析
+				// 在bean定义中持有的构造函数参数中指定的参数。
 				// We don't have arguments passed in programmatically, so we need to resolve the
 				// arguments specified in the constructor arguments held in the bean definition.
 				if (mbd.hasConstructorArgumentValues()) {
@@ -529,19 +549,26 @@ class ConstructorResolver {
 					minNrOfArgs = resolveConstructorArguments(beanName, mbd, bw, cargs, resolvedValues);
 				}
 				else {
+					// 没有就是 0，代表没有参数
 					minNrOfArgs = 0;
 				}
 			}
 
+			// 用于保存，多个 factoryMethod 失败的原因
 			LinkedList<UnsatisfiedDependencyException> causes = null;
-
+			// tips: 就是确定使用那个 factoryMethod
+			// 开始对多个 factoryMethod，进心检查处理
 			for (Method candidate : candidates) {
-
+				// 获取 method 参数数量
 				int parameterCount = candidate.getParameterCount();
+				// tips: minNrOfArgs 是最小参数值
+				// >= 最小参数值，进入
 				if (parameterCount >= minNrOfArgs) {
+					// 参数的持有者
 					ArgumentsHolder argsHolder;
-
+					// 获取参数集合
 					Class<?>[] paramTypes = candidate.getParameterTypes();
+					// 指定参数的情况，没有直接 else
 					if (explicitArgs != null) {
 						// Explicit arguments given -> arguments length must match exactly.
 						if (paramTypes.length != explicitArgs.length) {
@@ -550,13 +577,20 @@ class ConstructorResolver {
 						argsHolder = new ArgumentsHolder(explicitArgs);
 					}
 					else {
+
+						// tips: causes 异常在这里产生的
+
+						// 解析构造函数参数:类型转换和/或自动装配是必要的。
 						// Resolved constructor arguments: type conversion and/or autowiring necessary.
 						try {
 							String[] paramNames = null;
+							// 获取参数解析器
 							ParameterNameDiscoverer pnd = this.beanFactory.getParameterNameDiscoverer();
 							if (pnd != null) {
+								// 获取参数
 								paramNames = pnd.getParameterNames(candidate);
 							}
+							// 创建一个 holder
 							argsHolder = createArgumentArray(beanName, mbd, resolvedValues, bw,
 									paramTypes, paramNames, candidate, autowiring, candidates.size() == 1);
 						}
@@ -564,6 +598,8 @@ class ConstructorResolver {
 							if (logger.isTraceEnabled()) {
 								logger.trace("Ignoring factory method [" + candidate + "] of bean '" + beanName + "': " + ex);
 							}
+							// tips: 这里 causes 一开始是 null，使用到才开始 new LinkedList 内存优化
+							// 记录异常然后退出
 							// Swallow and try next overloaded factory method.
 							if (causes == null) {
 								causes = new LinkedList<>();
@@ -572,9 +608,13 @@ class ConstructorResolver {
 							continue;
 						}
 					}
-
+					// isLenientConstructorResolution 判断解析构造函数的时候是否以宽松模式还是严格模式
+					// 严格模式：解析构造函数时，必须所有的都需要匹配，否则抛出异常
+					// 宽松模式：使用具有"最接近的模式"进行匹配
+					// typeDiffWeight：类型差异权重
 					int typeDiffWeight = (mbd.isLenientConstructorResolution() ?
 							argsHolder.getTypeDifferenceWeight(paramTypes) : argsHolder.getAssignabilityWeight(paramTypes));
+					// 代表最接近的类型匹配，则选择作为构造函数
 					// Choose this factory method if it represents the closest match.
 					if (typeDiffWeight < minTypeDiffWeight) {
 						factoryMethodToUse = candidate;
@@ -583,6 +623,8 @@ class ConstructorResolver {
 						minTypeDiffWeight = typeDiffWeight;
 						ambiguousFactoryMethods = null;
 					}
+					// 如果具有相同参数数量的方法具有相同的类型差异权重，则收集此类型选项
+					// 但是，仅在非宽松构造函数解析模式下执行该检查，并显式忽略重写方法（具有相同的参数签名）
 					// Find out about ambiguity: In case of the same type difference weight
 					// for methods with the same number of parameters, collect such candidates
 					// and eventually raise an ambiguity exception.
@@ -592,6 +634,7 @@ class ConstructorResolver {
 							!mbd.isLenientConstructorResolution() &&
 							paramTypes.length == factoryMethodToUse.getParameterCount() &&
 							!Arrays.equals(paramTypes, factoryMethodToUse.getParameterTypes())) {
+						// 查找到多个可匹配的方法
 						if (ambiguousFactoryMethods == null) {
 							ambiguousFactoryMethods = new LinkedHashSet<>();
 							ambiguousFactoryMethods.add(factoryMethodToUse);
@@ -601,6 +644,7 @@ class ConstructorResolver {
 				}
 			}
 
+			// 没有可执行的工厂方法，抛出异常
 			if (factoryMethodToUse == null || argsToUse == null) {
 				if (causes != null) {
 					UnsatisfiedDependencyException ex = causes.removeLast();
@@ -647,20 +691,20 @@ class ConstructorResolver {
 						"(hint: specify index/type/name arguments for simple parameters to avoid type ambiguities): " +
 						ambiguousFactoryMethods);
 			}
-
+			// 将解析的构造函数加入缓存
 			if (explicitArgs == null && argsHolderToUse != null) {
 				mbd.factoryMethodToIntrospect = factoryMethodToUse;
 				argsHolderToUse.storeCache(mbd, factoryMethodToUse);
 			}
 		}
-
+		// 创建 Bean 对象，并设置到 bw 中
 		bw.setBeanInstance(instantiate(beanName, mbd, factoryBean, factoryMethodToUse, argsToUse));
 		return bw;
 	}
 
 	private Object instantiate(String beanName, RootBeanDefinition mbd,
 			@Nullable Object factoryBean, Method factoryMethod, Object[] args) {
-
+		// tips: 这里通过 strategy 实例化对象
 		try {
 			if (System.getSecurityManager() != null) {
 				return AccessController.doPrivileged((PrivilegedAction<Object>) () ->
@@ -965,6 +1009,10 @@ class ConstructorResolver {
 		}
 
 		public int getTypeDifferenceWeight(Class<?>[] paramTypes) {
+			//如果找到有效的参数，确定类型差异权重。
+			//尝试在转换的参数和
+			//原始参数。如果生的重量更好，就用它。
+			//将原料重量减少1024磅，以使其优于等换算重量。
 			// If valid arguments found, determine type difference weight.
 			// Try type difference weight on both the converted arguments and
 			// the raw arguments. If the raw weight is better, use it.

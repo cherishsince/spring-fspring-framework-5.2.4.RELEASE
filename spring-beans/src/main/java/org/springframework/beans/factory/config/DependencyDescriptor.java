@@ -73,7 +73,7 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
 
 	// 是否必填
 	private final boolean required;
-
+	// 饥渴的
 	private final boolean eager;
 
 	private int nestingLevel = 1;

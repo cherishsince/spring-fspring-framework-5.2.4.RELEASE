@@ -92,6 +92,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			return BeanUtils.instantiateClass(constructorToUse);
 		}
 		else {
+			//
 			// Must generate CGLIB subclass.
 			return instantiateWithMethodInjection(bd, beanName, owner);
 		}
@@ -143,7 +144,9 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			@Nullable Object factoryBean, final Method factoryMethod, Object... args) {
 
 		try {
+			// 设置 setAccessible(true) 访问
 			if (System.getSecurityManager() != null) {
+				// 文件受保护的情况, 需要使用 AccessController 来访问
 				AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
 					ReflectionUtils.makeAccessible(factoryMethod);
 					return null;
@@ -153,20 +156,29 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 				ReflectionUtils.makeAccessible(factoryMethod);
 			}
 
+			// tips: 获取当前正在 invoked，工厂方法
+			// tips: 这里是一个 ThreadLocal<Method>
+
+			// 这里先临时保存，一个从 ThreadLocal 中获取的
 			Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
 			try {
+				// 设置单曲的 factoryMethod 到 currentlyInvokedFactoryMethod
 				currentlyInvokedFactoryMethod.set(factoryMethod);
+				// 调用 method，获取返回的 object
 				Object result = factoryMethod.invoke(factoryBean, args);
+				// tips: spring 中所有 创建返回为 null 的都是 NullBean
 				if (result == null) {
 					result = new NullBean();
 				}
 				return result;
 			}
 			finally {
+				// 设置老的 Method 对象，到 currentlyInvokedFactoryMethod 中
 				if (priorInvokedFactoryMethod != null) {
 					currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
 				}
 				else {
+					// 删除刚处理玩的 method
 					currentlyInvokedFactoryMethod.remove();
 				}
 			}

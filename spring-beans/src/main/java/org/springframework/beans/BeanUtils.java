@@ -186,6 +186,8 @@ public abstract class BeanUtils {
 		    // 将 Bean 的构造器强制为可访问 ctor.setAccessible(true);
 			ReflectionUtils.makeAccessible(ctor);
 			// Kotlin 方式
+			// 使用构造方法，创建对象
+			// 用于检测Kotlin的存在和识别Kotlin类型的共同委托。
 			if (KotlinDetector.isKotlinReflectPresent() && KotlinDetector.isKotlinType(ctor.getDeclaringClass())) {
 				return KotlinDelegate.instantiateClass(ctor, args);
 			}

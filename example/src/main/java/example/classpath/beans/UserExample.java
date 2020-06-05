@@ -16,6 +16,14 @@ public class UserExample {
 
     private String password;
 
+    public static UserExample init2() {
+    	return new UserExample();
+	}
+
+	public static UserExample init2(int i) {
+		return new UserExample();
+	}
+
     @Override
     public String toString() {
         return "User{" +

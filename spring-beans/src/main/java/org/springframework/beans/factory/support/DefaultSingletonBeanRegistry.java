@@ -485,7 +485,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public void registerDependentBean(String beanName, String dependentBeanName) {
 		// beanName 是依赖的 bean
-		// dependentBeanName 是 bean
+		// dependentBeanName 是 beangetSingleton
 
 		// 获取原来的 beanName
 		String canonicalName = canonicalName(beanName);

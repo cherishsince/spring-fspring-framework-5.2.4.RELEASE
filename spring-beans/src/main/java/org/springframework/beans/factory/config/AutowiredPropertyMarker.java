@@ -38,6 +38,8 @@ import org.springframework.lang.Nullable;
 public final class AutowiredPropertyMarker implements Serializable {
 
 	/**
+	 * 自动生成标记值的规范实例
+	 *
 	 * The canonical instance for the autowired marker value.
 	 */
 	public static final Object INSTANCE = new AutowiredPropertyMarker();

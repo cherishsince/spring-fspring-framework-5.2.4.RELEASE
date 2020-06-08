@@ -100,11 +100,14 @@ public class MethodParameter {
 
 
 	/**
+	 *
+	 *
 	 * Create a new {@code MethodParameter} for the given method, with nesting level 1.
 	 * @param method the Method to specify a parameter for
 	 * @param parameterIndex the index of the parameter: -1 for the method
 	 * return type; 0 for the first method parameter; 1 for the second method
 	 * parameter, etc.
+	 *                       -1 代表是方法的返回值；0 是方法第一个参数；1是第二个方法参数
 	 */
 	public MethodParameter(Method method, int parameterIndex) {
 		this(method, parameterIndex, 1);

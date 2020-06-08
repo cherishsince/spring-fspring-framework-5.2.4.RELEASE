@@ -84,6 +84,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	private transient Map<MethodCacheKey, List<Object>> methodCache;
 
 	/**
+	 *由代理实现的接口。保存在列表中以保持顺序
+	 *的注册，以创建具有指定接口顺序的JDK代理。
+	 *
 	 * Interfaces to be implemented by the proxy. Held in List to keep the order
 	 * of registration, to create JDK proxy with specified order of interfaces.
 	 */

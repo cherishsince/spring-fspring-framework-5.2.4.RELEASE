@@ -19,6 +19,10 @@ package org.springframework.aop;
 import org.springframework.lang.Nullable;
 
 /**
+ * A {@code TargetSource}用于获取当前的“目标”
+ 一个AOP调用，如果没有其他调用，它将通过反射调用
+ * advice选择终止拦截器链本身。
+ *
  * A {@code TargetSource} is used to obtain the current "target" of
  * an AOP invocation, which will be invoked via reflection if no around
  * advice chooses to end the interceptor chain itself.
@@ -55,6 +59,11 @@ public interface TargetSource extends TargetClassAware {
 	boolean isStatic();
 
 	/**
+	 返回一个目标实例。在
+	 * AOP框架调用AOP方法调用的“目标”。
+	 * @return包含joinpoint的目标对象，
+	 *或{@code null}，如果没有实际的目标实例
+	 *
 	 * Return a target instance. Invoked immediately before the
 	 * AOP framework calls the "target" of an AOP method invocation.
 	 * @return the target object which contains the joinpoint,
@@ -65,6 +74,9 @@ public interface TargetSource extends TargetClassAware {
 	Object getTarget() throws Exception;
 
 	/**
+	 *释放从对象中获得的给定目标对象
+	 * {@link #getTarget()}方法。
+	 *
 	 * Release the given target object obtained from the
 	 * {@link #getTarget()} method, if any.
 	 * @param target object obtained from a call to {@link #getTarget()}

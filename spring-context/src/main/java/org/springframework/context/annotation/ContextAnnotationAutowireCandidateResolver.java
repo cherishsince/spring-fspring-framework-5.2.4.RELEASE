@@ -51,6 +51,8 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 	@Override
 	@Nullable
 	public Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {
+		// isLazy 就是去检查 @Lazy 注解
+		// 存在就去调用 buildLazyResolutionProxy 否则返回 null
 		return (isLazy(descriptor) ? buildLazyResolutionProxy(descriptor, beanName) : null);
 	}
 
@@ -75,9 +77,12 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 	}
 
 	protected Object buildLazyResolutionProxy(final DependencyDescriptor descriptor, final @Nullable String beanName) {
+		// 这里必须是 DefaultListableBeanFactory
 		Assert.state(getBeanFactory() instanceof DefaultListableBeanFactory,
 				"BeanFactory needs to be a DefaultListableBeanFactory");
+		// 获取 DefaultListableBeanFactory
 		final DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) getBeanFactory();
+		// tips：保存的是我们目标对象的信息
 		TargetSource ts = new TargetSource() {
 			@Override
 			public Class<?> getTargetClass() {
@@ -110,8 +115,11 @@ public class ContextAnnotationAutowireCandidateResolver extends QualifierAnnotat
 			public void releaseTarget(Object target) {
 			}
 		};
+		// 创建 proxy 代理工厂
 		ProxyFactory pf = new ProxyFactory();
+		// 给工厂设置 targetSource
 		pf.setTargetSource(ts);
+		// 从依赖描述中，获取依赖类型
 		Class<?> dependencyType = descriptor.getDependencyType();
 		if (dependencyType.isInterface()) {
 			pf.addInterface(dependencyType);

@@ -84,6 +84,8 @@ public class ProxyConfig implements Serializable {
 	}
 
 	/**
+	 * 返回代理是否应该执行主动优化。
+	 *
 	 * Return whether proxies should perform aggressive optimizations.
 	 */
 	public boolean isOptimize() {

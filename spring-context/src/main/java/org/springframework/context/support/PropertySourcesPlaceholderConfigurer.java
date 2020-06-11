@@ -165,20 +165,31 @@ public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerS
 	protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess,
 			final ConfigurablePropertyResolver propertyResolver) throws BeansException {
 
+		// 占位符 ${
 		propertyResolver.setPlaceholderPrefix(this.placeholderPrefix);
+		// 占位符 }
 		propertyResolver.setPlaceholderSuffix(this.placeholderSuffix);
+		// 占位符 :
 		propertyResolver.setValueSeparator(this.valueSeparator);
 
 		StringValueResolver valueResolver = strVal -> {
 			String resolved = (this.ignoreUnresolvablePlaceholders ?
+					// tips: 这两个基本一样，区别在默认值，后者会 没有默认值会导致抛出一个IllegalArgumentException
+
+					// 解析 ${} 并替换对应的值
 					propertyResolver.resolvePlaceholders(strVal) :
+					// 解析 ${} 并替换对应的值（IllegalArgumentException）
 					propertyResolver.resolveRequiredPlaceholders(strVal));
+
+			// 是否需要处理 trim
 			if (this.trimValues) {
 				resolved = resolved.trim();
 			}
+			// 返回解析的值
 			return (resolved.equals(this.nullValue) ? null : resolved);
 		};
 
+		// 去解析
 		doProcessProperties(beanFactoryToProcess, valueResolver);
 	}
 

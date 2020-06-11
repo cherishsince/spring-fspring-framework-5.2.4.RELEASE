@@ -109,6 +109,10 @@ public interface PropertyResolver {
 	<T> T getRequiredProperty(String key, Class<T> targetType) throws IllegalStateException;
 
 	/**
+	 * 解决$ {…}在给定文本中使用占位符，并将其替换为相应的
+	 * 由{@link #getProperty}解析的属性值。不肯舍弃的占位符
+	 * 默认值不会被忽略，也不会不加修改地传递。
+	 * <p>
 	 * Resolve ${...} placeholders in the given text, replacing them with corresponding
 	 * property values as resolved by {@link #getProperty}. Unresolvable placeholders with
 	 * no default value are ignored and passed through unchanged.
@@ -122,6 +126,10 @@ public interface PropertyResolver {
 	String resolvePlaceholders(String text);
 
 	/**
+	 * 解决$ {…}在给定文本中使用占位符，并将其替换为相应的
+	 * 由{@link #getProperty}解析的属性值。不肯舍弃的占位符
+	 * 没有默认值会导致抛出一个IllegalArgumentException。
+	 * <p>
 	 * Resolve ${...} placeholders in the given text, replacing them with corresponding
 	 * property values as resolved by {@link #getProperty}. Unresolvable placeholders with
 	 * no default value will cause an IllegalArgumentException to be thrown.

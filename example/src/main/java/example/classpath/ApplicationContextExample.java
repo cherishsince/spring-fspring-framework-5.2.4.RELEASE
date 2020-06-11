@@ -3,10 +3,13 @@ package example.classpath;
 import example.classpath.beans.AccountExample;
 import example.classpath.beans.UserExample;
 import example.classpath.beans.UserServiceExample;
+import example.classpath.beans.ValueBean;
 import example.classpath.customerTag.MyTagBean;
+import org.springframework.beans.factory.config.PropertyOverrideConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * 配置
@@ -16,6 +19,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 @Configuration
 public class ApplicationContextExample {
+
+	@Bean
+	public PropertyOverrideConfigurer propertyOverrideConfigurer() {
+		PropertyOverrideConfigurer configurer = new PropertyOverrideConfigurer();
+		configurer.setLocation(new ClassPathResource("/applicationContext/beanConfig.properties"));
+		return configurer;
+	}
 
 //    @Bean
 //    public UserServiceExample userServiceExample() {
@@ -41,5 +51,6 @@ public class ApplicationContextExample {
         System.err.println("accountExample: " + accountExample);
         System.err.println("UserExample: " + context.getBean(UserExample.class));
         System.err.println("MyTagBean: " + context.getBean(MyTagBean.class));
+        System.err.println("ValueBean: " + context.getBean(ValueBean.class));
     }
 }

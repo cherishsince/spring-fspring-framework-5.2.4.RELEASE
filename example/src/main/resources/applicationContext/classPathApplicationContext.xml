@@ -15,8 +15,20 @@
 	<!--  开启扫描注解   -->
 	<context:component-scan base-package="example;com.coget.cn"/>
 
+	<!--  properties   -->
+	<context:property-placeholder location="classpath:applicationContext/default.properties" />
+
 	<!--  自定义标签   -->
 	<my:my-tag id="tag" name="周杰伦" gender="男" />
+
+	<!--  PropertyOverrideConfigurer   -->
+<!--	<bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">-->
+<!--		<property name="locations">-->
+<!--			<list>-->
+<!--				<value>classpath:applicationContext/beanConfig.properties</value>-->
+<!--			</list>-->
+<!--		</property>-->
+<!--	</bean>-->
 
 	<bean class="java.lang.Object" />
 	<bean id="userExample" class="example.classpath.beans.UserExample" factory-method="init2"/>

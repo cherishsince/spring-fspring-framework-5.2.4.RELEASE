@@ -40,6 +40,8 @@ import org.springframework.lang.Nullable;
 public interface InstantiationStrategy {
 
 	/**
+	 * 默认构造方法
+	 *
 	 * 返回此工厂中具有给定名称的bean实例。
 	 * <p>
 	 * Return an instance of the bean with the given name in this factory.
@@ -56,6 +58,8 @@ public interface InstantiationStrategy {
 			throws BeansException;
 
 	/**
+	 * 指定构造方法
+	 *
 	 * 返回此工厂中具有给定名称的bean实例，
 	 * 通过给定的构造函数创建它。
 	 * <p>
@@ -76,6 +80,8 @@ public interface InstantiationStrategy {
 					   Constructor<?> ctor, Object... args) throws BeansException;
 
 	/**
+	 *  工厂方法
+	 *
 	 * 返回此工厂中具有给定名称的bean实例，
 	 * 通过给定的工厂方法创建它。
 	 * <p>

@@ -19,10 +19,12 @@ package org.springframework.core.convert.converter;
 import org.springframework.lang.Nullable;
 
 /**
+ * 转换器将类型{@code S}的源对象转换为类型{@code T}的目标。
+ * 这个接口的实现是线程安全的，可以共享。
+ * <p>实现可以另外实现{@link ConditionalConverter}。
+ *
  * A converter converts a source object of type {@code S} to a target of type {@code T}.
- *
  * <p>Implementations of this interface are thread-safe and can be shared.
- *
  * <p>Implementations may additionally implement {@link ConditionalConverter}.
  *
  * @author Keith Donald
@@ -34,6 +36,8 @@ import org.springframework.lang.Nullable;
 public interface Converter<S, T> {
 
 	/**
+	 * 将一个 resource 类型的数据转为目标类型
+	 *
 	 * Convert the source object of type {@code S} to target type {@code T}.
 	 * @param source the source object to convert, which must be an instance of {@code S} (never {@code null})
 	 * @return the converted object, which must be an instance of {@code T} (potentially {@code null})

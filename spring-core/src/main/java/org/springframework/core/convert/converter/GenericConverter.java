@@ -68,6 +68,8 @@ public interface GenericConverter {
 
 
 	/**
+	 * 源到目标类对的持有者。
+	 *
 	 * Holder for a source-to-target class pair.
 	 */
 	final class ConvertiblePair {

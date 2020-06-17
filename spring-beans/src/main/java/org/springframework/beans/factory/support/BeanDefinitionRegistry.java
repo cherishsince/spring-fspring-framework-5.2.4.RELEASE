@@ -48,6 +48,9 @@ import org.springframework.core.AliasRegistry;
 public interface BeanDefinitionRegistry extends AliasRegistry {
 
 	/**
+	 * 注册一个 new BeanDefinition，
+	 * 不需要支持 RootBeanDefinition 和  ChildBeanDefinition
+	 *
 	 * Register a new bean definition with this registry.
 	 * Must support RootBeanDefinition and ChildBeanDefinition.
 	 *
@@ -64,6 +67,8 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
 			throws BeanDefinitionStoreException;
 
 	/**
+	 * 删除一个 BeanDefinition 根据 beanName
+	 *
 	 * Remove the BeanDefinition for the given name.
 	 *
 	 * @param beanName the name of the bean instance to register
@@ -72,6 +77,8 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
 	void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
 	/**
+	 * 返回一个 BeanDefinition 通过 beanName 获取
+	 *
 	 * Return the BeanDefinition for the given bean name.
 	 *
 	 * @param beanName name of the bean to find a definition for
@@ -81,6 +88,8 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
 	BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
 	/**
+	 * 检查 register 容器，中是否存在这个 BeanDefinition
+	 *
 	 * Check if this registry contains a bean definition with the given name.
 	 *
 	 * @param beanName the name of the bean to look for
@@ -89,6 +98,8 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
 	boolean containsBeanDefinition(String beanName);
 
 	/**
+	 * 返回已注册的 names
+	 *
 	 * Return the names of all beans defined in this registry.
 	 *
 	 * @return the names of all beans defined in this registry,
@@ -97,6 +108,8 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
 	String[] getBeanDefinitionNames();
 
 	/**
+	 * 返回 beanDefinition 注册的数量
+	 *
 	 * Return the number of beans defined in the registry.
 	 *
 	 * @return the number of beans defined in the registry

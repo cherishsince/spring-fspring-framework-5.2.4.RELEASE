@@ -117,6 +117,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	String SHUTDOWN_HOOK_THREAD_NAME = "SpringContextShutdownHook";
 
 	/**
+	 * 为 ApplicationContext 设置唯一 ID
+	 *
 	 * Set the unique id of this application context.
 	 *
 	 * @since 3.0
@@ -124,6 +126,9 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	void setId(String id);
 
 	/**
+	 * 为 ApplicationContext 设置 parent
+	 * 父类不应该被修改：如果创建的对象不可用时，则应该在构造函数外部设置它
+	 *
 	 * 设置此应用程序上下文的父级。
 	 * <p>请注意，不应更改父项：它只应设置在外部
 	 * 一个构造函数，如果创建此类的对象时它不可用，
@@ -140,6 +145,8 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
 	void setParent(@Nullable ApplicationContext parent);
 
 	/**
+	 * 设置 Environment
+	 *
 	 * Set the {@code Environment} for this application context.
 	 *
 	 * @param environment the new environment

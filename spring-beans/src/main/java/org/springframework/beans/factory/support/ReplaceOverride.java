@@ -25,6 +25,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * tips:
+ * parseLookupOverrideSubElements 和 parseReplacedMethodSubElements
+ * 这两个方法分别用于解析 lookup-method 和 replaced-method 属性。采用 MethodOverrides 实现覆盖
+ *
  * Extension of MethodOverride that represents an arbitrary
  * override of a method by the IoC container.
  *

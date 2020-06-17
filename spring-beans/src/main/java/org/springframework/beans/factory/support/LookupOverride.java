@@ -23,6 +23,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * tips:
+ * parseLookupOverrideSubElements 和 parseReplacedMethodSubElements
+ * 这两个方法分别用于解析 lookup-method 和 replaced-method 属性。采用 MethodOverrides 实现覆盖
+ *
  * Represents an override of a method that looks up an object in the same IoC context.
  *
  * <p>Methods eligible for lookup override must not have arguments.

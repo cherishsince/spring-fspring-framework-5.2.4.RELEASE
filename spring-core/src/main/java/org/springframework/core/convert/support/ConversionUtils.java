@@ -36,7 +36,7 @@ abstract class ConversionUtils {
 	@Nullable
 	public static Object invokeConverter(GenericConverter converter, @Nullable Object source,
 			TypeDescriptor sourceType, TypeDescriptor targetType) {
-
+		// 执行转换
 		try {
 			return converter.convert(source, sourceType, targetType);
 		}

@@ -69,7 +69,11 @@ public class ConversionServiceFactoryBean implements FactoryBean<ConversionServi
 
 	@Override
 	public void afterPropertiesSet() {
+		// tips:
+		// 生命周期的 InitializingBean 接口
+		// 创建的是 DefaultConversionService，用于处理默认的基本的数据类型
 		this.conversionService = createConversionService();
+		// 这里将创建的 conversionService 注册到 factory
 		ConversionServiceFactory.registerConverters(this.converters, this.conversionService);
 	}
 

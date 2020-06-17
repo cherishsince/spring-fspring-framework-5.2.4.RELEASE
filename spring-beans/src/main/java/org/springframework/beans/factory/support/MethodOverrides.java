@@ -23,6 +23,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.springframework.lang.Nullable;
 
 /**
+ *方法覆盖的集合，确定a上的哪个方法(如果有的话)
+ * Spring IoC容器将在运行时覆盖
+ *
+ * tips:
+ * parseLookupOverrideSubElements 和 parseReplacedMethodSubElements
+ * 这两个方法分别用于解析 lookup-method 和 replaced-method 属性。采用 MethodOverrides 实现覆盖
+ *
  * Set of method overrides, determining which, if any, methods on a
  * managed object the Spring IoC container will override at runtime.
  *
@@ -40,20 +47,29 @@ public class MethodOverrides {
 
 
 	/**
+	 * 默认构造器
+	 *
 	 * Create new MethodOverrides.
 	 */
 	public MethodOverrides() {
 	}
 
 	/**
+	 * 深拷贝构造函数。
+	 *
 	 * Deep copy constructor.
 	 */
 	public MethodOverrides(MethodOverrides other) {
+		// tips:
+		// 这就是将一个 method overrides 创建另一个 method overrides
+		// 就是 overrides set 集合，合并操作
 		addOverrides(other);
 	}
 
 
 	/**
+	 * 复制 overrides
+	 *
 	 * Copy all given method overrides into this object.
 	 */
 	public void addOverrides(@Nullable MethodOverrides other) {
@@ -63,6 +79,8 @@ public class MethodOverrides {
 	}
 
 	/**
+	 * 添加 overrides
+	 *
 	 * Add the given method override.
 	 */
 	public void addOverride(MethodOverride override) {

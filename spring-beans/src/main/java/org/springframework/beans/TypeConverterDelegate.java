@@ -115,17 +115,27 @@ class TypeConverterDelegate {
 	public <T> T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue, @Nullable Object newValue,
 			@Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws IllegalArgumentException {
 
+		// 查找自定义 editor 类型
 		// Custom editor for this type?
 		PropertyEditor editor = this.propertyEditorRegistry.findCustomEditor(requiredType, propertyName);
 
+		// 记录异常
 		ConversionFailedException conversionAttemptEx = null;
 
+		// 没有自定义编辑器，使用 ConversionService 来转换
 		// No custom editor but custom ConversionService specified?
 		ConversionService conversionService = this.propertyEditorRegistry.getConversionService();
 		if (editor == null && conversionService != null && newValue != null && typeDescriptor != null) {
+
+			// tips:
+			// 进入这里面，因为没有可用的 “属性解析器” 所以采用 conversionService 来转换
+
+			// 获取属性描述
 			TypeDescriptor sourceTypeDesc = TypeDescriptor.forObject(newValue);
+			// 是否可以转换此类属性
 			if (conversionService.canConvert(sourceTypeDesc, typeDescriptor)) {
 				try {
+					// 采用 conversionService 转换
 					return (T) conversionService.convert(newValue, sourceTypeDesc, typeDescriptor);
 				}
 				catch (ConversionFailedException ex) {
@@ -135,6 +145,7 @@ class TypeConverterDelegate {
 			}
 		}
 
+		// 转换后的 value
 		Object convertedValue = newValue;
 
 		// Value not of required type?

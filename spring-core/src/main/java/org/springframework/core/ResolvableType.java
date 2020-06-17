@@ -264,6 +264,9 @@ public class ResolvableType implements Serializable {
 	}
 
 	/**
+	 * 属性中是否可分配此{@code ResolvableType}
+	 * 指定其他类型。
+	 *
 	 * Determine whether this {@code ResolvableType} is assignable from the
 	 * specified other type.
 	 * <p>Attempts to follow the same rules as the Java compiler, considering
@@ -440,15 +443,24 @@ public class ResolvableType implements Serializable {
 	 * @see #getInterfaces()
 	 */
 	public ResolvableType as(Class<?> type) {
+		// 如果是 NONE 就直接返回 NONE
 		if (this == NONE) {
 			return NONE;
 		}
+		// 获取当前解析的 resolve class
 		Class<?> resolved = resolve();
+		// 如果 resolve 和 type
 		if (resolved == null || resolved == type) {
 			return this;
 		}
+		// tips:
+		// 获取 resolve 的所有 interfaces
+		// 检查 type 是否是这些类型之一
+		// 是就返回 这个interface 类型
 		for (ResolvableType interfaceType : getInterfaces()) {
+			// 检查 type 是否是这些类型之一
 			ResolvableType interfaceAsType = interfaceType.as(type);
+			// 这里需要排除 NONE
 			if (interfaceAsType != NONE) {
 				return interfaceAsType;
 			}
@@ -464,9 +476,14 @@ public class ResolvableType implements Serializable {
 	 */
 	public ResolvableType getSuperType() {
 		Class<?> resolved = resolve();
+		// tips:
+		// resolved.getGenericSuperclass() 检查时他的父类，如果父类时 interface 了
 		if (resolved == null || resolved.getGenericSuperclass() == null) {
 			return NONE;
 		}
+		// tips:
+		// 如果没有指定 superType，那么就通过 getGenericSuperclass 获取父类
+		// 然后初创建一个 ResolvableType
 		ResolvableType superType = this.superType;
 		if (superType == null) {
 			superType = forType(resolved.getGenericSuperclass(), this);
@@ -526,6 +543,8 @@ public class ResolvableType implements Serializable {
 	}
 
 	/**
+	 * 不能解析的泛型
+	 *
 	 * Determine whether the underlying type has any unresolvable generics:
 	 * either through an unresolvable type variable on the type itself
 	 * or through implementing a generic interface in a raw fashion,

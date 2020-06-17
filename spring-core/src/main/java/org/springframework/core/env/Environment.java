@@ -71,6 +71,8 @@ package org.springframework.core.env;
 public interface Environment extends PropertyResolver {
 
 	/**
+	 *   // 返回此环境下激活的配置文件集
+	 *
 	 * 返回为此环境显式激活的配置文件集。配置文件
 	 * 用于创建要注册的bean定义的逻辑分组
 	 * 有条件地，例如基于部署环境。配置文件可以是
@@ -96,6 +98,8 @@ public interface Environment extends PropertyResolver {
 	String[] getActiveProfiles();
 
 	/**
+	 * // 如果未设置激活配置文件，则返回默认的激活的配置文件集
+	 *
 	 * 当没有活动配置文件
 	 * 已显式设置。
 	 * <p>

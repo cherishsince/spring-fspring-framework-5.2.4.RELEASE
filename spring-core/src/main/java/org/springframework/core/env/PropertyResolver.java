@@ -30,6 +30,8 @@ import org.springframework.lang.Nullable;
 public interface PropertyResolver {
 
 	/**
+	 * 是否包含某个属性
+	 *
 	 * 返回给定的属性键是否可用于解析，
 	 * 即，如果给定密钥的值不是{@code null}。
 	 * <p>
@@ -39,6 +41,8 @@ public interface PropertyResolver {
 	boolean containsProperty(String key);
 
 	/**
+	 * 获取属性值 如果找不到返回null
+	 *
 	 * 返回与给定键关联的属性值，
 	 * 或者{@code null}如果无法解析密钥。
 	 * <p>
@@ -54,6 +58,8 @@ public interface PropertyResolver {
 	String getProperty(String key);
 
 	/**
+	 * 获取属性值，如果找不到返回默认值
+	 *
 	 * 返回与给定键关联的属性值，或
 	 * {@code defaultValue}如果无法解析密钥。
 	 * <p>
@@ -68,6 +74,8 @@ public interface PropertyResolver {
 	String getProperty(String key, String defaultValue);
 
 	/**
+	 * 获取指定类型的属性值，找不到返回null
+	 *
 	 * 返回与给定键关联的属性值，
 	 * 或者{@code null}如果无法解析密钥。
 	 * <p>
@@ -82,6 +90,8 @@ public interface PropertyResolver {
 	<T> T getProperty(String key, Class<T> targetType);
 
 	/**
+	 * 获取指定类型的属性值，找不到返回默认值
+	 *
 	 * Return the property value associated with the given key,
 	 * or {@code defaultValue} if the key cannot be resolved.
 	 *
@@ -93,6 +103,8 @@ public interface PropertyResolver {
 	<T> T getProperty(String key, Class<T> targetType, T defaultValue);
 
 	/**
+	 * 获取属性值，找不到抛出异常IllegalStateException
+	 *
 	 * Return the property value associated with the given key (never {@code null}).
 	 *
 	 * @throws IllegalStateException if the key cannot be resolved
@@ -101,6 +113,8 @@ public interface PropertyResolver {
 	String getRequiredProperty(String key) throws IllegalStateException;
 
 	/**
+	 * 获取指定类型的属性值，找不到抛出异常IllegalStateException
+	 *
 	 * Return the property value associated with the given key, converted to the given
 	 * targetType (never {@code null}).
 	 *
@@ -109,6 +123,8 @@ public interface PropertyResolver {
 	<T> T getRequiredProperty(String key, Class<T> targetType) throws IllegalStateException;
 
 	/**
+	 * 替换文本中的占位符（${key}）到属性值，找不到不解析
+	 *
 	 * 解决$ {…}在给定文本中使用占位符，并将其替换为相应的
 	 * 由{@link #getProperty}解析的属性值。不肯舍弃的占位符
 	 * 默认值不会被忽略，也不会不加修改地传递。
@@ -126,6 +142,8 @@ public interface PropertyResolver {
 	String resolvePlaceholders(String text);
 
 	/**
+	 * 替换文本中的占位符（${key}）到属性值，找不到抛出异常IllegalArgumentException
+	 *
 	 * 解决$ {…}在给定文本中使用占位符，并将其替换为相应的
 	 * 由{@link #getProperty}解析的属性值。不肯舍弃的占位符
 	 * 没有默认值会导致抛出一个IllegalArgumentException。

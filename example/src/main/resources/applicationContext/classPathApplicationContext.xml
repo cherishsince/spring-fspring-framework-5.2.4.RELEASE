@@ -46,4 +46,20 @@
 	<alias name="postProcessorsT1" alias="t1a"/>
 	<alias name="postProcessorsT1" alias="t1b"/>
 	<bean id="postProcessorsT1" class="example.classpath.postProcessors.PostProcessorsT1"/>
+
+	<!-- UserService1  -->
+	<bean id="conversionService"
+		  class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<set>
+				<ref bean="user2ConversionService"/>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="user2ConversionService" class="example.classpath.beans.User2ConversionService" />
+	<bean id="userService2" class="example.classpath.beans.UserService2" />
+	<bean id="userService1" class="example.classpath.beans.UserService1">
+		<property name="userService2" value="userService2"></property>
+	</bean>
 </beans>

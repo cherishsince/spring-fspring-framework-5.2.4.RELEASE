@@ -694,6 +694,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * active flag as well as performing any initialization of property sources.
 	 */
 	protected void prepareRefresh() {
+		// <1>、切换激活状态
 		// Switch to active.
 		this.startupDate = System.currentTimeMillis();
 		this.closed.set(false);
@@ -707,24 +708,27 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 		}
 
-		// 初始化属性来源
+		// <2>、初始化属性来源
 		// Initialize any placeholder property sources in the context environment.
 		initPropertySources();
 
-		// 校验必填的 properties
+		// <3>、校验必填的 properties
 		// Validate that all properties marked as required are resolvable:
 		// see ConfigurablePropertyResolver#setRequiredProperties
 		getEnvironment().validateRequiredProperties();
 
+		// <4>、早期的 applicationListeners，特点是：在refresh之前就会去注册
 		// Store pre-refresh ApplicationListeners...
 		if (this.earlyApplicationListeners == null) {
 			this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
 		} else {
+			// 重置本地的 applicationListeners
 			// Reset local application listeners to pre-refresh state.
 			this.applicationListeners.clear();
 			this.applicationListeners.addAll(this.earlyApplicationListeners);
 		}
 
+		// <5>、早期的event，对应于 earlyApplicationListeners
 		// Allow for the collection of early ApplicationEvents,
 		// to be published once the multicaster is available...
 		this.earlyApplicationEvents = new LinkedHashSet<>();
@@ -753,7 +757,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @see #getBeanFactory()
 	 */
 	protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+		// <1> 提供给子类的扩展，用于刷新容器
 		refreshBeanFactory();
+		// <2> 提供给子类的扩展，获取当前 Context 中的 BeanFactory
 		return getBeanFactory();
 	}
 

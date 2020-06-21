@@ -79,6 +79,8 @@ public interface Resource extends InputStreamSource {
 	}
 
 	/**
+	 * 文件是否打开
+	 *
 	 * Indicate whether this resource represents a handle with an open stream.
 	 * If {@code true}, the InputStream cannot be read multiple times,
 	 * and must be read and closed to avoid resource leaks.
@@ -133,6 +135,8 @@ public interface Resource extends InputStreamSource {
 	File getFile() throws IOException;
 
 	/**
+	 * 这里是 nio的 channel
+	 *
 	 * Return a {@link ReadableByteChannel}.
 	 * <p>It is expected that each call creates a <i>fresh</i> channel.
 	 * <p>The default implementation returns {@link Channels#newChannel(InputStream)}
@@ -148,6 +152,8 @@ public interface Resource extends InputStreamSource {
 	}
 
 	/**
+	 * 内容大小
+	 *
 	 * Determine the content length for this resource.
 	 * @throws IOException if the resource cannot be resolved
 	 * (in the file system or as some other known physical resource type)
@@ -155,6 +161,8 @@ public interface Resource extends InputStreamSource {
 	long contentLength() throws IOException;
 
 	/**
+	 * 最后的修改
+	 *
 	 * Determine the last-modified timestamp for this resource.
 	 * @throws IOException if the resource cannot be resolved
 	 * (in the file system or as some other known physical resource type)
@@ -162,6 +170,8 @@ public interface Resource extends InputStreamSource {
 	long lastModified() throws IOException;
 
 	/**
+	 * 创建与此资源相关的资源。
+	 *
 	 * Create a resource relative to this resource.
 	 * @param relativePath the relative path (relative to this resource)
 	 * @return the resource handle for the relative resource
@@ -170,6 +180,8 @@ public interface Resource extends InputStreamSource {
 	Resource createRelative(String relativePath) throws IOException;
 
 	/**
+	 * 获取文件名称
+	 *
 	 * Determine a filename for this resource, i.e. typically the last
 	 * part of the path: for example, "myfile.txt".
 	 * <p>Returns {@code null} if this type of resource does not
@@ -179,6 +191,8 @@ public interface Resource extends InputStreamSource {
 	String getFilename();
 
 	/**
+	 * 获取文件描述
+	 *
 	 * Return a description for this resource,
 	 * to be used for error output when working with the resource.
 	 * <p>Implementations are also encouraged to return this value

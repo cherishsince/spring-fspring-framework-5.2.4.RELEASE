@@ -20,6 +20,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
 
 /**
+ * 来源提取器，用于保存一些 "源数据"
+ *
+ * 简单的策略，允许工具控制源元数据，如何附加到 bean定义元数据。
+ *
  * Simple strategy allowing tools to control how source metadata is attached
  * to the bean definition metadata.
  *
@@ -38,6 +42,8 @@ import org.springframework.lang.Nullable;
 public interface SourceExtractor {
 
 	/**
+	 * 从配置解析器，提供候选对象中提取，源元数据。
+	 *
 	 * Extract the source metadata from the candidate object supplied
 	 * by the configuration parser.
 	 * @param sourceCandidate the original source metadata (never {@code null})

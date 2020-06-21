@@ -20,6 +20,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.lang.Nullable;
 
 /**
+ * 在bean定义读取过程中传递的上下文，它封装了所有相关的配置和状态。
+ *
  * Context that gets passed along a bean definition reading process,
  * encapsulating all relevant configuration as well as state.
  *
@@ -29,12 +31,21 @@ import org.springframework.lang.Nullable;
  */
 public class ReaderContext {
 
+	/**
+	 * Resource 资源
+	 */
 	private final Resource resource;
-
+	/**
+	 * 问题报告(记录异常的)
+	 */
 	private final ProblemReporter problemReporter;
-
+	/**
+	 * BeanDefinition 的事件监听，是 EventListener 的扩展
+	 */
 	private final ReaderEventListener eventListener;
-
+	/**
+	 * 源数据提取器
+	 */
 	private final SourceExtractor sourceExtractor;
 
 

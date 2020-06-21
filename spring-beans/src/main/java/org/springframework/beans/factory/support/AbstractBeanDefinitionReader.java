@@ -213,20 +213,25 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
 	public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
-		// 获取 resource loader 对象
+		// <1> 获取 ResourceLoader，在创建 BeanDefinitionReader 时候设置的。
 		ResourceLoader resourceLoader = getResourceLoader();
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
 					"Cannot load bean definitions from location [" + location + "]: no ResourceLoader available");
 		}
 
-		// 判断是否是 ResourcePatternResolver
+		//
+		// location 存在两种情况
+		// 第一种：表达式 classPath: **/*.xml 这种表达式，需要解析后才能
+		// 第二种：已经是具体地址的 xml 路径，可以直接加载，不需要解析
+
+		// <2> ApplicationContext 默认实现了 ResourcePatternResolver
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
 			try {
-				// 解析 resources
+				// <2.1> 解析Resource，因为 location 可能是 classPath: **/*.xml 这种表达式，所以这里会返回多个 Resource
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
-				// 加载 bean definition，最终调用的是 BeanDefinitionReader -> XmlBeanDefinitionReader
+				// <2.2> 加载 bean definition，最终调用的是 BeanDefinitionReader -> XmlBeanDefinitionReader
 				int count = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					Collections.addAll(actualResources, resources);
@@ -241,10 +246,13 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 						"Could not resolve bean definition resource pattern [" + location + "]", ex);
 			}
 		}
+
+		// 第二种：已经是具体地址的 xml 路径，可以直接加载，不需要解析
 		else {
-			// 只能通过： 绝对URL加载单个资源。
+			// <3.1> 这是具体的 url 可以直接解析
 			// Can only load single resources by absolute URL.
 			Resource resource = resourceLoader.getResource(location);
+			// <3.2> 这里和 <2.2> 一样
 			// 加载 bean definition
 			int count = loadBeanDefinitions(resource);
 			if (actualResources != null) {

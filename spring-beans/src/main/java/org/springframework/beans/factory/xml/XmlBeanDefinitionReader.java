@@ -330,9 +330,9 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			logger.trace("Loading XML bean definitions from " + encodedResource);
 		}
 
-		// 当前正在加载的resource，这是一个 ThreadLocal
+		// <1> 采用 ThreadLocation 实现线程安全，获取 EncodedResource (Resource 子类)
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
-		// 如果是 null，创建一个 hashSet
+		// <2> 如果是 null，创建一个 hashSet(首次进入为 null)
 		if (currentResources == null) {
 			currentResources = new HashSet<>(4);
 			this.resourcesCurrentlyBeingLoaded.set(currentResources);
@@ -350,7 +350,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			if (encodedResource.getEncoding() != null) {
 				inputSource.setEncoding(encodedResource.getEncoding());
 			}
-			// 加载 bean definitions
+			// <3> 这里开始准备去加载 BeanDefinition
 			return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 		}
 		catch (IOException ex) {
@@ -403,11 +403,10 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 */
 	protected int doLoadBeanDefinitions(InputSource inputSource, Resource resource)
 			throws BeanDefinitionStoreException {
-
 		try {
-		    // 读取 xml document 节点
+		    // <1> 通过 InputSource 加载 Document(这里采用DocumentLoader组件)
 			Document doc = doLoadDocument(inputSource, resource);
-			// 注册 beanDefinitions
+			// <2> 注册BeanDefinition，这里其实分为两步，解析BeanDefinition，然后注册
 			int count = registerBeanDefinitions(doc, resource);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Loaded " + count + " bean definitions from " + resource);
@@ -532,14 +531,14 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
-	    // 通过 BeanUtils instantiateClass 创建对象
+	    // <1> 通过 BeanUtils instantiateClass 创建对象，用于读取 BeanDefinition document
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
-		// 获取已注册的 beanDefinition 数量
+		// <2> 获取已注册的 beanDefinition 数量，用于计算返回使用
 		int countBefore = getRegistry().getBeanDefinitionCount();
-		// 1、createReaderContext(resource) 创建 readerContext 上下文就，读取的信息会保存到上下文中
-		// 2、注册 beanDefinition
+		// <3> Document 解析过程就在这里面，解析和注册放到一起了(分成两个觉得会更好)。
+		// 1、createReaderContext(resource) 创建 readerContext 上下文，这里只是为了做一下包装相当于一个BusinessObject(BO)
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
-		// 返回本次，注册的数量
+		// <4> 这里已经完成注册了，里面记录的是注册的数量。
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 

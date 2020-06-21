@@ -67,20 +67,29 @@ public class SimplePropertyNamespaceHandler implements NamespaceHandler {
 
 	@Override
 	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
+		// <1> 这里只处理 Attr 类型的数据
 		if (node instanceof Attr) {
 			Attr attr = (Attr) node;
+			// <2> 获取标签的 name 属性, value 属性
 			String propertyName = parserContext.getDelegate().getLocalName(attr);
 			String propertyValue = attr.getValue();
+			// <3> MutablePropertyValues 数 BeanDefinition 用于来描述属性的 "封装类",
+			// 里面是一个map集合，有多少个属性就有多少条数据。
 			MutablePropertyValues pvs = definition.getBeanDefinition().getPropertyValues();
 			if (pvs.contains(propertyName)) {
+				// 这里是异常收集，最后统一抛出异常
 				parserContext.getReaderContext().error("Property '" + propertyName + "' is already defined using " +
 						"both <property> and inline syntax. Only one approach may be used per property.", attr);
 			}
+			// <4> 属性名 xxx-ref 结尾的名称，需要进行 substring 截取
+			// Conventions：这里是名字的转换，如：name-value -> nameValue
+			// RuntimeBeanReference：spring 采用这种类，来队 BeanDefinition 解耦，这样就没有直接关系，需要的时候解析即可
 			if (propertyName.endsWith(REF_SUFFIX)) {
 				propertyName = propertyName.substring(0, propertyName.length() - REF_SUFFIX.length());
 				pvs.add(Conventions.attributeNameToPropertyName(propertyName), new RuntimeBeanReference(propertyValue));
 			}
 			else {
+				// <5> 这里和 <4> 一样
 				pvs.add(Conventions.attributeNameToPropertyName(propertyName), propertyValue);
 			}
 		}

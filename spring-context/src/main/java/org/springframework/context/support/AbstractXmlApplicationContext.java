@@ -79,20 +79,25 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 */
 	@Override
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+		// <1> 用于解析 xml，提供加载 BeanDefinitions、向 BeanFactory 注册功能
 		// Create a new XmlBeanDefinitionReader for the given BeanFactory.
 		XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
 
+		// <2> 配置解析 BeanDefinitions 时需要的一些组件
 		// Configure the bean definition reader with this context's
 		// resource loading environment.
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
 		beanDefinitionReader.setResourceLoader(this);
+		// <3> 这个适用于解析xml dtd 和 xsd，最终使用的还是 java EntityResolver
+		// 解析 xml 全靠它，xml 转换至 document 对象后，spring 才能创建 BeanDefinitions
+		// (不太重要，可以略过，有兴趣的可以了解)
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
-		// 初始化所有子类，beanDefinition, 子类也可以随意修改当前 beanDefinitionReader
+		// <4> 初始化所有子类，beanDefinition, 子类也可以随意修改当前 beanDefinitionReader
 		// Allow a subclass to provide custom initialization of the reader,
 		// then proceed with actually loading the bean definitions.
 		initBeanDefinitionReader(beanDefinitionReader);
-		// 加载 bean，从 xml 读取配置信息
+		// <5> 加载 bean，从 xml 读取配置信息
 		loadBeanDefinitions(beanDefinitionReader);
 	}
 
@@ -121,10 +126,17 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @see #getResourcePatternResolver
 	 */
 	protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException {
+		// tips：
+		// getConfigResources  和 getConfigLocations 区别是 new ClassPathXmlApplication(xxx.xml) 时候，
+		// 提供了多个构造器，一个是通过 xml，另一个可以指定 xx.class 对象，为什么呢？
+		// 这里和 ClassPathResource 有关，ClassPathResource 里面有可以指定一个 class 对象，和 classLoader，用于加载资源
+		// 优先使用 class，没有才用 classLoader
+
         Resource[] configResources = getConfigResources();
         if (configResources != null) {
             reader.loadBeanDefinitions(configResources);
         }
+        // configLocations
         String[] configLocations = getConfigLocations();
         if (configLocations != null) {
             reader.loadBeanDefinitions(configLocations);

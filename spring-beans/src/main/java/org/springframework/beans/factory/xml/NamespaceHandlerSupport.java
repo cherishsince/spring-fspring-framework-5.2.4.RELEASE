@@ -28,6 +28,13 @@ import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.lang.Nullable;
 
 /**
+ * 实现自定义{@link NamespaceHandler NamespaceHandlers}的支持类。
+ * 单个{@link Node Nodes}的解析和修饰通过{@link BeanDefinitionParser}完成
+ * 和{@link BeanDefinitionDecorator}策略接口。
+ * <p>
+ * 提供{@link#registerBeanDefinitionParser}和{@link#registerBeanDefinitionDecorator}
+ * 注册{@link BeanDefinitionParser}或{@link BeanDefinitionDecorator}的方法处理特定元素。
+ * <p>
  * Support class for implementing custom {@link NamespaceHandler NamespaceHandlers}.
  * Parsing and decorating of individual {@link Node Nodes} is done via {@link BeanDefinitionParser}
  * and {@link BeanDefinitionDecorator} strategy interfaces, respectively.
@@ -38,25 +45,31 @@ import org.springframework.lang.Nullable;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @since 2.0
  * @see #registerBeanDefinitionParser(String, BeanDefinitionParser)
  * @see #registerBeanDefinitionDecorator(String, BeanDefinitionDecorator)
+ * @since 2.0
  */
 public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 
 	/**
+	 * 存储由它们处理的{@link Element Element}的本地名称键控的{@link BeanDefinitionParser}实现。
+	 * <p>
 	 * Stores the {@link BeanDefinitionParser} implementations keyed by the
 	 * local name of the {@link Element Elements} they handle.
 	 */
 	private final Map<String, BeanDefinitionParser> parsers = new HashMap<>();
 
 	/**
+	 * 存储由它们处理的{@link Element Elements}的本地名称键控的{@link BeanDefinitionDecorator}实现。
+	 * <p>
 	 * Stores the {@link BeanDefinitionDecorator} implementations keyed by the
 	 * local name of the {@link Element Elements} they handle.
 	 */
 	private final Map<String, BeanDefinitionDecorator> decorators = new HashMap<>();
 
 	/**
+	 * 存储由它们处理的{@link Attr Attrs}的本地名称键控的{@link BeanDefinitionDecorator}实现。
+	 * <p>
 	 * Stores the {@link BeanDefinitionDecorator} implementations keyed by the local
 	 * name of the {@link Attr Attrs} they handle.
 	 */
@@ -117,11 +130,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 		String localName = parserContext.getDelegate().getLocalName(node);
 		if (node instanceof Element) {
 			decorator = this.decorators.get(localName);
-		}
-		else if (node instanceof Attr) {
+		} else if (node instanceof Attr) {
 			decorator = this.attributeDecorators.get(localName);
-		}
-		else {
+		} else {
 			parserContext.getReaderContext().fatal(
 					"Cannot decorate based on Nodes of type [" + node.getClass().getName() + "]", node);
 		}

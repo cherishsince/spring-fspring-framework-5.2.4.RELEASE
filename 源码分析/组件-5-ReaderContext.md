@@ -37,4 +37,28 @@
 
 
 
+###### XmlReaderContext 扩展类
+
+`XmlReaderContext` 读取类，这里是 `ReaderContext` 扩展，里面增加了 xml 读取 和 xml namespace 解析。
+
+```java
+// XmlReaderContext
+
+// <1> 用于xml读取
+private final XmlBeanDefinitionReader reader;
+// <2> 用于namespace处理，就是xml上面的uri
+private final NamespaceHandlerResolver namespaceHandlerResolver;
+```
+
+说明：
+
+- <1> 用于xml读取
+- <2> 用于namespace处理，就是xml上面的uri
+
+(和普通的 Context 基本一样，简单理解就好了~)
+
+
+
+
+
 ps: 完结~

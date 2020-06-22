@@ -44,8 +44,9 @@ import org.springframework.lang.Nullable;
  */
 public class XmlReaderContext extends ReaderContext {
 
+	// <1> 用于xml读取
 	private final XmlBeanDefinitionReader reader;
-
+	// <2> 用于namespace处理，就是xml上面的uri
 	private final NamespaceHandlerResolver namespaceHandlerResolver;
 
 

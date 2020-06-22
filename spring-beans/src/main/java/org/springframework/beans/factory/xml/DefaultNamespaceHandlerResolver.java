@@ -115,11 +115,11 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	@Override
 	@Nullable
 	public NamespaceHandler resolve(String namespaceUri) {
-		// 获取所有的handle，key是 namespaceUri -> handle
+		// <1> 获取所有的handle，key是 namespaceUri -> handle
 		Map<String, Object> handlerMappings = getHandlerMappings();
 
 		// tips:
-		// 这里获取的 namespaceHandle，这里是一个object 类型，有两种情况
+		// <2> 这里获取的 namespaceHandle，这里是一个object 类型，有两种情况
 		// 情况一：NamespaceHandler实现，那么直接解析
 		// 情况二：是string的Class，需要ClassUtils.forName反射调用(用于一些扩展)
 		Object handlerOrClassName = handlerMappings.get(namespaceUri);
@@ -127,12 +127,12 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 		if (handlerOrClassName == null) {
 			return null;
 		}
-		// 检查是否是 NamespaceHandler 的实现
+		// <3> 情况一: 检查是否是 NamespaceHandler 的实现
 		else if (handlerOrClassName instanceof NamespaceHandler) {
 			return (NamespaceHandler) handlerOrClassName;
 		}
 		else {
-			// 情况二：是一个 string 的 class package
+			// <4> 情况二：是一个 string 的 class package
 			String className = (String) handlerOrClassName;
 			try {
 				// 通过 classLoader 加载 class

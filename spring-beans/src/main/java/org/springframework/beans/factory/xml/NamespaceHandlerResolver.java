@@ -19,6 +19,8 @@ package org.springframework.beans.factory.xml;
 import org.springframework.lang.Nullable;
 
 /**
+ * 用于 DefaultBeanDefinitionDocumentReader 使用，用于处理 NamespaceHandler 命名空间 uri
+ *
  * Used by the {@link org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader} to
  * locate a {@link NamespaceHandler} implementation for a particular namespace URI.
  *
@@ -31,6 +33,8 @@ import org.springframework.lang.Nullable;
 public interface NamespaceHandlerResolver {
 
 	/**
+	 * 解析 namespace URI， 返回这个 URI 的处理器
+	 *
 	 * Resolve the namespace URI and return the located {@link NamespaceHandler}
 	 * implementation.
 	 * @param namespaceUri the relevant namespace URI

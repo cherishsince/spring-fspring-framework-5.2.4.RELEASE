@@ -24,6 +24,9 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ * MessageSourceResolvable接口的Spring默认实现类。
+ * 提供了一个简单的方式，用于存储所有需要的值，值经过MessageSource来解析一个消息。
+ *
  * Spring's default implementation of the {@link MessageSourceResolvable} interface.
  * Offers an easy way to store all the necessary values needed to resolve
  * a message via a {@link org.springframework.context.MessageSource}.
@@ -44,8 +47,9 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
 	@Nullable
 	private final String defaultMessage;
 
-
 	/**
+	 * 创建一个新的DefaultMessageSourceResolvable.
+	 *
 	 * Create a new DefaultMessageSourceResolvable.
 	 * @param code the code to be used to resolve this message
 	 */
@@ -54,6 +58,8 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
 	}
 
 	/**
+	 * 创建一个新的DefaultMessageSourceResolvable.
+	 *
 	 * Create a new DefaultMessageSourceResolvable.
 	 * @param codes the codes to be used to resolve this message
 	 */
@@ -62,6 +68,8 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
 	}
 
 	/**
+	 * 创建一个新的DefaultMessageSourceResolvable.
+	 *
 	 * Create a new DefaultMessageSourceResolvable.
 	 * @param codes the codes to be used to resolve this message
 	 * @param defaultMessage the default message to be used to resolve this message
@@ -71,6 +79,8 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
 	}
 
 	/**
+	 * 创建一个新的DefaultMessageSourceResolvable
+	 *
 	 * Create a new DefaultMessageSourceResolvable.
 	 * @param codes the codes to be used to resolve this message
 	 * @param arguments the array of arguments to be used to resolve this message
@@ -80,6 +90,8 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
 	}
 
 	/**
+	 * 创建一个新的DefaultMessageSourceResolvable.
+	 *
 	 * Create a new DefaultMessageSourceResolvable.
 	 * @param codes the codes to be used to resolve this message
 	 * @param arguments the array of arguments to be used to resolve this message

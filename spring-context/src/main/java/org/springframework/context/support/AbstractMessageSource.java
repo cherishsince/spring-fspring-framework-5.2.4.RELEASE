@@ -196,15 +196,21 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 	 */
 	@Nullable
 	protected String getMessageInternal(@Nullable String code, @Nullable Object[] args, @Nullable Locale locale) {
+
 		if (code == null) {
 			return null;
 		}
+		// <1> 地区为空的时候，则获取 default
 		if (locale == null) {
 			locale = Locale.getDefault();
 		}
 		Object[] argsToUse = args;
-
+		// <2> 不实用消息格式 and 参数为空，这样就直接返回了
 		if (!isAlwaysUseMessageFormat() && ObjectUtils.isEmpty(args)) {
+			// 优化的解决方案：没有要应用的参数，
+			// 因此不需要涉及任何消息格式。
+			// 注意，默认实现仍然使用MessageFormat；
+			// 这可以在特定子类中重写。
 			// Optimized resolution: no arguments to apply,
 			// therefore no MessageFormat needs to be involved.
 			// Note that the default implementation still uses MessageFormat;
@@ -216,11 +222,16 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 		}
 
 		else {
+			// 如果消息是在父消息源中定义的，
+			// 而可解析参数是在子消息源中定义的，
+			// 则应急切地解析参数。
 			// Resolve arguments eagerly, for the case where the message
 			// is defined in a parent MessageSource but resolvable arguments
 			// are defined in the child MessageSource.
-			argsToUse = resolveArguments(args, locale);
 
+			// <3> 里面采用 MessageSourceResolvable 来解析 message
+			argsToUse = resolveArguments(args, locale);
+			// <4> 根据 code 获取 MessageFormat
 			MessageFormat messageFormat = resolveCode(code, locale);
 			if (messageFormat != null) {
 				synchronized (messageFormat) {

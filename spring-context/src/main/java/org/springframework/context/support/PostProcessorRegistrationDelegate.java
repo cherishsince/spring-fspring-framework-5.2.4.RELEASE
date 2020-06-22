@@ -319,12 +319,15 @@ final class PostProcessorRegistrationDelegate {
 	}
 
 	/**
+	 * 注册 BeanPostProcessor
+	 *
 	 * Register the given BeanPostProcessor beans.
 	 */
 	private static void registerBeanPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanPostProcessor> postProcessors) {
-		// 遍历 BeanPostProcessor 数组，注册
+		// <1> 注册一组 BeanPostProcessor
 		for (BeanPostProcessor postProcessor : postProcessors) {
+			// <2> 这里是 ConfigurableBeanFactory 来添加 BeanPostProcessor，最后调用的是 AbstractBeanFactory
 			beanFactory.addBeanPostProcessor(postProcessor);
 		}
 	}

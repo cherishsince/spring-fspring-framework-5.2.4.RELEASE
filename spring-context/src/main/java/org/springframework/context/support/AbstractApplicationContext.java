@@ -272,7 +272,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	private MessageSource messageSource;
 
 	/**
-	 * 事件发布中使用，帮助程序类。
+	 * 事件发布中使用的Helper类。
 	 * <p>
 	 * Helper class used in event publishing.
 	 */
@@ -508,6 +508,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 返回上下文使用的内部ApplicationEventMulticaster。
+	 * <p>
 	 * Return the internal ApplicationEventMulticaster used by the context.
 	 *
 	 * @return the internal ApplicationEventMulticaster (never {@code null})
@@ -646,7 +648,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Initialize event multicaster for this context.
 				initApplicationEventMulticaster();
 
-				// 给子类扩展初始化其他Bean
+				// 给子类扩展初始化其他Bean(像mvc就需要通知子类刷新)
 				// Initialize other special beans in specific context subclasses. 初始化特定上下文子类中的其他特殊bean。
 				onRefresh();
 
@@ -841,7 +843,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/**
 	 * 实例化，并调用所有已经，注册的 BeanFactoryPostProcessor
 	 * 实例化并调用所有注册的BeanFactoryPostProcessor，如果给定显式顺序，则遵循显式顺序。必须在单例实例化之前调用。
-	 *
+	 * <p>
 	 * Instantiate and invoke all registered BeanFactoryPostProcessor beans,
 	 * respecting explicit order if given.
 	 * <p>Must be called before singleton instantiation.
@@ -865,7 +867,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/**
 	 * 实例化并注册所有 BeanPostProcessor，如果给定显式顺序，则遵循显式顺序。
 	 * 必须在应用程序bean的任何实例化之前调用。
-	 *
+	 * <p>
 	 * Instantiate and register all BeanPostProcessor beans,
 	 * respecting explicit order if given.
 	 * <p>Must be called before any instantiation of application beans.
@@ -984,15 +986,20 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 添加实现 ApplicationListener 的 listener bean
+	 * <p>
 	 * Add beans that implement ApplicationListener as listeners.
 	 * Doesn't affect other listeners, which can be added without being beans.
 	 */
 	protected void registerListeners() {
+		// <1> 优先注册静态指定的侦听器。
 		// Register statically specified listeners first.
 		for (ApplicationListener<?> listener : getApplicationListeners()) {
 			getApplicationEventMulticaster().addApplicationListener(listener);
 		}
 
+		// <2> 将 ApplicationListener 这个类型的 beanName 全部拿到，然后注册到 Listener
+		// 不要在这里初始化FactoryBeans：我们需要保留所有未初始化的常规bean，以便后处理器对其应用！
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let post-processors apply to them!
 		String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
@@ -1000,6 +1007,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);
 		}
 
+		// <3> 这里是发布一些早期的 Event
+		// 现在我们终于有了一个多播器，可以发布早期的应用程序事件。
 		// Publish early application events now that we finally have a multicaster...
 		Set<ApplicationEvent> earlyEventsToProcess = this.earlyApplicationEvents;
 		this.earlyApplicationEvents = null;
@@ -1011,14 +1020,23 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 完成该上下文的bean工厂的初始化，
+	 * 初始化所有剩余的单例bean。
+	 * <p>
 	 * Finish the initialization of this context's bean factory,
 	 * initializing all remaining singleton beans.
 	 */
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
-		// 初始化转换器
+		// tips:
+		// 初始化剩余 BeanFactory、SingletonBean
+
+		// <1> 初始化 ConversionService 转换器(这个用于类型的转换)
 		// Initialize conversion service for this context.
-		if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
-				beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+
+		// <2> 条件说明：BeanFactory 存在 conversionService && 通过 BeanFactory 匹配是否存在这个类型
+		if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME)
+				&& beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+			// <2.1> 通过 BeanFactory 获取 conversionService 设置给 BeanFactory
 			beanFactory.setConversionService(
 					beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
 		}
@@ -1514,7 +1532,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/**
 	 * 如果父上下文也是AbstractApplicationContext，
 	 * 则返回父上下文的内部消息源；否则，返回父上下文本身。
-	 *
+	 * <p>
 	 * Return the internal message source of the parent context if it is an
 	 * AbstractApplicationContext too; else, return the parent context itself.
 	 */

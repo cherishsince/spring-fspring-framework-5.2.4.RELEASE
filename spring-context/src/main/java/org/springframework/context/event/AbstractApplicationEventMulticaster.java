@@ -105,9 +105,12 @@ public abstract class AbstractApplicationEventMulticaster
 	@Override
 	public void addApplicationListener(ApplicationListener<?> listener) {
 		synchronized (this.retrievalMutex) {
+			// 明确删除代理的目标（如果已注册），以避免重复调用同一侦听器。
 			// Explicitly remove target for a proxy, if registered already,
 			// in order to avoid double invocations of the same listener.
+			// <1> listener 可能是一个 proxy，所以需要 getSingletonTarget() 来获取目标对象
 			Object singletonTarget = AopProxyUtils.getSingletonTarget(listener);
+			// <2> 先删除 listener 然后再 add 到缓存
 			if (singletonTarget instanceof ApplicationListener) {
 				this.defaultRetriever.applicationListeners.remove(singletonTarget);
 			}
@@ -119,7 +122,9 @@ public abstract class AbstractApplicationEventMulticaster
 	@Override
 	public void addApplicationListenerBean(String listenerBeanName) {
 		synchronized (this.retrievalMutex) {
+			// <1> 这里添加一个 listener beanName
 			this.defaultRetriever.applicationListenerBeans.add(listenerBeanName);
+			// <2> 清除检索的缓存
 			this.retrieverCache.clear();
 		}
 	}

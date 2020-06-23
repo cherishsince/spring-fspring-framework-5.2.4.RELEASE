@@ -134,7 +134,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		// then ultimately reset this.delegate back to its original (parent) reference.
 		// this behavior emulates a stack of delegates without actually necessitating one.
 
-		// <1> 记录一下 old delegate，这里只是一个临时的保存，方法最后面会重新设置回去
+		// <1> 记录一下 old delegate，这里只是一个临时的保存，方法最后面会重新设置回去(这里的delegate 始终都为 null)
 		// 作用：是为了保留 this.delegate 是默认的 BeanDefinitionParserDelegate
 		BeanDefinitionParserDelegate parent = this.delegate;
 		// <2> 创建一个新的 delegate，每次解析都创建一个新的
@@ -169,7 +169,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		// <6> 钩子，跳过(读取后)
 		postProcessXml(root);
 
-		// <7> 将 old 的 delegate 返回去，始终都只保留默认的
+		// <7> 将 old 的 delegate 返回去，始终都只保留默认的(这里始终未 null)
 		this.delegate = parent;
 	}
 
@@ -357,27 +357,27 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Process the given bean element, parsing the bean definition
 	 * and registering it with the registry.
 	 */
-	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
-		// <1> 创建 beanDefinition，并解析 xml 文件属性 设置到 beanDefinition
-		// bdHolder 里面就是 BeanDefinition，
-		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
-		if (bdHolder != null) {
-			// <2> 装饰 BeanDefinition，一般用于自定义标签
-			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
-			try {
-				// <3> 注册 BeanDefinition
-				// Register the final decorated instance.
-				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
-			} catch (BeanDefinitionStoreException ex) {
-				getReaderContext().error("Failed to register bean definition with name '" +
-						bdHolder.getBeanName() + "'", ele, ex);
-			}
-
-			// <4> 注册完后，发送通知
-			// Send registration event.
-			getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
+protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+	// <1> 创建 beanDefinition，并解析 xml 文件属性 设置到 beanDefinition
+	// bdHolder 里面就是 BeanDefinition，
+	BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
+	if (bdHolder != null) {
+		// <2> 装饰 BeanDefinition，一般用于自定义标签
+		bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
+		try {
+			// <3> 注册 BeanDefinition
+			// Register the final decorated instance.
+			BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
+		} catch (BeanDefinitionStoreException ex) {
+			getReaderContext().error("Failed to register bean definition with name '" +
+					bdHolder.getBeanName() + "'", ele, ex);
 		}
+
+		// <4> 注册完后，发送通知
+		// Send registration event.
+		getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
 	}
+}
 
 
 	/**

@@ -83,9 +83,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
-		// 通过标签名，获取 BeanDefinitionParser
+		// <1> 通过标签名，获取 BeanDefinitionParser
 		BeanDefinitionParser parser = findParserForElement(element, parserContext);
-		// BeanDefinitionParser 不为空调用 parser 方法，获取 BeanDefinition
+		// <2> BeanDefinitionParser 不为空调用 parser 方法，获取 BeanDefinition
 		return (parser != null ? parser.parse(element, parserContext) : null);
 	}
 
@@ -95,9 +95,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 */
 	@Nullable
 	private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) {
-		// 获取标签名字
+		// <1> 获取标签名字
 		String localName = parserContext.getDelegate().getLocalName(element);
-		// 通过标签名字获取对应的 parser
+		// <2> 通过标签名字获取对应的 parser
 		BeanDefinitionParser parser = this.parsers.get(localName);
 		if (parser == null) {
 			parserContext.getReaderContext().fatal(

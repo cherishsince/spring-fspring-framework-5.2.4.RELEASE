@@ -40,7 +40,6 @@ public class ResourceAdapterApplicationContext extends GenericApplicationContext
 
 	private final BootstrapContext bootstrapContext;
 
-
 	/**
 	 * Create a new ResourceAdapterApplicationContext for the given BootstrapContext.
 	 * @param bootstrapContext the JCA BootstrapContext that the ResourceAdapter
@@ -50,7 +49,6 @@ public class ResourceAdapterApplicationContext extends GenericApplicationContext
 		Assert.notNull(bootstrapContext, "BootstrapContext must not be null");
 		this.bootstrapContext = bootstrapContext;
 	}
-
 
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -62,5 +60,4 @@ public class ResourceAdapterApplicationContext extends GenericApplicationContext
 		beanFactory.registerResolvableDependency(WorkManager.class,
 				(ObjectFactory<WorkManager>) this.bootstrapContext::getWorkManager);
 	}
-
 }

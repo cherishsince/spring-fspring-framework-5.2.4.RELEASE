@@ -969,10 +969,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
-
+		// <1> 检查参数
 		Assert.hasText(beanName, "Bean name must not be empty");
 		Assert.notNull(beanDefinition, "BeanDefinition must not be null");
 
+		// <2> 这里的 validate 是校验，方法是否允许覆盖
 		if (beanDefinition instanceof AbstractBeanDefinition) {
 			try {
 				((AbstractBeanDefinition) beanDefinition).validate();
@@ -982,9 +983,12 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		}
 
+		// <3> 检查 BeanDefinition 是否存在，存在进入!
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
 		if (existingDefinition != null) {
-			// 是否 beanDefinitionOverriding(可以覆盖)
+			// <3.1> 检查是否允许 BeanDefinition 覆盖，默认为 true
+			// 不允许 BeanDefinitionOverrideException 异常
+			// 允许 会记录一下日志，然后进行put覆盖动作
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
 			} else if (existingDefinition.getRole() < beanDefinition.getRole()) {
@@ -1008,8 +1012,15 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			this.beanDefinitionMap.put(beanName, beanDefinition);
-		} else {
+		}
+		// <4> 这里是正常的 == null 情况进入
+		else {
+			// <5> alreadyCreated != 空就进入，这里分为两个部分
+			// 第一部分，容器doGetBean()后，就是容器已经过了注册阶段，还来修改(支持功能是为了迭代)
+			// 第二部分，注册阶段，直接 put 进去即可
 			if (hasBeanCreationStarted()) {
+				// <5.1> 已经不推荐使用，这是为了兼容迭代(已经不推荐了)
+				// 无法再修改启动时间集合元素（用于稳定迭代）
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
 				synchronized (this.beanDefinitionMap) {
 					this.beanDefinitionMap.put(beanName, beanDefinition);
@@ -1020,15 +1031,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					removeManualSingletonName(beanName);
 				}
 			} else {
+				// <5.2> 仍处于启动注册阶段
 				// Still in startup registration phase
 				this.beanDefinitionMap.put(beanName, beanDefinition);
 				this.beanDefinitionNames.add(beanName);
 				removeManualSingletonName(beanName);
 			}
+			// 这是冻结的 names 最后需要释放
 			this.frozenBeanDefinitionNames = null;
 		}
 
-		// 存在就重置 beanDefinition，重写执行 MergedBeanDefinitionPostProcessor.resetBeanDefinition() 清理缓存
+		// <6> rest 重置，只有在 BeanDefinition 已经注册的情况下，再来注册才需要 rest。
+		// 这里 rest 就是根据 beanName 进行清理缓存。
 		if (existingDefinition != null || containsSingleton(beanName)) {
 			resetBeanDefinition(beanName);
 		}
@@ -1075,14 +1089,25 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 * @see #removeBeanDefinition
 	 */
 	protected void resetBeanDefinition(String beanName) {
+		//
+		// tips: 只有 BeanDefinition 二次注册的情况才会进入 rest，
+		// 需要 rest 为了防止重新，注册的 BeanDefinition 有更改。
+
+		// <1> 移除beanName 合并的 bean definition。
 		// Remove the merged bean definition for the given bean, if already created.
 		clearMergedBeanDefinition(beanName);
 
+		// <2> 这里为什么需要 destroy 的动作呢? 其实是为了保障注册到cache中的一个兜底。
+		// 从单例缓存中移除相应的bean（如果有的话）。
+		// 通常不应该是必需的，而只是用于重写上下文的默认bean
+		// （例如，StaticApplicationContext中的默认StaticMessageSource）。
 		// Remove corresponding bean from singleton cache, if any. Shouldn't usually
 		// be necessary, rather just meant for overriding a context's default beans
 		// (e.g. the default StaticMessageSource in a StaticApplicationContext).
 		destroySingleton(beanName);
 
+		// <3> 通知所有后处理器指定的 BeanDefinition 已重置。
+		// 也是根据 beanName 清楚一些缓存。
 		// Notify all post-processors that the specified bean definition has been reset.
 		for (BeanPostProcessor processor : getBeanPostProcessors()) {
 			if (processor instanceof MergedBeanDefinitionPostProcessor) {
@@ -1090,6 +1115,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		}
 
+		// <4> 重置 BeanDefinition 的父类（递归地）。
 		// Reset all bean definitions that have the given bean as parent (recursively).
 		for (String bdName : this.beanDefinitionNames) {
 			if (!beanName.equals(bdName)) {
@@ -1145,6 +1171,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 */
 	private void updateManualSingletonNames(Consumer<Set<String>> action, Predicate<Set<String>> condition) {
 		if (hasBeanCreationStarted()) {
+			// <1> 无法再修改启动时间集合元素（用于稳定迭代）
 			// Cannot modify startup-time collection elements anymore (for stable iteration)
 			synchronized (this.beanDefinitionMap) {
 				if (condition.test(this.manualSingletonNames)) {
@@ -1154,6 +1181,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 		} else {
+			// <2> 仍处于启动注册阶段
 			// Still in startup registration phase
 			if (condition.test(this.manualSingletonNames)) {
 				action.accept(this.manualSingletonNames);

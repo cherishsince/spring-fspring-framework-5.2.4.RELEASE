@@ -54,21 +54,21 @@ public static void registerBeanDefinition(
 			BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)
 			throws BeanDefinitionStoreException {
 
-		// <1> 获取 beanName 用作与注册的名字
-		// Register bean definition under primary name.
-		String beanName = definitionHolder.getBeanName();
-		// <2> 这里是去注册 BeanDefinition，register 就是 XmlReaderContext 里面的
-		registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
+    // <1> 获取 beanName 用作与注册的名字
+    // Register bean definition under primary name.
+    String beanName = definitionHolder.getBeanName();
+    // <2> 这里是去注册 BeanDefinition，register 就是 XmlReaderContext 里面的
+    registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
 
-		// <3> 这里是注册别名，BeanDefinitionRegistry 继承了 AliasRegistry，所以有此功能
-		// Register aliases for bean name, if any.
-		String[] aliases = definitionHolder.getAliases();
-		if (aliases != null) {
-			for (String alias : aliases) {
-				registry.registerAlias(beanName, alias);
-			}
-		}
-	}
+    // <3> 这里是注册别名，BeanDefinitionRegistry 继承了 AliasRegistry，所以有此功能
+    // Register aliases for bean name, if any.
+    String[] aliases = definitionHolder.getAliases();
+    if (aliases != null) {
+        for (String alias : aliases) {
+            registry.registerAlias(beanName, alias);
+        }
+    }
+}
 ```
 
 说明：

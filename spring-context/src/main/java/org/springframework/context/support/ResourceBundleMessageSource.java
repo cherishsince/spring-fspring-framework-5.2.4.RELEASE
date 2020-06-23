@@ -405,7 +405,7 @@ public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSou
 		@Nullable
 		public ResourceBundle newBundle(String baseName, Locale locale, String format, ClassLoader loader, boolean reload)
 				throws IllegalAccessException, InstantiationException, IOException {
-
+			// <1> 这里只处理 properties 文件
 			// Special handling of default encoding
 			if (format.equals("java.properties")) {
 				String bundleName = toBundleName(baseName, locale);

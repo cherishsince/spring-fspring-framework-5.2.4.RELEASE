@@ -196,7 +196,6 @@ public abstract class AbstractMessageSource extends MessageSourceSupport impleme
 	 */
 	@Nullable
 	protected String getMessageInternal(@Nullable String code, @Nullable Object[] args, @Nullable Locale locale) {
-
 		if (code == null) {
 			return null;
 		}

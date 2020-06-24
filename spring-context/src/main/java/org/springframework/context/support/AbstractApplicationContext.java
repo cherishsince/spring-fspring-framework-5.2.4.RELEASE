@@ -1053,11 +1053,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// Register a default embedded value resolver if no bean post-processor
 		// (such as a PropertyPlaceholderConfigurer bean) registered any before:
 		// at this point, primarily for resolution in annotation attribute values.
-		// 如果之前没有注册 bean 后置处理器（例如PropertyPlaceholderConfigurer），则注册默认的解析器
+		// <3> 如果之前没有注册 bean 后置处理器（例如PropertyPlaceholderConfigurer），则注册默认的解析器
 		if (!beanFactory.hasEmbeddedValueResolver()) {
+			// <3.1> lambda 表达式，这里匿名实现了一个 StringValueResolver
+			// 采用 Environment 里面的 resolvePlaceholders() 解析器，进行处理
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
 		}
 
+		// <4> LoadTimeWeaverAware 是用于AspectJ增强
 		// 尽早初始化LoadTimeWeaverAware bean，以便尽早注册其转换器。
 		// Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
 		String[] weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, false, false);
@@ -1065,15 +1068,18 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			getBean(weaverAwareName);
 		}
 
-		// 停止使用临时类加载器进行类型匹配。
+		// <5> 停止使用临时类加载器进行类型匹配。
 		// Stop using the temporary ClassLoader for type matching.
 		beanFactory.setTempClassLoader(null);
 
+		// <6> 这里是冻结的意思，不允许再修改了，
+		// 第一，会更新 configurationFrozen 标识为 true，代表不能再进行操作了
+		// 第二，会将 beanDefinitionNames 转换为一个固定长度的 Array 进行冻结
 		// 允许缓存所有bean定义元数据，不需要进一步更改。
 		// Allow for caching all bean definition metadata, not expecting further changes.
 		beanFactory.freezeConfiguration();
 
-		// 实例化所有剩余的（非延迟初始化）单例。
+		// <7> 实例化所有剩余的单例（非延迟加载的）。
 		// Instantiate all remaining (non-lazy-init) singletons.
 		beanFactory.preInstantiateSingletons();
 	}

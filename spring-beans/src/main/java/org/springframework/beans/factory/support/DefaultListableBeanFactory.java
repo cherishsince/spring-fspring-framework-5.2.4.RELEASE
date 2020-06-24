@@ -907,22 +907,28 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			logger.trace("Pre-instantiating singletons in " + this);
 		}
 
+		// <1> 遍历一个副本以允许使用init方法，这些方法依次注册新的bean定义。
+		// 尽管这可能不是常规工厂引导程序的一部分，但可以正常运行。
 		// Iterate over a copy to allow for init methods which in turn register new bean definitions.
 		// While this may not be part of the regular factory bootstrap, it does otherwise work fine.
 		List<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
 
-		// 触发所有的非懒加载的 singleton beans 的初始化操作
+		// <2> 触发所有的非懒加载的 singleton beans 的初始化操作
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
-			// 合并父 Bean 中的配置，注意 <bean id="" class="" parent="" /> 中的 parent，用的不多吧，
-			// 考虑到这可能会影响大家的理解，我在附录中解释了一下 "Bean 继承"，请移步
+			// <2.1> 合并 BeanDefinition 返回 RootBeanDefinition，
+			// 看一下bean标签 <bean id="" class="" parent="" /> 就是这个 parent
+			// 如果 parent 存在，就合并后返回 RootBeanDefinition，没有就转换为 RootBeanDefinition 返回
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			// <2.2> 不是一个 abstract && 是单例 && 不是懒加载(进入)
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+				// <2.3> FactoryBean 需要额外处理，只有 isEagerInit 的时候才进行 doGetBean() 进行初始化
 				if (isFactoryBean(beanName)) {
 					// FactoryBean 的话，在 beanName 前面加上 ‘&’ 符号。再调用 getBean，getBean 方法别急
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						final FactoryBean<?> factory = (FactoryBean<?>) bean;
+						// 渴望加载
 						boolean isEagerInit;
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
 							isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>)
@@ -937,17 +943,20 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 						}
 					}
 				} else {
+					// <2.4> 调用的是 doGetBean() 对 Bean 进行初始化，这里是初始化 注意！
 					getBean(beanName);
 				}
 			}
 		}
 
-		// 到这里说明所有的非懒加载的 singleton beans 已经完成了初始化
-		// 如果我们定义的 bean 是实现了 SmartInitializingSingleton 接口的，那么在这里得到回调，忽略
+		// <3> 到这里所有的 singleton 都已经初始化完了(懒加载的除外)，
+		// 如果Bean 实现了 SmartInitializingSingleton 接口，这里需要进行回调
 		// Trigger post-initialization callback for all applicable beans...
 		for (String beanName : beanNames) {
 			Object singletonInstance = getSingleton(beanName);
+			// <3.1> 判断 bean 是否实现了 SmartInitializingSingleton
 			if (singletonInstance instanceof SmartInitializingSingleton) {
+				// <3.2> 回调 afterSingletonsInstantiated 方法
 				final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
 				if (System.getSecurityManager() != null) {
 					AccessController.doPrivileged((PrivilegedAction<Object>) () -> {

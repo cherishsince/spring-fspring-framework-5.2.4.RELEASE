@@ -29,6 +29,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ErrorHandler;
 
 /**
+ * 简单实现 {@link ApplicationEventMulticaster} 接口
+ *
  * Simple implementation of the {@link ApplicationEventMulticaster} interface.
  *
  * <p>Multicasts all events to all registered listeners, leaving it up to
@@ -56,18 +58,21 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
 
 	/**
+	 * 创建一个 SimpleApplicationEventMulticaster
+	 *
 	 * Create a new SimpleApplicationEventMulticaster.
 	 */
 	public SimpleApplicationEventMulticaster() {
 	}
 
 	/**
+	 * 根据 BeanFactory 创建一个 SimpleApplicationEventMulticaster
+	 *
 	 * Create a new SimpleApplicationEventMulticaster for the given BeanFactory.
 	 */
 	public SimpleApplicationEventMulticaster(BeanFactory beanFactory) {
 		setBeanFactory(beanFactory);
 	}
-
 
 	/**
 	 * Set a custom executor (typically a {@link org.springframework.core.task.TaskExecutor})
@@ -120,7 +125,6 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	protected ErrorHandler getErrorHandler() {
 		return this.errorHandler;
 	}
-
 
 	@Override
 	public void multicastEvent(ApplicationEvent event) {
@@ -204,5 +208,4 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		// Assuming an unrelated class cast failure...
 		return false;
 	}
-
 }

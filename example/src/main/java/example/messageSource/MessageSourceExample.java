@@ -1,6 +1,5 @@
 package example.messageSource;
 
-import org.springframework.context.MessageSource;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Locale;

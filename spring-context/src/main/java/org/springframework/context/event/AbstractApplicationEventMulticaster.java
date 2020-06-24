@@ -41,6 +41,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * {@link ApplicationEventMulticaster}接口的抽象实现，提供了基本的侦听器注册功能。
+ *
  * Abstract implementation of the {@link ApplicationEventMulticaster} interface,
  * providing the basic listener registration facility.
  *
@@ -62,19 +64,27 @@ import org.springframework.util.ObjectUtils;
  */
 public abstract class AbstractApplicationEventMulticaster
 		implements ApplicationEventMulticaster, BeanClassLoaderAware, BeanFactoryAware {
-
+	/**
+	 * 监听器
+	 */
 	private final ListenerRetriever defaultRetriever = new ListenerRetriever(false);
-
+	/**
+	 * 监听器的缓存
+	 */
 	final Map<ListenerCacheKey, ListenerRetriever> retrieverCache = new ConcurrentHashMap<>(64);
 
+	/**
+	 * beanClass 加载器
+	 */
 	@Nullable
 	private ClassLoader beanClassLoader;
-
+	/**
+	 * beanFactory
+	 */
 	@Nullable
 	private ConfigurableBeanFactory beanFactory;
 
 	private Object retrievalMutex = this.defaultRetriever;
-
 
 	@Override
 	public void setBeanClassLoader(ClassLoader classLoader) {
@@ -100,7 +110,6 @@ public abstract class AbstractApplicationEventMulticaster
 		}
 		return this.beanFactory;
 	}
-
 
 	@Override
 	public void addApplicationListener(ApplicationListener<?> listener) {
@@ -153,7 +162,6 @@ public abstract class AbstractApplicationEventMulticaster
 			this.retrieverCache.clear();
 		}
 	}
-
 
 	/**
 	 * Return a Collection containing all ApplicationListeners.
@@ -358,7 +366,6 @@ public abstract class AbstractApplicationEventMulticaster
 		return (smartListener.supportsEventType(eventType) && smartListener.supportsSourceType(sourceType));
 	}
 
-
 	/**
 	 * Cache key for ListenerRetrievers, based on event type and source type.
 	 */
@@ -414,7 +421,6 @@ public abstract class AbstractApplicationEventMulticaster
 		}
 	}
 
-
 	/**
 	 * Helper class that encapsulates a specific set of target listeners,
 	 * allowing for efficient retrieval of pre-filtered listeners.
@@ -457,5 +463,4 @@ public abstract class AbstractApplicationEventMulticaster
 			return allListeners;
 		}
 	}
-
 }

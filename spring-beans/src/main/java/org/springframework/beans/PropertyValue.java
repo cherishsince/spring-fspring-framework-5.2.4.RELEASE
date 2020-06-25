@@ -161,6 +161,8 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
 	}
 
 	/**
+	 * 返回容器属性，是否已经是转换后的值 (true)，没有转换返回 false
+	 *
 	 * Return whether this holder contains a converted value already ({@code true}),
 	 * or whether the value still needs to be converted ({@code false}).
 	 */

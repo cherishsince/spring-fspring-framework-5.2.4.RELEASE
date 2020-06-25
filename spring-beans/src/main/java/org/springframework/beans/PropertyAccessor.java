@@ -168,6 +168,8 @@ public interface PropertyAccessor {
 	void setPropertyValues(Map<?, ?> map) throws BeansException;
 
 	/**
+	 * 执行批量更新。
+	 *
 	 * The preferred way to perform a batch update.
 	 * <p>Note that performing a batch update differs from performing a single update,
 	 * in that an implementation of this class will continue to update properties

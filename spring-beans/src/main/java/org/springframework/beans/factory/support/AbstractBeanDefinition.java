@@ -1145,6 +1145,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	}
 
 	/**
+	 * 验证并准备为此bean定义的方法替代。
+	 * 检查是否存在具有指定名称的方法。
+	 *
 	 * Validate and prepare the method overrides defined for this bean.
 	 * Checks for existence of a method with the specified name.
 	 *
@@ -1155,7 +1158,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		// 这里处理的是 lookup-method 和 replace-method
 		// 我们知道在 bean 实例化的过程中如果检测到存在 methodOverrides ，则会动态地位为当前 bean 生成代理并使用对应的拦截器为 bean 做增强处理
 
-		// 检查查找方法是否存在并确定其重载状态。
+		// 检查查找方法是否存在，并是否允许重载。
 		// Check that lookup methods exist and determine their overloaded status.
 		if (hasMethodOverrides()) {
 			// 循环，执行 prepareMethodOverride

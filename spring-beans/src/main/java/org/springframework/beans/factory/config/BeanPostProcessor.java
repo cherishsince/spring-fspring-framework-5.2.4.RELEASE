@@ -20,6 +20,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.lang.Nullable;
 
 /**
+ * 工厂挂钩，允许自定义修改新bean实例; 例如，检查标记界面或使用代理包装bean。
+ *
  * Factory hook that allows for custom modification of new bean instances &mdash;
  * for example, checking for marker interfaces or wrapping beans with proxies.
  *
@@ -58,6 +60,11 @@ import org.springframework.lang.Nullable;
 public interface BeanPostProcessor {
 
 	/**
+	 * 在任何bean初始化回调（例如InitializingBean的{@code afterPropertiesSet}或自定义的init-method）之前，
+	 * 将此{@code BeanPostProcessor}应用于给定的新bean实例。
+	 * 该bean将已经用属性值填充。
+	 * 返回的Bean实例可能是原始实例的包装。
+	 *
 	 * Apply this {@code BeanPostProcessor} to the given new bean instance <i>before</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.
@@ -76,6 +83,11 @@ public interface BeanPostProcessor {
 	}
 
 	/**
+	 * 在任何bean初始化回调（例如InitializingBean的{@code afterPropertiesSet}或自定义的初始化方法）之后，
+	 * 将此{@code BeanPostProcessor}应用于给定的新bean实例。
+	 * 该bean将已经用属性值填充。
+	 * 返回的Bean实例可能是原始实例的包装。
+	 *
 	 * Apply this {@code BeanPostProcessor} to the given new bean instance <i>after</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.

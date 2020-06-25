@@ -115,6 +115,8 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 
 
 	/**
+	 * 返回原始格式的 PropertyValue 对象列表
+	 *
 	 * Return the underlying List of PropertyValue objects in its raw form.
 	 * The returned List can be modified directly, although this is not recommended.
 	 * <p>This is an accessor for optimized access to all PropertyValue objects.
@@ -358,6 +360,8 @@ public class MutablePropertyValues implements PropertyValues, Serializable {
 	}
 
 	/**
+	 * 返回是否容器中，是否包含 converted 的值返回 true，不包含返回 false
+	 *
 	 * Return whether this holder contains converted values only ({@code true}),
 	 * or whether the values still need to be converted ({@code false}).
 	 */

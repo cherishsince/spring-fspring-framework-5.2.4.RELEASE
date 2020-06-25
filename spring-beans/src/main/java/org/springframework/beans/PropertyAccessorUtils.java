@@ -40,7 +40,7 @@ public abstract class PropertyAccessorUtils {
 	}
 
 	/**
-	 * 检查给定的属性路径是否指示索引属性或嵌套属性。
+	 * 检查给定的属性路径，是否指示索引属性，或嵌套属性。
 	 *
 	 * Check whether the given property path indicates an indexed or nested property.
 	 * @param propertyPath the property path to check

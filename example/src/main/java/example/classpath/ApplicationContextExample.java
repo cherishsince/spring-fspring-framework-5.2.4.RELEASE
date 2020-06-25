@@ -34,6 +34,9 @@ public class ApplicationContextExample {
 		System.err.println("MyTagBean: " + context.getBean(MyTagBean.class));
 		System.err.println("ValueBean: " + context.getBean(ValueBean.class));
 		System.err.println("UserService1: " + context.getBean(UserService1.class));
+
+		// 销毁容器
+		context.close();
 	}
 
 	@Bean

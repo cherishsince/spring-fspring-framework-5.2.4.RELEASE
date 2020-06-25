@@ -1153,12 +1153,16 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		clearByTypeCache();
 	}
 
-	@Override
-	public void destroySingletons() {
-		super.destroySingletons();
-		updateManualSingletonNames(Set::clear, set -> !set.isEmpty());
-		clearByTypeCache();
-	}
+@Override
+public void destroySingletons() {
+	// <1> 优先调用 DefaultSingletonBeanRegistry 里面的 destroySingletons() 方法
+	super.destroySingletons();
+	// <2> 更新手册单例，这里采用了 Consumer、Predicate 两个 1.8 的特性
+	// 清理的是 manualSingletonNames，这是一个按注册顺序的缓存
+	updateManualSingletonNames(Set::clear, set -> !set.isEmpty());
+	// <3> 根据类型清除
+	clearByTypeCache();
+}
 
 	@Override
 	public void destroySingleton(String beanName) {
@@ -1172,6 +1176,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
+	 * 更新工厂内部的手动单例名称集。
+	 *
 	 * Update the factory's internal set of manual singleton names.
 	 *
 	 * @param action    the modification action
@@ -1180,17 +1186,20 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 */
 	private void updateManualSingletonNames(Consumer<Set<String>> action, Predicate<Set<String>> condition) {
 		if (hasBeanCreationStarted()) {
-			// <1> 无法再修改启动时间集合元素（用于稳定迭代）
+			// <1> 这里代表容器已经启动了，不能修改(迭代的一流)
+			// 无法再修改启动时间集合元素（用于稳定迭代）
 			// Cannot modify startup-time collection elements anymore (for stable iteration)
 			synchronized (this.beanDefinitionMap) {
 				if (condition.test(this.manualSingletonNames)) {
+					// <1.1> 复制了一个 updatedSingletons
+					// 然后 action.accept 清除后在保存到当前的 this.manualSingletonNames
 					Set<String> updatedSingletons = new LinkedHashSet<>(this.manualSingletonNames);
 					action.accept(updatedSingletons);
 					this.manualSingletonNames = updatedSingletons;
 				}
 			}
 		} else {
-			// <2> 仍处于启动注册阶段
+			// <2> 仍处于启动注册阶段，直接 action.accept clear 掉
 			// Still in startup registration phase
 			if (condition.test(this.manualSingletonNames)) {
 				action.accept(this.manualSingletonNames);
@@ -1199,10 +1208,14 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
+	 * 删除有关按类型映射的任何假设。
+	 *
 	 * Remove any assumptions about by-type mappings.
 	 */
 	private void clearByTypeCache() {
+		// 清除，依赖类型 单例和非单例 的缓存
 		this.allBeanNamesByType.clear();
+		// 清除，仅单例bean名称的映射，由依赖类型键控。
 		this.singletonBeanNamesByType.clear();
 	}
 

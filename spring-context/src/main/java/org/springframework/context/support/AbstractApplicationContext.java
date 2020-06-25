@@ -669,7 +669,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 							"cancelling refresh attempt: " + ex);
 				}
 
-				//  销毁已经创建的Bean
+				// 销毁已经创建的Bean
 				// Destroy already created singletons to avoid dangling resources.
 				destroyBeans();
 
@@ -681,6 +681,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				// Propagate exception to caller.
 				throw ex;
 			} finally {
+				// 在Spring的核心中重置常见的自省缓存，因为我们可能不再需要单例bean的元数据...
 				// Reset common introspection caches in Spring's core, since we
 				// might not ever need metadata for singleton beans anymore...
 				resetCommonCaches();
@@ -926,7 +927,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	/**
 	 * 初始化ApplicationEventMulticaster。
 	 * 如果上下文中未定义，则使用SimpleApplicationEventMulticaster。
-	 *
+	 * <p>
 	 * Initialize the ApplicationEventMulticaster.
 	 * Uses SimpleApplicationEventMulticaster if none defined in the context.
 	 *
@@ -957,6 +958,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 初始化LifecycleProcessor。
+	 * 如果上下文中未定义，则使用DefaultLifecycleProcessor。
+	 * <p>
 	 * Initialize the LifecycleProcessor.
 	 * Uses DefaultLifecycleProcessor if none defined in the context.
 	 *
@@ -964,13 +968,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void initLifecycleProcessor() {
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+		// <1> 检查 lifecycleProcessor 是否在容器中
 		if (beanFactory.containsLocalBean(LIFECYCLE_PROCESSOR_BEAN_NAME)) {
+			// <1.1> 存在就调用 getBean() 初始化容器，然后保存到 this
 			this.lifecycleProcessor =
 					beanFactory.getBean(LIFECYCLE_PROCESSOR_BEAN_NAME, LifecycleProcessor.class);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Using LifecycleProcessor [" + this.lifecycleProcessor + "]");
 			}
 		} else {
+			// <2> 不存在，创建一个 DefaultLifecycleProcessor 并注册到容器中
 			DefaultLifecycleProcessor defaultProcessor = new DefaultLifecycleProcessor();
 			defaultProcessor.setBeanFactory(beanFactory);
 			this.lifecycleProcessor = defaultProcessor;
@@ -1085,23 +1092,30 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 完成此上下文的刷新，调用LifecycleProcessor的onRefresh（）方法并发布
+	 * <p>
 	 * Finish the refresh of this context, invoking the LifecycleProcessor's
 	 * onRefresh() method and publishing the
 	 * {@link org.springframework.context.event.ContextRefreshedEvent}.
 	 */
 	protected void finishRefresh() {
+		// <1> 清除上下文级别的资源缓存（例如来自扫描的ASM元数据）。
 		// Clear context-level resource caches (such as ASM metadata from scanning).
 		clearResourceCaches();
 
+		// <2> 初始化 lifecycleProcessor 实例
 		// Initialize lifecycle processor for this context.
 		initLifecycleProcessor();
 
+		// <2> 调用 lifecycleProcessor#onRefresh() 方法通知容器刷新
 		// Propagate refresh to lifecycle processor first.
 		getLifecycleProcessor().onRefresh();
 
+		// <3> 发布最终事件，告诉refresh已经刷新完了
 		// Publish the final event.
 		publishEvent(new ContextRefreshedEvent(this));
 
+		// <4> 生成当前bean，及其依赖关系的JSON快照。
 		// Participate in LiveBeansView MBean, if active.
 		LiveBeansView.registerApplicationContext(this);
 	}
@@ -1113,6 +1127,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @param ex the exception that led to the cancellation
 	 */
 	protected void cancelRefresh(BeansException ex) {
+		// <1> 将容器刷新状态设置成 false
 		this.active.set(false);
 	}
 
@@ -1128,6 +1143,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @since 4.2
 	 */
 	protected void resetCommonCaches() {
+		// <1> 清理一下缓存
 		ReflectionUtils.clearCache();
 		AnnotationUtils.clearCache();
 		ResolvableType.clearCache();

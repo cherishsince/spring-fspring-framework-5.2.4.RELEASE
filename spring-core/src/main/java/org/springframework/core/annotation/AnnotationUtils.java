@@ -1287,7 +1287,9 @@ public abstract class AnnotationUtils {
 	 * @since 4.3.15
 	 */
 	public static void clearCache() {
+		// <1> 清理 Annotation 类型的映射缓存
 		AnnotationTypeMappings.clearCache();
+		// <2> 清理 Annotations 扫描的缓存
 		AnnotationsScanner.clearCache();
 	}
 

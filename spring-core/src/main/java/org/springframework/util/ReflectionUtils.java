@@ -791,6 +791,7 @@ public abstract class ReflectionUtils {
 	 * @since 4.2.4
 	 */
 	public static void clearCache() {
+		// <1> 清理 method 和 fields 缓存
 		declaredMethodsCache.clear();
 		declaredFieldsCache.clear();
 	}

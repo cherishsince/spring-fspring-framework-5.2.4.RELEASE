@@ -171,11 +171,13 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
 	@Override
 	protected void cancelRefresh(BeansException ex) {
+		// <1> 清除 BeanFactory 的 SerializationId
 		synchronized (this.beanFactoryMonitor) {
 			if (this.beanFactory != null) {
 				this.beanFactory.setSerializationId(null);
 			}
 		}
+		// <2> 调用父类的 cancelRefresh 将容器刷新状态设置成 false
 		super.cancelRefresh(ex);
 	}
 

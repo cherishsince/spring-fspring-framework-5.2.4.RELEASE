@@ -17,6 +17,8 @@
 package org.springframework.context.support;
 
 /**
+ * {@link LiveBeansView}功能的MBean操作界面。
+ *
  * MBean operation interface for the {@link LiveBeansView} feature.
  *
  * @author Juergen Hoeller
@@ -25,6 +27,8 @@ package org.springframework.context.support;
 public interface LiveBeansViewMBean {
 
 	/**
+	 * 生成当前bean及其依赖关系的JSON快照。
+	 *
 	 * Generate a JSON snapshot of current beans and their dependencies.
 	 */
 	String getSnapshotAsJson();

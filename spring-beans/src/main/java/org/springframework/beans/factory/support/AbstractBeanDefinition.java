@@ -798,6 +798,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	}
 
 	/**
+	 * 返回，是否允许，访问非公共构造函数和方法。
+	 *
 	 * Return whether to allow access to non-public constructors and methods.
 	 */
 	public boolean isNonPublicAccessAllowed() {

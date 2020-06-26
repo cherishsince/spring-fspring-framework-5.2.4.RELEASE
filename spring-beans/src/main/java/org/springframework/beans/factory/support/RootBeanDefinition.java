@@ -120,17 +120,23 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	Executable resolvedConstructorOrFactoryMethod;
 
 	/**
+	 * 包可见字段，标记 constructor 参数解析
+	 *
 	 * Package-visible field that marks the constructor arguments as resolved.
 	 */
 	boolean constructorArgumentsResolved = false;
 
 	/**
+	 * 包可见字段，用于缓存解析，的构造函数参数。
+	 *
 	 * Package-visible field for caching fully resolved constructor arguments.
 	 */
 	@Nullable
 	Object[] resolvedConstructorArguments;
 
 	/**
+	 * 包可见字段，用于缓存部分，准备好的构造函数参数。
+	 *
 	 * Package-visible field for caching partly prepared constructor arguments.
 	 */
 	@Nullable
@@ -419,6 +425,9 @@ public class RootBeanDefinition extends AbstractBeanDefinition {
 	}
 
 	/**
+	 * 确定用于默认构造的首选构造函数（如果有）。
+	 * 如有必要，构造函数参数将自动装配。
+	 *
 	 * Determine preferred constructors to use for default construction, if any.
 	 * Constructor arguments will be autowired if necessary.
 	 *

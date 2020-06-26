@@ -62,8 +62,8 @@ import org.springframework.lang.Nullable;
 public interface AutowireCapableBeanFactory extends BeanFactory {
 
 	/**
-	 * 表示没有外部定义的自动连线的常数。请注意
-	 * BeanFactoryAware等和注释驱动的注入仍将应用。
+	 * 指示没有外部定义的自动装配的常数。
+	 * 请注意，仍将应用BeanFactoryAware等和注释驱动的注入。
 	 * <p>
 	 * Constant that indicates no externally defined autowiring. Note that
 	 * BeanFactoryAware etc and annotation-driven injection will still be applied.
@@ -75,8 +75,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	int AUTOWIRE_NO = 0;
 
 	/**
-	 * 按名称指示自动连接bean属性的常量
-	 * （适用于所有bean属性设置器）。
+	 * 通过名称指示自动装配bean属性的常量（适用于所有bean属性设置器）。
 	 * <p>
 	 * Constant that indicates autowiring bean properties by name
 	 * (applying to all bean property setters).
@@ -88,8 +87,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	int AUTOWIRE_BY_NAME = 1;
 
 	/**
-	 * 按类型指示自动连接bean属性的常量
-	 * （适用于所有bean属性设置器）。
+	 * 按类型自动装配Bean属性的常量（适用于所有Bean属性设置器）。
 	 * <p>
 	 * Constant that indicates autowiring bean properties by type
 	 * (applying to all bean property setters).
@@ -101,9 +99,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	int AUTOWIRE_BY_TYPE = 2;
 
 	/**
-	 * 常数，指示自动连接最贪婪的构造函数
-	 * 可以满足（包括解析适当的构造函数）。
-	 * <p>
+	 * 自动装配，可以满足的最贪婪的，构造函数的常数（涉及解析适当的构造函数）。
+	 *
 	 * Constant that indicates autowiring the greediest constructor that
 	 * can be satisfied (involves resolving the appropriate constructor).
 	 *

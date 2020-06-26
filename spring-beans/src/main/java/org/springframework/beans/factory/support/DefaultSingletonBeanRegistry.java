@@ -273,15 +273,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "Bean name must not be null");
-		// 对 singletonObjects 加锁
+		// <1> 对 singletonObjects 加锁
 		synchronized (this.singletonObjects) {
-			// 获取当前 beanName 实力对象
+			// <2> 获取当前 beanName 实力对象
 			Object singletonObject = this.singletonObjects.get(beanName);
-			// 如果为 null 进入
+			// <3> 如果为 null 进入
 			// tips: singletonObject 就是缓存对象，如果存在了就直接返回
 			if (singletonObject == null) {
-				// 检查一下 singletons 当前的标记，如果true
-				// 就是重复进入，一般不可能，所以直接给一个异常
+				// <4> 检查状态，单曲是否在销毁中
 				if (this.singletonsCurrentlyInDestruction) {
 					throw new BeanCreationNotAllowedException(beanName,
 							"Singleton bean creation not allowed while singletons of this factory are in destruction " +
@@ -290,20 +289,21 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
-				// 创建 singleton 之前的，钩子方法
+				// <5> 创建 singleton 之前的，钩子方法
+				// (这里将正在创建中的 beanName 添加到 singletonsCurrentlyInCreation 检查 inCreationCheckExclusions)
 				beforeSingletonCreation(beanName);
-				// 用于标记是否是一个 新的单例对象
+				// <6> 用于标记是否是一个 新的单例对象
 				boolean newSingleton = false;
-				// 用于记录一下过程中发生的 exception
+				// <7> 用于记录一下过程中发生的 exception
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
 				if (recordSuppressedExceptions) {
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
-					// 调用 singleton factory 获取 object 对象，没有则创建
+					// <8> 调用 singleton factory 获取 object 对象，没有则创建
 					// tips: singletonFactory：是外面传入的 function 函数
 					singletonObject = singletonFactory.getObject();
-					// 通过调用 getObject 后标记为 true
+					// <9> 通过调用 getObject 后标记为 true
 					// tips: singletonFactory.getObject() 每次创建的都是一个 new 的object 对象
 					newSingleton = true;
 				} catch (IllegalStateException ex) {
@@ -321,18 +321,20 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					}
 					throw ex;
 				} finally {
-					// 清理一下所记录的异常
+					// <10> 清理一下所记录的异常
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
-					// 创建 singleton 之后的，钩子方法
+					// <11> 创建 singleton 之后的，钩子方法
+					// 从删除 singletonsCurrentlyInCreation 中删除，移除正在创建
 					afterSingletonCreation(beanName);
 				}
-				// 新的单例对象才添加到 cache 中
+				// <12> 新的单例对象才添加到 cache 中
 				if (newSingleton) {
 					addSingleton(beanName, singletonObject);
 				}
 			}
+			// <13> 返回单例实例
 			return singletonObject;
 		}
 	}
@@ -423,7 +425,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @see #isSingletonCurrentlyInCreation
 	 */
 	protected void beforeSingletonCreation(String beanName) {
-		if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.add(beanName)) {
+		if (!this.inCreationCheckExclusions.contains(beanName)
+				&& !this.singletonsCurrentlyInCreation.add(beanName)) {
 			throw new BeanCurrentlyInCreationException(beanName);
 		}
 	}
@@ -436,7 +439,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @see #isSingletonCurrentlyInCreation
 	 */
 	protected void afterSingletonCreation(String beanName) {
-		if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.remove(beanName)) {
+		if (!this.inCreationCheckExclusions.contains(beanName)
+				&& !this.singletonsCurrentlyInCreation.remove(beanName)) {
 			throw new IllegalStateException("Singleton '" + beanName + "' isn't currently in creation");
 		}
 	}

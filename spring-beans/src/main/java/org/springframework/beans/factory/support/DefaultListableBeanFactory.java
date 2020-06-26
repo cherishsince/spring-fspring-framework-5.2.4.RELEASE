@@ -1294,25 +1294,25 @@ public void destroySingletons() {
 	@Nullable
 	public Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
 									@Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
-		// 初始化参数名称发现器，该方法并不会在这个时候尝试检索参数名称
-		// getParameterNameDiscoverer 返回 parameterNameDiscoverer 实例，parameterNameDiscoverer 方法参数名称的解析器
+		// <1> 初始化参数名称发现器，该方法并不会在这个时候尝试检索参数名称
+		// getParameterNameDiscoverer 返回 parameterNameDiscoverer 实例，
+		// parameterNameDiscoverer 方法参数名称的解析器
 		descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
-		// 依赖类型为 Optional 类型
+		// <2> 依赖类型为 Optional 类型
 		if (Optional.class == descriptor.getDependencyType()) {
 			return createOptionalDependency(descriptor, requestingBeanName);
 		}
-		// 依赖类型为ObjectFactory、ObjectProvider
+		// <3> 依赖类型为ObjectFactory、ObjectProvider
 		else if (ObjectFactory.class == descriptor.getDependencyType() ||
 				ObjectProvider.class == descriptor.getDependencyType()) {
 			return new DependencyObjectProvider(descriptor, requestingBeanName);
 		}
-		// javaxInjectProviderClass 类注入的特殊处理
+		// <4> javaxInjectProviderClass 类注入的特殊处理
 		else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
 			return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
 		}
 		else {
-			// 为实际依赖关系目标的延迟解析构建代理
-			// 默认实现返回 null
+			// <5> 为实际依赖关系，目标的延迟解析，构建代理(默认实现返回 null)
 			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
 					descriptor, requestingBeanName);
 			if (result == null) {
@@ -1326,20 +1326,20 @@ public void destroySingletons() {
 	@Nullable
 	public Object doResolveDependency(DependencyDescriptor descriptor, @Nullable String beanName,
 									  @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
-		// 前一个的注入点(如果是首个，为 null)
+		// <1> 前一个的注入点(如果是首个，为 null)
 		InjectionPoint previousInjectionPoint = ConstructorResolver.setCurrentInjectionPoint(descriptor);
 		try {
-			// 针对给定的工厂给定一个快捷实现的方式，例如考虑一些预先解析的信息
-			// 在进入所有bean的常规类型匹配算法之前，解析算法将首先尝试通过此方法解析快捷方式。
+			// <2> 针对给定的工厂，一个快捷实现的方式，例如考虑一些预先解析的信息
+			// 在进入所有bean的常规类型，匹配算法之前，解析算法，将首先尝试通过，此方法解析快捷方式。
 			// 子类可以覆盖此方法
 			Object shortcut = descriptor.resolveShortcut(this);
 			if (shortcut != null) {
 				// 返回快捷的解析信息
 				return shortcut;
 			}
-			// 依赖的类型
+			// <3> 依赖的类型
 			Class<?> type = descriptor.getDependencyType();
-			// 支持 Spring 的注解 @value
+			// <4> 支持 Spring 的注解 @value
 			Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
 			if (value != null) {
 				if (value instanceof String) {
@@ -1360,30 +1360,35 @@ public void destroySingletons() {
 				}
 			}
 
-			// 解析复合 bean，其实就是对 bean 的属性进行解析
+			// <5> 解析复合 bean，其实就是对 bean 的属性进行解析
 			// 包括：数组、Collection 、Map 类型
 			Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames, typeConverter);
 			if (multipleBeans != null) {
 				return multipleBeans;
 			}
 
-			// 查找与类型相匹配的 bean
+			// <6> 查找与类型相匹配的 bean
 			// 返回值构成为：key = 匹配的 beanName，value = beanName 对应的实例化 bean
 			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
+			// 没有找到，检验 @autowire  的 require 是否为 true
 			if (matchingBeans.isEmpty()) {
+				// 如果 @autowire 的 require 属性为 true ，但是没有找到相应的匹配项，则抛出异常
 				if (isRequired(descriptor)) {
 					raiseNoMatchingBeanFound(type, descriptor.getResolvableType(), descriptor);
 				}
 				return null;
 			}
 
+			// <7> 自动注入的beanName、实例化条件
 			String autowiredBeanName;
 			Object instanceCandidate;
-
 			if (matchingBeans.size() > 1) {
+				// 确认给定 bean autowire 的候选者
+				// 按照 @Primary 和 @Priority 的顺序
 				autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);
 				if (autowiredBeanName == null) {
 					if (isRequired(descriptor) || !indicatesMultipleBeans(type)) {
+						// 唯一性处理
 						return descriptor.resolveNotUnique(descriptor.getResolvableType(), matchingBeans);
 					} else {
 						// In case of an optional Collection/Map, silently ignore a non-unique case:
@@ -1404,6 +1409,7 @@ public void destroySingletons() {
 				autowiredBeanNames.add(autowiredBeanName);
 			}
 			if (instanceCandidate instanceof Class) {
+				// 解析对应类型的 bean 实例
 				instanceCandidate = descriptor.resolveCandidate(autowiredBeanName, type, this);
 			}
 			Object result = instanceCandidate;
@@ -1562,7 +1568,7 @@ public void destroySingletons() {
 	 */
 	protected Map<String, Object> findAutowireCandidates(
 			@Nullable String beanName, Class<?> requiredType, DependencyDescriptor descriptor) {
-
+		// 获取条件名称
 		String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 				this, requiredType, true, descriptor.isEager());
 		Map<String, Object> result = new LinkedHashMap<>(candidateNames.length);

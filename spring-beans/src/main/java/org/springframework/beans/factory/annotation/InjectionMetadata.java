@@ -119,7 +119,9 @@ public class InjectionMetadata {
 	}
 
 	public void inject(Object target, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+		// <1> 检查的 InjectedElement
 		Collection<InjectedElement> checkedElements = this.checkedElements;
+		// <2> 注入的 InjectedElement
 		Collection<InjectedElement> elementsToIterate =
 				(checkedElements != null ? checkedElements : this.injectedElements);
 		if (!elementsToIterate.isEmpty()) {
@@ -127,6 +129,7 @@ public class InjectionMetadata {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Processing injected element of bean '" + beanName + "': " + element);
 				}
+				// <3> 通过 InjectedElement 注入 value
 				element.inject(target, beanName, pvs);
 			}
 		}
@@ -176,7 +179,9 @@ public class InjectionMetadata {
 	 * A single injected element.
 	 */
 	public abstract static class InjectedElement {
-
+		/**
+		 * Member 封装了，属性的信息
+		 */
 		protected final Member member;
 
 		protected final boolean isField;

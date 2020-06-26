@@ -106,6 +106,10 @@ class BeanDefinitionValueResolver {
 	 */
 	@Nullable
 	public Object resolveValueIfNecessary(Object argName, @Nullable Object value) {
+		// tips:
+		// 解析属性value，如果有为初始化的bean，
+		// 在这里会resolveDependency 解析依赖，然后返回初始化的Bean
+
 		// We must check each value to see whether it requires a runtime reference
 		// to another bean to be resolved.
 		if (value instanceof RuntimeBeanReference) {

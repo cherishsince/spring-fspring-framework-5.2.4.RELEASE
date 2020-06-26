@@ -617,12 +617,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// <1.1> 从未完成的缓存 factoryBeanInstanceCache 删除并返回，如果为空给，就没有进行中的
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
-		// <2> 没有进行中的 beanWrapper，则进入 createBeanInstance 创建
-		// 使用合适的实例化策略来创建新的实例：工厂方法、构造函数自动注入、简单初始化
+		// <2> 对象在此实例化，这里有两种情况，1、默认的构造器实例化，2、依赖其他对象的构造器实例化，
+		// 第二种，会提前初始化一些对象，然后注入，通过 BeanWrapper 包装返回
 		if (instanceWrapper == null) {
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
-		// <3> 通过 BeanWrapper 实例目标对象
+		// <3> 通过 BeanWrapper 实例化对象
 		final Object bean = instanceWrapper.getWrappedInstance();
 		// <4> 获取 BeanWrapper 包装类的 beanType，如果是 NullBean 不处理
 		Class<?> beanType = instanceWrapper.getWrappedClass();
@@ -660,8 +660,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				logger.trace("Eagerly caching bean '" + beanName +
 						"' to allow for resolving potential circular references");
 			}
-			// <7> 提前将创建的 bean 实例加入到 singletonFactories 中
+			// <7> 提前将创建的 bean 实例加入到 singletonFactories 中，
 			// 这里是为了后期避免循环依赖(还没初始化bean，只是先放一个进去)
+			// 通过 SmartInstantiationAwareBeanPostProcessor cache
 			addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
 		}
 
@@ -1054,8 +1055,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		Object exposedObject = bean;
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
+				// 调用 SmartInstantiationAwareBeanPostProcessor 进行获取 BeanReference
 				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
 					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
+					// 获取 EarlyBeanReference，可能返回 proxy 也有可能返回 bean源对象
 					exposedObject = ibp.getEarlyBeanReference(exposedObject, beanName);
 				}
 			}
@@ -1563,7 +1566,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				// <6.1> 处理 InstantiationAwareBeanPostProcessor
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
 					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
-					// <6.2> 在属性设置前调用
+					// <6.2> 对所有需要依赖检查的属性，进行后处理
 					PropertyValues pvsToUse = ibp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
 					if (pvsToUse == null) {
 						// 从 bw 对象中提取 PropertyDescriptor 结果集
@@ -1849,7 +1852,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				// 快捷方式：按原样使用预先转换的值。
 				// Shortcut: use the pre-converted values as-is.
 				try {
-					// <3.2> 转换value 属性
+					// <3.2> 为实例化对象设置属性值 ，依赖注入真真正正地实现在此！！！！！
+					// <3.2> 为实例化对象设置属性值 ，依赖注入真真正正地实现在此！！！！！
+					// <3.2> 为实例化对象设置属性值 ，依赖注入真真正正地实现在此！！！！！
 					bw.setPropertyValues(mpvs);
 					return;
 				} catch (BeansException ex) {
@@ -1916,6 +1921,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 				}
 
 				// <8.11> 存储转换后的属性值，避免每次属性注入时的转换工作
+				// 可能将转换后的值存储在合并的bean定义中，以避免对每个创建的bean实例进行重新转换。
 				// Possibly store converted value in merged bean definition,
 				// in order to avoid re-conversion for every created bean instance.
 				if (resolvedValue == originalValue) {

@@ -19,6 +19,8 @@ package org.springframework.context;
 import java.util.EventListener;
 
 /**
+ * 由应用程序事件侦听器实现的接口。
+ *
  * Interface to be implemented by application event listeners.
  *
  * <p>Based on the standard {@code java.util.EventListener} interface
@@ -40,6 +42,8 @@ import java.util.EventListener;
 public interface ApplicationListener<E extends ApplicationEvent> extends EventListener {
 
 	/**
+	 * 处理一个 application event
+	 *
 	 * Handle an application event.
 	 * @param event the event to respond to
 	 */

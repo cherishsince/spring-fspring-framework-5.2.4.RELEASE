@@ -37,6 +37,9 @@ import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.FrameworkServlet;
 
 /**
+ * {@link org.springframework.web.WebApplicationInitializer}实现的基类，
+ * 该实现在Servlet上下文中注册{@link DispatcherServlet}。
+ *
  * Base class for {@link org.springframework.web.WebApplicationInitializer}
  * implementations that register a {@link DispatcherServlet} in the servlet context.
  *
@@ -53,6 +56,8 @@ import org.springframework.web.servlet.FrameworkServlet;
 public abstract class AbstractDispatcherServletInitializer extends AbstractContextLoaderInitializer {
 
 	/**
+	 * 默认的servlet名称。 可以通过覆盖{@link #getServletName}进行自定义。
+	 *
 	 * The default servlet name. Can be customized by overriding {@link #getServletName}.
 	 */
 	public static final String DEFAULT_SERVLET_NAME = "dispatcher";
@@ -65,6 +70,8 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	}
 
 	/**
+	 * 针对这个特定 servlet context 文注册一个{@link DispatcherServlet}。
+	 *
 	 * Register a {@link DispatcherServlet} against the given servlet context.
 	 * <p>This method will create a {@code DispatcherServlet} with the name returned by
 	 * {@link #getServletName()}, initializing it with the application context returned
@@ -76,9 +83,10 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	 * @param servletContext the context to register the servlet against
 	 */
 	protected void registerDispatcherServlet(ServletContext servletContext) {
+		// servlet 名称
 		String servletName = getServletName();
 		Assert.hasLength(servletName, "getServletName() must not return null or empty");
-
+		//
 		WebApplicationContext servletAppContext = createServletApplicationContext();
 		Assert.notNull(servletAppContext, "createServletApplicationContext() must not return null");
 

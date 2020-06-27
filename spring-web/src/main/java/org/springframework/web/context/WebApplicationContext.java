@@ -22,6 +22,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.lang.Nullable;
 
 /**
+ * 这个 Interface 给 web application 提供配置。
+ * application 容器运行的时候，是只读的。
+ * 如果实现这个 Interface，需要支持 reloaded 重新急啊在
+ *
  * Interface to provide configuration for a web application. This is read-only while
  * the application is running, but may be reloaded if the implementation supports this.
  *
@@ -45,6 +49,8 @@ import org.springframework.lang.Nullable;
 public interface WebApplicationContext extends ApplicationContext {
 
 	/**
+	 * Context 属性成功启动，绑定 WebApplicationContext 容器
+	 *
 	 * Context attribute to bind root WebApplicationContext to on successful startup.
 	 * <p>Note: If the startup of the root context fails, this attribute can contain
 	 * an exception or error as value. Use WebApplicationContextUtils for convenient
@@ -55,30 +61,47 @@ public interface WebApplicationContext extends ApplicationContext {
 	String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE = WebApplicationContext.class.getName() + ".ROOT";
 
 	/**
+	 * spring scope定义，request scope 范围是 `request`，
+	 * 除此之外，还支持标准的 singleton、prototype
+	 *
+	 * (这里是Spring的Scope：request、session、singleton、prototype)
+	 *
 	 * Scope identifier for request scope: "request".
 	 * Supported in addition to the standard scopes "singleton" and "prototype".
 	 */
 	String SCOPE_REQUEST = "request";
 
 	/**
+	 * spring scope定义，session scope 范围是 'session'
+	 * 除此之外，还支持标准的 singleton、prototype
+	 *
 	 * Scope identifier for session scope: "session".
 	 * Supported in addition to the standard scopes "singleton" and "prototype".
 	 */
 	String SCOPE_SESSION = "session";
 
 	/**
+	 * spring scope定义，全局的 web程序 scope 范围是 'application'
+	 * 除此之外，还支持标准的 singleton、prototype
+	 *
 	 * Scope identifier for the global web application scope: "application".
 	 * Supported in addition to the standard scopes "singleton" and "prototype".
 	 */
 	String SCOPE_APPLICATION = "application";
 
 	/**
+	 * 在 BeanFactory 容器中 ServletContext 叫 ServletContext
+	 *
 	 * Name of the ServletContext environment bean in the factory.
+	 *
 	 * @see javax.servlet.ServletContext
 	 */
 	String SERVLET_CONTEXT_BEAN_NAME = "servletContext";
 
 	/**
+	 * BeanFactory 容器中 init-params(ServletContext) 叫 contextParameters
+	 * （web.xml 中的 Servlet 标签，和 init-params 标签）
+	 *
 	 * Name of the ServletContext init-params environment bean in the factory.
 	 * <p>Note: Possibly merged with ServletConfig parameters.
 	 * ServletConfig parameters override ServletContext parameters of the same name.
@@ -90,6 +113,8 @@ public interface WebApplicationContext extends ApplicationContext {
 	String CONTEXT_PARAMETERS_BEAN_NAME = "contextParameters";
 
 	/**
+	 * 在 BeanFactory 容器中 ServletContext 的 attributes 叫 contextAttributes
+	 *
 	 * Name of the ServletContext attributes environment bean in the factory.
 	 * @see javax.servlet.ServletContext#getAttributeNames()
 	 * @see javax.servlet.ServletContext#getAttribute(String)
@@ -98,6 +123,8 @@ public interface WebApplicationContext extends ApplicationContext {
 
 
 	/**
+	 * Application 返回一个标准的 ServletContext(ServletAPI)
+	 *
 	 * Return the standard Servlet API ServletContext for this application.
 	 */
 	@Nullable

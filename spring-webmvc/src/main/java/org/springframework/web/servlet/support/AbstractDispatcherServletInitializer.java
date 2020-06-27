@@ -62,7 +62,6 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	 */
 	public static final String DEFAULT_SERVLET_NAME = "dispatcher";
 
-
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
 		super.onStartup(servletContext);

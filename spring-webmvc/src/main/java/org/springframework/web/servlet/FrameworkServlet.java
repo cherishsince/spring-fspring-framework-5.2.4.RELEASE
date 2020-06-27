@@ -601,6 +601,9 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 
 	/**
+	 * 重写 {@link HttpServletBean} 方法，调用之后任意的 bean 属性，保存弄并设置。
+	 * 创建 WebApplicationContext 容器
+	 *
 	 * Overridden method of {@link HttpServletBean}, invoked after any bean properties
 	 * have been set. Creates this servlet's WebApplicationContext.
 	 */

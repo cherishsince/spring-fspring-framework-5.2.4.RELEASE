@@ -25,7 +25,7 @@ import org.springframework.lang.Nullable;
  * 这个 Interface 给 web application 提供配置。
  * application 容器运行的时候，是只读的。
  * 如果实现这个 Interface，需要支持 reloaded 重新急啊在
- *
+ * <p>
  * Interface to provide configuration for a web application. This is read-only while
  * the application is running, but may be reloaded if the implementation supports this.
  *
@@ -43,18 +43,19 @@ import org.springframework.lang.Nullable;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
- * @since January 19, 2001
  * @see ServletContextAware#setServletContext
+ * @since January 19, 2001
  */
 public interface WebApplicationContext extends ApplicationContext {
 
 	/**
 	 * Context 属性成功启动，绑定 WebApplicationContext 容器
-	 *
+	 * <p>
 	 * Context attribute to bind root WebApplicationContext to on successful startup.
 	 * <p>Note: If the startup of the root context fails, this attribute can contain
 	 * an exception or error as value. Use WebApplicationContextUtils for convenient
 	 * lookup of the root WebApplicationContext.
+	 *
 	 * @see org.springframework.web.context.support.WebApplicationContextUtils#getWebApplicationContext
 	 * @see org.springframework.web.context.support.WebApplicationContextUtils#getRequiredWebApplicationContext
 	 */
@@ -63,9 +64,9 @@ public interface WebApplicationContext extends ApplicationContext {
 	/**
 	 * spring scope定义，request scope 范围是 `request`，
 	 * 除此之外，还支持标准的 singleton、prototype
-	 *
+	 * <p>
 	 * (这里是Spring的Scope：request、session、singleton、prototype)
-	 *
+	 * <p>
 	 * Scope identifier for request scope: "request".
 	 * Supported in addition to the standard scopes "singleton" and "prototype".
 	 */
@@ -74,7 +75,7 @@ public interface WebApplicationContext extends ApplicationContext {
 	/**
 	 * spring scope定义，session scope 范围是 'session'
 	 * 除此之外，还支持标准的 singleton、prototype
-	 *
+	 * <p>
 	 * Scope identifier for session scope: "session".
 	 * Supported in addition to the standard scopes "singleton" and "prototype".
 	 */
@@ -83,7 +84,7 @@ public interface WebApplicationContext extends ApplicationContext {
 	/**
 	 * spring scope定义，全局的 web程序 scope 范围是 'application'
 	 * 除此之外，还支持标准的 singleton、prototype
-	 *
+	 * <p>
 	 * Scope identifier for the global web application scope: "application".
 	 * Supported in addition to the standard scopes "singleton" and "prototype".
 	 */
@@ -91,7 +92,7 @@ public interface WebApplicationContext extends ApplicationContext {
 
 	/**
 	 * 在 BeanFactory 容器中 ServletContext 叫 ServletContext
-	 *
+	 * <p>
 	 * Name of the ServletContext environment bean in the factory.
 	 *
 	 * @see javax.servlet.ServletContext
@@ -101,10 +102,11 @@ public interface WebApplicationContext extends ApplicationContext {
 	/**
 	 * BeanFactory 容器中 init-params(ServletContext) 叫 contextParameters
 	 * （web.xml 中的 Servlet 标签，和 init-params 标签）
-	 *
+	 * <p>
 	 * Name of the ServletContext init-params environment bean in the factory.
 	 * <p>Note: Possibly merged with ServletConfig parameters.
 	 * ServletConfig parameters override ServletContext parameters of the same name.
+	 *
 	 * @see javax.servlet.ServletContext#getInitParameterNames()
 	 * @see javax.servlet.ServletContext#getInitParameter(String)
 	 * @see javax.servlet.ServletConfig#getInitParameterNames()
@@ -114,20 +116,19 @@ public interface WebApplicationContext extends ApplicationContext {
 
 	/**
 	 * 在 BeanFactory 容器中 ServletContext 的 attributes 叫 contextAttributes
-	 *
+	 * <p>
 	 * Name of the ServletContext attributes environment bean in the factory.
+	 *
 	 * @see javax.servlet.ServletContext#getAttributeNames()
 	 * @see javax.servlet.ServletContext#getAttribute(String)
 	 */
 	String CONTEXT_ATTRIBUTES_BEAN_NAME = "contextAttributes";
 
-
 	/**
 	 * Application 返回一个标准的 ServletContext(ServletAPI)
-	 *
+	 * <p>
 	 * Return the standard Servlet API ServletContext for this application.
 	 */
 	@Nullable
 	ServletContext getServletContext();
-
 }

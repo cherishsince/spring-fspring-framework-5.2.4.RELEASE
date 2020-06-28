@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
 
 /**
+ * 由定义请求和处理程序对象之间的、映射关系的对象实现的接口。
+ *
  * Interface to be implemented by objects that define a mapping between
  * requests and handler objects.
  *

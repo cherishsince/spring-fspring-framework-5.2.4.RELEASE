@@ -30,6 +30,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 /**
+ * 处理执行的 chain，由 处理程序对象 和 任何处理程序拦截器 组成。
+ * 调用 {@link HandlerMapping#getHandler} 返回一个 method 方法。
+ *
  * Handler execution chain, consisting of handler object and any handler interceptors.
  * Returned by HandlerMapping's {@link HandlerMapping#getHandler} method.
  *

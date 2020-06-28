@@ -967,16 +967,25 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 
 	/**
+	 * 重写父类实现，按顺序拦截 patch 请求
+	 *
 	 * Override the parent class implementation in order to intercept PATCH requests.
 	 */
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		//
+		// tips: 覆盖父类的 service 是为了，提供 patch 实现
+		// 应为 servlet 不支持，所有只能 spring 自己实现咯
+		// (servlet 所有请求都会经过 service(xx)，由 service 在调用 doGet、doPost 等.)
 
+		// 解析成 httpMethod
 		HttpMethod httpMethod = HttpMethod.resolve(request.getMethod());
+		// 判断是不是 patch 请求，然后调用 processRequest 进行处理
 		if (httpMethod == HttpMethod.PATCH || httpMethod == null) {
 			processRequest(request, response);
 		} else {
+			// 调用父类
 			super.service(request, response);
 		}
 	}
@@ -1042,15 +1051,18 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	@Override
 	protected void doOptions(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		// 如果 dispatchOptionsRequest 为 true ，则处理该请求
 		if (this.dispatchOptionsRequest || CorsUtils.isPreFlightRequest(request)) {
+			// 去处理这个请求
 			processRequest(request, response);
+			// 如果响应 Header 包含 "Allow" ，则不需要交给父方法处理
 			if (response.containsHeader("Allow")) {
 				// Proper OPTIONS response coming from a handler - we're done.
 				return;
 			}
 		}
 
+		// 调用父方法，并在响应 Header 的 "Allow" 增加 PATCH 的值
 		// Use response wrapper in order to always add PATCH to the allowed methods
 		super.doOptions(request, new HttpServletResponseWrapper(response) {
 			@Override
@@ -1072,40 +1084,52 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	@Override
 	protected void doTrace(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		// 如果 dispatchTraceRequest 为 true ，则处理该请求
 		if (this.dispatchTraceRequest) {
+			// 处理request 请求
 			processRequest(request, response);
+			// 如果响应的内容类型为 "message/http" ，则不需要交给父方法处理
 			if ("message/http".equals(response.getContentType())) {
 				// Proper TRACE response coming from a handler - we're done.
 				return;
 			}
 		}
+		// 调用 parent doTrace(xx) 方法
 		super.doTrace(request, response);
 	}
 
 	/**
+	 * 处理这个 request 情趣，不管什么结果 都会发布一个 event
+	 *
 	 * Process this request, publishing an event regardless of the outcome.
 	 * <p>The actual event handling is performed by the abstract
 	 * {@link #doService} template method.
 	 */
 	protected final void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		// 记录一下当前时间
 		long startTime = System.currentTimeMillis();
+		// 记录的一次信息
 		Throwable failureCause = null;
 
+		// i18n 国际化组件
 		LocaleContext previousLocaleContext = LocaleContextHolder.getLocaleContext();
 		LocaleContext localeContext = buildLocaleContext(request);
 
+		// 获取请求 attributes 属性
 		RequestAttributes previousAttributes = RequestContextHolder.getRequestAttributes();
+		// 转换成 ServletRequestAttributes，失败返回 null
 		ServletRequestAttributes requestAttributes = buildRequestAttributes(request, response, previousAttributes);
 
+		//
 		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
 		asyncManager.registerCallableInterceptor(FrameworkServlet.class.getName(), new RequestBindingInterceptor());
 
+		// 初始化 ContextHolders
 		initContextHolders(request, localeContext, requestAttributes);
 
 		try {
+			// 交给 DispatchServlet 处理
 			doService(request, response);
 		} catch (ServletException | IOException ex) {
 			failureCause = ex;
@@ -1114,11 +1138,17 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			failureCause = ex;
 			throw new NestedServletException("Request processing failed", ex);
 		} finally {
+			// tips:
+			// 请求完成后 rest 一些信息，用于重复使用
+
+			// 重置 ContextHolders，释放内存便于下次使用
 			resetContextHolders(request, previousLocaleContext, previousAttributes);
 			if (requestAttributes != null) {
 				requestAttributes.requestCompleted();
 			}
+			//
 			logResult(request, response, failureCause, asyncManager);
+			// 发布一个 request 事件(没完成一个 request 发送一次)
 			publishRequestHandledEvent(request, response, startTime, failureCause);
 		}
 	}
@@ -1229,10 +1259,12 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 	private void publishRequestHandledEvent(HttpServletRequest request, HttpServletResponse response,
 											long startTime, @Nullable Throwable failureCause) {
-
+		// 如果开启发布事件
 		if (this.publishEvents && this.webApplicationContext != null) {
+			// 无论我们是否成功，都发布一个事件。
 			// Whether or not we succeeded, publish an event.
 			long processingTime = System.currentTimeMillis() - startTime;
+			// 创建 ServletRequestHandledEvent 事件，并进行发布
 			this.webApplicationContext.publishEvent(
 					new ServletRequestHandledEvent(this,
 							request.getRequestURI(), request.getRemoteAddr(),

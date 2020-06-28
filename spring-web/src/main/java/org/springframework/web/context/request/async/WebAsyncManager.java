@@ -38,6 +38,8 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.async.DeferredResult.DeferredResultHandler;
 
 /**
+ * 用于管理异步请求处理的中间类，主要用作SPI，通常不被应用程序类直接使用。
+ *
  * The central class for managing asynchronous request processing, mainly intended
  * as an SPI and not typically used directly by application classes.
  *
@@ -125,6 +127,11 @@ public final class WebAsyncManager {
 	}
 
 	/**
+	 * 当前请求，是否选择异步处理。
+	 *
+	 * 返回值“ true”表示正在进行并发处理，并且响应将保持打开状态。
+	 * 返回值“ false”表示并发处理未开始或可能尚未完成，并且调度了该请求以进一步处理并发结果。
+	 *
 	 * Whether the selected handler for the current request chose to handle the
 	 * request asynchronously. A return value of "true" indicates concurrent
 	 * handling is under way and the response will remain open. A return value

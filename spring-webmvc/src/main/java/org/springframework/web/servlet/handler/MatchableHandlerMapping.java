@@ -33,6 +33,8 @@ import org.springframework.web.servlet.HandlerMapping;
 public interface MatchableHandlerMapping extends HandlerMapping {
 
 	/**
+	 * 确定给定的请求、是否符合请求条件。
+	 *
 	 * Determine whether the given request matches the request criteria.
 	 * @param request the current request
 	 * @param pattern the pattern to match

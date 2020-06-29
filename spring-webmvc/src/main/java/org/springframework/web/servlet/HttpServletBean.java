@@ -167,11 +167,12 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	@Override
 	public final void init() throws ServletException {
 		// <1> 解析 <init-param /> 标签，封装到 PropertyValues pvs 中
+		// ServletConfigPropertyValues 当前类的一个内部类
 		// Set bean properties from init parameters.
 		PropertyValues pvs = new ServletConfigPropertyValues(getServletConfig(), this.requiredProperties);
 		if (!pvs.isEmpty()) {
 			try {
-				// <2.1> 将当前的这个 Servlet 对象，转化成一个 BeanWrapper 对象。
+				// <2.1> 将当前的这个 Servlet 对象，转化成一个 BeanWrapper 对象(BeanWrapperImpl)。
 				// 从而能够以 Spring 的方式来将 pvs 注入到该 BeanWrapper 对象中
 				BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(this);
 				ResourceLoader resourceLoader = new ServletContextResourceLoader(getServletContext());
@@ -179,7 +180,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 				bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, getEnvironment()));
 				// <2.3> 现在是空的，留给子类覆盖
 				initBeanWrapper(bw);
-				// <2.4> 以 Spring 的方式来将 pvs 注入到该 BeanWrapper 对象中
+				// <2.4> PropertyValues 注入到该 BeanWrapper 对象中
 				bw.setPropertyValues(pvs, true);
 			}
 			catch (BeansException ex) {
@@ -254,7 +255,8 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		public ServletConfigPropertyValues(ServletConfig config, Set<String> requiredProperties)
 				throws ServletException {
 
-			// 获得缺失的属性的集合
+			// requiredProperties 是必填的，字面意思是缺少的，相当于必填项缺少那些
+			// 最后会对这个 missingProps 做检查，如果部位 empty 就抛出异常
 			Set<String> missingProps = (!CollectionUtils.isEmpty(requiredProperties) ?
 					new HashSet<>(requiredProperties) : null);
 			// <1> 遍历 ServletConfig 的 initParams 集合，

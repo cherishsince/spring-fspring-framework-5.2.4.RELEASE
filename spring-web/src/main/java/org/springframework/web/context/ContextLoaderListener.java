@@ -54,6 +54,7 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 	 * @see #contextDestroyed(ServletContextEvent)
 	 */
 	public ContextLoaderListener() {
+		super();
 	}
 
 	/**

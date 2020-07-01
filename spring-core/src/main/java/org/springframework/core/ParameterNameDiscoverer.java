@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 import org.springframework.lang.Nullable;
 
 /**
+ * 用于发现方法和构造函数的参数名称的接口。
+ *
  * Interface to discover parameter names for methods and constructors.
  *
  * <p>Parameter name discovery is not always possible, but various strategies are

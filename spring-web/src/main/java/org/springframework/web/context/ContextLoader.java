@@ -305,13 +305,19 @@ public class ContextLoader {
 					configureAndRefreshWebApplicationContext(cwac, servletContext);
 				}
 			}
+			// 将 WebApplicationContext 设置到 servlet 中，
+			// 然后 WebApplicationContext 中也有，servlet context 实例。
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
-
+			// 获取当前线程的 ClassLoader
 			ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+			// 当前线程的 ClassLoader 是否和当前的 ContextLoader 的 ClassLoader 是不是同一个
+			// ClassLoader 传播方式是，依赖父类的 class loader，这个和线程有关
 			if (ccl == ContextLoader.class.getClassLoader()) {
 				currentContext = this.context;
 			}
+			// 不是同一个 ClassLoader
 			else if (ccl != null) {
+				// 设置到 ThreadLocal 中，ClassLoader 对应 WebApplicationContext
 				currentContextPerThread.put(ccl, this.context);
 			}
 
@@ -319,7 +325,7 @@ public class ContextLoader {
 				long elapsedTime = System.currentTimeMillis() - startTime;
 				logger.info("Root WebApplicationContext initialized in " + elapsedTime + " ms");
 			}
-
+			// 返回初始化的 WebApplicationContext
 			return this.context;
 		}
 		catch (RuntimeException | Error ex) {
@@ -389,6 +395,7 @@ public class ContextLoader {
 
 	protected void configureAndRefreshWebApplicationContext(ConfigurableWebApplicationContext wac, ServletContext sc) {
 		if (ObjectUtils.identityToString(wac).equals(wac.getId())) {
+			// 应用程序上下文id，仍然设置为其原始默认值根据可用信息分配更有用的id
 			// The application context id is still set to its original default value
 			// -> assign a more useful id based on available information
 			String idParam = sc.getInitParameter(CONTEXT_ID_PARAM);
@@ -396,13 +403,15 @@ public class ContextLoader {
 				wac.setId(idParam);
 			}
 			else {
+				// 生成默认id
 				// Generate default id...
 				wac.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX +
 						ObjectUtils.getDisplayString(sc.getContextPath()));
 			}
 		}
-
+		// 设置到 ConfigurableWebApplicationContext 中
 		wac.setServletContext(sc);
+		// 获取 web.xml contextConfigLocation 参数，存在将设置到 ConfigurableWebApplicationContext
 		String configLocationParam = sc.getInitParameter(CONFIG_LOCATION_PARAM);
 		if (configLocationParam != null) {
 			wac.setConfigLocation(configLocationParam);
@@ -411,11 +420,12 @@ public class ContextLoader {
 		// The wac environment's #initPropertySources will be called in any case when the context
 		// is refreshed; do it eagerly here to ensure servlet property sources are in place for
 		// use in any post-processing or initialization that occurs below prior to #refresh
+		// 将 ServletContext 的配置信息，初始化到 ConfigurableWebEnvironment 中
 		ConfigurableEnvironment env = wac.getEnvironment();
 		if (env instanceof ConfigurableWebEnvironment) {
 			((ConfigurableWebEnvironment) env).initPropertySources(sc, null);
 		}
-
+		// 加载自定义上下文，早期需要加载的 class放入 ConfigurableWebApplicationContext
 		customizeContext(sc, wac);
 		// 刷新容器(会调用AbstractApplicationContext#refres())
 		wac.refresh();
@@ -445,9 +455,11 @@ public class ContextLoader {
 	 * @see ApplicationContextInitializer#initialize(ConfigurableApplicationContext)
 	 */
 	protected void customizeContext(ServletContext sc, ConfigurableWebApplicationContext wac) {
+		// 加载提前 需要初始化的的 class
 		List<Class<ApplicationContextInitializer<ConfigurableApplicationContext>>> initializerClasses =
 				determineContextInitializerClasses(sc);
-
+		// 循环实例化对象(采用的反射 newInstance)
+		// 注意：这里是 “实例化”，初始化在下面
 		for (Class<ApplicationContextInitializer<ConfigurableApplicationContext>> initializerClass : initializerClasses) {
 			Class<?> initializerContextClass =
 					GenericTypeResolver.resolveTypeArgument(initializerClass, ApplicationContextInitializer.class);
@@ -458,10 +470,12 @@ public class ContextLoader {
 						"context loader: [%s]", initializerClass.getName(), initializerContextClass.getName(),
 						wac.getClass().getName()));
 			}
+			// 实例化
 			this.contextInitializers.add(BeanUtils.instantiateClass(initializerClass));
 		}
-
+	    // 对 @Order 和 @Priority 注解排序
 		AnnotationAwareOrderComparator.sort(this.contextInitializers);
+		// 开始循环 "初始化"
 		for (ApplicationContextInitializer<ConfigurableApplicationContext> initializer : this.contextInitializers) {
 			initializer.initialize(wac);
 		}
@@ -484,7 +498,7 @@ public class ContextLoader {
 		// 获取 globalInitializerClasses 需要初始化的 class
 		String globalClassNames = servletContext.getInitParameter(GLOBAL_INITIALIZER_CLASSES_PARAM);
 		if (globalClassNames != null) {
-			// 加载并初始化 class
+			// 采用 class.forName 获取对应的 class
 			for (String className : StringUtils.tokenizeToStringArray(globalClassNames, INIT_PARAM_DELIMITERS)) {
 				classes.add(loadInitializerClass(className));
 			}
@@ -493,8 +507,8 @@ public class ContextLoader {
 		// 获取 contextInitializerClasses 需要初始化的 class
 		String localClassNames = servletContext.getInitParameter(CONTEXT_INITIALIZER_CLASSES_PARAM);
 		if (localClassNames != null) {
+			// 采用 class.forName 获取对应的 class
 			for (String className : StringUtils.tokenizeToStringArray(localClassNames, INIT_PARAM_DELIMITERS)) {
-				// 加载并初始化 class
 				classes.add(loadInitializerClass(className));
 			}
 		}

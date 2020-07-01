@@ -23,6 +23,9 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 
 /**
+ * 这个 Listener 有个特点，会过了 source 来源，
+ * 内部保存了一个 source 属性，不是这个来源的全部过滤掉
+ *
  * {@link org.springframework.context.ApplicationListener} decorator that filters
  * events from a specified event source, invoking its delegate listener for
  * matching {@link org.springframework.context.ApplicationEvent} objects only.
@@ -35,9 +38,13 @@ import org.springframework.lang.Nullable;
  * @since 2.0.5
  */
 public class SourceFilteringListener implements GenericApplicationListener, SmartApplicationListener {
-
+	/**
+	 * 原始类
+	 */
 	private final Object source;
-
+	/**
+	 * 代理的监听器
+	 */
 	@Nullable
 	private GenericApplicationListener delegate;
 

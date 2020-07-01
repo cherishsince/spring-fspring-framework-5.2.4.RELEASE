@@ -42,6 +42,8 @@ package org.springframework.context;
 public interface ApplicationContextInitializer<C extends ConfigurableApplicationContext> {
 
 	/**
+	 * 初始化应用程序上下文。
+	 *
 	 * Initialize the given application context.
 	 * @param applicationContext the application to configure
 	 */

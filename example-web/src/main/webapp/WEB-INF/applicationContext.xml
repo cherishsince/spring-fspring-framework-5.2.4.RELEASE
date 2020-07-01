@@ -2,5 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+	<bean id="object" class="java.lang.Object" />
+	<bean id="object1" class="example.web.obj.Object1">
+		<property name="object" ref="object"></property>
+	</bean>
 </beans>

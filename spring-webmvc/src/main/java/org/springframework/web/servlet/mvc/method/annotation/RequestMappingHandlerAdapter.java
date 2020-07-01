@@ -182,7 +182,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 
 	private final Map<Class<?>, SessionAttributesHandler> sessionAttributesHandlerCache = new ConcurrentHashMap<>(64);
-
+	/**
+	 * @InitBinder 注解，用于 controller 级别的，数据类型转换
+	 * https://blog.csdn.net/qq_38016931/article/details/82080940
+	 */
 	private final Map<Class<?>, Set<Method>> initBinderCache = new ConcurrentHashMap<>(64);
 
 	private final Map<ControllerAdviceBean, Set<Method>> initBinderAdviceCache = new LinkedHashMap<>();
@@ -770,10 +773,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	@Override
 	protected ModelAndView handleInternal(HttpServletRequest request,
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
-
+		// controller 返回的 model 和 view
 		ModelAndView mav;
 		checkRequest(request);
-
+		// todo synchronize
 		// Execute invokeHandlerMethod in synchronized block if required.
 		if (this.synchronizeOnSession) {
 			HttpSession session = request.getSession(false);
@@ -835,24 +838,24 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	@Nullable
 	protected ModelAndView invokeHandlerMethod(HttpServletRequest request,
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
-
+		// 保证一下 request response
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		try {
-			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
-			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
+			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod); // 处理 @InitBinder
+			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory); // 处理 @ModalAttribute
 
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
-			if (this.argumentResolvers != null) {
+			if (this.argumentResolvers != null) { // argumentResolvers 是属性解析，做属性解析和转换的
 				invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
 			}
-			if (this.returnValueHandlers != null) {
+			if (this.returnValueHandlers != null) { // returnValueHandlers 返回值解析器
 				invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
 			}
 			invocableMethod.setDataBinderFactory(binderFactory);
-			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
-
+			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer); // 用于发现方法和构造函数的参数名称的接口。
+			// 创建 ModelAndViewContainer 容器
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
-			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
+			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request)); // 添加快照信息
 			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
 
@@ -902,9 +905,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		SessionAttributesHandler sessionAttrHandler = getSessionAttributesHandler(handlerMethod);
 		Class<?> handlerType = handlerMethod.getBeanType();
 		Set<Method> methods = this.modelAttributeCache.get(handlerType);
-		if (methods == null) {
+		if (methods == null) { // 这里是 @ModalAttribute
 			methods = MethodIntrospector.selectMethods(handlerType, MODEL_ATTRIBUTE_METHODS);
-			this.modelAttributeCache.put(handlerType, methods);
+			this.modelAttributeCache.put(handlerType, methods); // controller 有多少个 @ModalAttribute
 		}
 		List<InvocableHandlerMethod> attrMethods = new ArrayList<>();
 		// Global methods first

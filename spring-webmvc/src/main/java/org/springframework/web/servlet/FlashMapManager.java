@@ -22,6 +22,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.lang.Nullable;
 
 /**
+ * 保存的是快照信息
+ *
+ * 用于检索和保存FlashMap实例的策略界面。
+ * 有关Flash属性的一般概述，请参见{@link FlashMap}。
+ *
  * A strategy interface for retrieving and saving FlashMap instances.
  * See {@link FlashMap} for a general overview of flash attributes.
  *

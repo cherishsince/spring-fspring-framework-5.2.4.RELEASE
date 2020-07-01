@@ -297,7 +297,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	/** Detect all HandlerMappings or just expect "handlerMapping" bean?. */
 	private boolean detectAllHandlerMappings = true;
 
-	/** Detect all HandlerAdapters or just expect "handlerAdapter" bean?. */
+	/**
+	 * 检测所有HandlerAdapters还是期望“ handlerAdapter” bean？
+	 * Detect all HandlerAdapters or just expect "handlerAdapter" bean?.
+	 */
 	private boolean detectAllHandlerAdapters = true;
 
 	/** Detect all HandlerExceptionResolvers or just expect "handlerExceptionResolver" bean?. */
@@ -524,12 +527,15 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * 初始化 MultipartResolver 解析器
+	 *
 	 * Initialize the MultipartResolver used by this class.
 	 * <p>If no bean is defined with the given name in the BeanFactory for this namespace,
 	 * no multipart handling is provided.
 	 */
 	private void initMultipartResolver(ApplicationContext context) {
 		try {
+			// 获得 MULTIPART_RESOLVER_BEAN_NAME 对应的 MultipartResolver Bean 对象
 			this.multipartResolver = context.getBean(MULTIPART_RESOLVER_BEAN_NAME, MultipartResolver.class);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Detected " + this.multipartResolver);
@@ -539,6 +545,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 		catch (NoSuchBeanDefinitionException ex) {
+			// 默认没有 multipart 解析器
 			// Default is no multipart resolver.
 			this.multipartResolver = null;
 			if (logger.isTraceEnabled()) {
@@ -647,26 +654,36 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * 初始化 handler 适配器
+	 *
 	 * Initialize the HandlerAdapters used by this class.
 	 * <p>If no HandlerAdapter beans are defined in the BeanFactory for this namespace,
 	 * we default to SimpleControllerHandlerAdapter.
 	 */
 	private void initHandlerAdapters(ApplicationContext context) {
 		this.handlerAdapters = null;
-
+		// 检测所有 HandlerAdapters 是不是 handlerAdapter 类
 		if (this.detectAllHandlerAdapters) {
+			// 在ApplicationContext中找到所有HandlerAdapter，包括 parent 上下文。
 			// Find all HandlerAdapters in the ApplicationContext, including ancestor contexts.
+
+			// 获取所有的 HandlerAdapter，包含 parent 容器中的
 			Map<String, HandlerAdapter> matchingBeans =
 					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerAdapter.class, true, false);
+			// 不为空进入
 			if (!matchingBeans.isEmpty()) {
+				// 创建一个新的 list 容器保持 HandlerAdapter，然后给 this.handlerAdapters 中
 				this.handlerAdapters = new ArrayList<>(matchingBeans.values());
+				// 对 handlerAdapters 进行 @Order @Primary 排序
 				// We keep HandlerAdapters in sorted order.
 				AnnotationAwareOrderComparator.sort(this.handlerAdapters);
 			}
 		}
 		else {
 			try {
+				// 从容器中获取 handleAdapter 适配器
 				HandlerAdapter ha = context.getBean(HANDLER_ADAPTER_BEAN_NAME, HandlerAdapter.class);
+				// 转换成一个单例的 lists
 				this.handlerAdapters = Collections.singletonList(ha);
 			}
 			catch (NoSuchBeanDefinitionException ex) {
@@ -674,6 +691,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		// 没有指定 HandlerAdapters，那么就获取默认的 HandlerAdapters
 		// Ensure we have at least some HandlerAdapters, by registering
 		// default HandlerAdapters if no other adapters are found.
 		if (this.handlerAdapters == null) {
@@ -968,12 +986,12 @@ public class DispatcherServlet extends FrameworkServlet {
 		request.setAttribute(THEME_SOURCE_ATTRIBUTE, getThemeSource());
 
 		if (this.flashMapManager != null) {
-			FlashMap inputFlashMap = this.flashMapManager.retrieveAndUpdate(request, response);
-			if (inputFlashMap != null) {
+			FlashMap inputFlashMap = this.flashMapManager.retrieveAndUpdate(request, response); // 找回并更新快照
+			if (inputFlashMap != null) { // 将快照信息，unmodifiableMap 不允许在修改了，设置到请求的属性里面
 				request.setAttribute(INPUT_FLASH_MAP_ATTRIBUTE, Collections.unmodifiableMap(inputFlashMap));
 			}
-			request.setAttribute(OUTPUT_FLASH_MAP_ATTRIBUTE, new FlashMap());
-			request.setAttribute(FLASH_MAP_MANAGER_ATTRIBUTE, this.flashMapManager);
+			request.setAttribute(OUTPUT_FLASH_MAP_ATTRIBUTE, new FlashMap()); // 输出的快照信息
+			request.setAttribute(FLASH_MAP_MANAGER_ATTRIBUTE, this.flashMapManager); // 设置快照管理 flashMapManager
 		}
 
 		try {

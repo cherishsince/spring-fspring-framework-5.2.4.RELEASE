@@ -54,6 +54,9 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 
 /**
+ * 这是一个 abstract class 对  {@link HandlerMapping} 基本的实现，
+ * 里面定义了 mapping 映射，和 request 的 {@link HandlerMethod}.
+ *
  * Abstract base class for {@link HandlerMapping} implementations that define
  * a mapping between a request and a {@link HandlerMethod}.
  *
@@ -96,10 +99,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 
 	private boolean detectHandlerMethodsInAncestorContexts = false;
-
+	/**
+	 * Mapping 命名策略
+	 */
 	@Nullable
 	private HandlerMethodMappingNamingStrategy<T> namingStrategy;
-
+	/**
+	 * Mapping 注册表
+	 */
 	private final MappingRegistry mappingRegistry = new MappingRegistry();
 
 
@@ -197,6 +204,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	// Handler method detection
 
 	/**
+	 * 在初始化时检测处理程序方法。
+	 *
 	 * Detects handler methods at initialization.
 	 * @see #initHandlerMethods
 	 */
@@ -362,15 +371,19 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
-		// 查找的 path
+		// <1> 获得请求的路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 		request.setAttribute(LOOKUP_PATH, lookupPath);
+		// <2> 获得写锁
 		this.mappingRegistry.acquireReadLock();
 		try {
+			// <3> 获得 HandlerMethod 对象
 			HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, request);
+			// <4> 进一步，获得 HandlerMethod 对象
 			return (handlerMethod != null ? handlerMethod.createWithResolvedBean() : null);
 		}
 		finally {
+			// <5> 释放写锁
 			this.mappingRegistry.releaseReadLock();
 		}
 	}
@@ -526,22 +539,45 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 
 	/**
+	 * 一个注册表，用于维护到处理程序方法的所有映射，
+	 * 公开用于执行查找的方法并提供并发访问。
+	 *
 	 * A registry that maintains all mappings to handler methods, exposing methods
 	 * to perform lookups and providing concurrent access.
 	 * <p>Package-private for testing purposes.
 	 */
 	class MappingRegistry {
-
+		/**
+		 * 注册表
+		 *
+		 * KEY: Mapping
+		 */
 		private final Map<T, MappingRegistration<T>> registry = new HashMap<>();
-
+		/**
+		 * 注册表2
+		 *
+		 * KEY：Mapping
+		 */
 		private final Map<T, HandlerMethod> mappingLookup = new LinkedHashMap<>();
-
+		/**
+		 * 直接 URL 的映射
+		 *
+		 * KEY：直接 URL
+		 * VALUE：Mapping 数组
+		 */
 		private final MultiValueMap<String, T> urlLookup = new LinkedMultiValueMap<>();
-
+		/**
+		 * Mapping 的名字与 HandlerMethod 的映射
+		 *
+		 * KEY：Mapping 的名字
+		 * VALUE：HandlerMethod 数组
+		 */
 		private final Map<String, List<HandlerMethod>> nameLookup = new ConcurrentHashMap<>();
 
 		private final Map<HandlerMethod, CorsConfiguration> corsLookup = new ConcurrentHashMap<>();
-
+		/**
+		 * 读写锁
+		 */
 		private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
 		/**
@@ -596,31 +632,41 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			if (KotlinDetector.isKotlinType(method.getDeclaringClass()) && KotlinDelegate.isSuspend(method)) {
 				throw new IllegalStateException("Unsupported suspending handler method detected: " + method);
 			}
+			// <1> 获得写锁
 			this.readWriteLock.writeLock().lock();
 			try {
+				// <2.1> 创建 HandlerMethod 对象
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
+				// <2.2> 校验当前 mapping 不存在，否则抛出 IllegalStateException 异常
 				validateMethodMapping(handlerMethod, mapping);
+				// <2.3> 添加 mapping + HandlerMethod 到 mappingLookup 中
 				this.mappingLookup.put(mapping, handlerMethod);
 
+				// <3.1> 获得 mapping 对应的普通 URL 数组
 				List<String> directUrls = getDirectUrls(mapping);
+				// <3.2> 添加到 url + mapping 到 urlLookup 集合中
 				for (String url : directUrls) {
 					this.urlLookup.add(url, mapping);
 				}
 
+				// <4> 初始化 nameLookup
 				String name = null;
 				if (getNamingStrategy() != null) {
+					// <4.1> 获得 Mapping 的名字
 					name = getNamingStrategy().getName(handlerMethod, mapping);
+					// <4.2> 添加到 mapping 的名字 + HandlerMethod 到 nameLookup 中
 					addMappingName(name, handlerMethod);
 				}
-
+				// <5> 这是一个钩子方法，由子类实现，用于@CrossOrigin 跨域解析
 				CorsConfiguration corsConfig = initCorsConfiguration(handler, method, mapping);
 				if (corsConfig != null) {
 					this.corsLookup.put(handlerMethod, corsConfig);
 				}
-
+				// <6> 创建 MappingRegistration 对象，并 mapping + MappingRegistration 添加到 registry 中
 				this.registry.put(mapping, new MappingRegistration<>(mapping, handlerMethod, directUrls, name));
 			}
 			finally {
+				// <7> 释放写锁
 				this.readWriteLock.writeLock().unlock();
 			}
 		}

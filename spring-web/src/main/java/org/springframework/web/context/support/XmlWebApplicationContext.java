@@ -61,13 +61,24 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
  */
 public class XmlWebApplicationContext extends AbstractRefreshableWebApplicationContext {
 
-	/** Default config location for the root context. */
+	/**
+	 * root 上下文默认配置位置
+	 *
+	 * Default config location for the root context.
+	 */
 	public static final String DEFAULT_CONFIG_LOCATION = "/WEB-INF/applicationContext.xml";
 
-	/** Default prefix for building a config location for a namespace. */
+	/**
+	 * 默认空间前缀，构建配置位置
+	 *
+	 * Default prefix for building a config location for a namespace.
+	 */
 	public static final String DEFAULT_CONFIG_LOCATION_PREFIX = "/WEB-INF/";
 
-	/** Default suffix for building a config location for a namespace. */
+	/**
+	 * 名称空间，构建配置位置，默认后缀。
+	 *
+	 * Default suffix for building a config location for a namespace. */
 	public static final String DEFAULT_CONFIG_LOCATION_SUFFIX = ".xml";
 
 	public XmlWebApplicationContext() {
@@ -82,6 +93,10 @@ public class XmlWebApplicationContext extends AbstractRefreshableWebApplicationC
 	 */
 	@Override
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
+		// tips:
+		// 这里和 AbstractXmlApplicationContext 是一样的，
+		// 也就是说，spring xml配置加载，和 web xml 加载，这里是一样的
+
 		// Create a new XmlBeanDefinitionReader for the given BeanFactory.
 		XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
 

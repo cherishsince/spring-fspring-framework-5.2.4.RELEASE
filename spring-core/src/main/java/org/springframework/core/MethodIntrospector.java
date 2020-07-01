@@ -38,7 +38,7 @@ import org.springframework.util.ReflectionUtils;
  * @author Rossen Stoyanchev
  * @since 4.2.3
  */
-public final class MethodIntrospector {
+	public final class MethodIntrospector {
 
 	private MethodIntrospector() {
 	}

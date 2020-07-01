@@ -33,6 +33,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 
 /**
+ * 表示RFC 6266中定义的Content-Disposition类型和参数。
  * Represent the Content-Disposition type and parameters as defined in RFC 6266.
  *
  * @author Sebastien Deleuze

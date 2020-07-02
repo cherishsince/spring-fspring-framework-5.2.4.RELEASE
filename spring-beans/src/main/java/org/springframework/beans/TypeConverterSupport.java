@@ -70,6 +70,8 @@ public abstract class TypeConverterSupport extends PropertyEditorRegistrySupport
 
 		Assert.state(this.typeConverterDelegate != null, "No TypeConverterDelegate");
 		try {
+			// 调用 TypeConverterDelegate 代理模式，转换
+			// 调用 PropertyEdit 和 ConversionService 进行属性转换
 			return this.typeConverterDelegate.convertIfNecessary(null, null, value, requiredType, typeDescriptor);
 		}
 		catch (ConverterNotFoundException | IllegalStateException ex) {

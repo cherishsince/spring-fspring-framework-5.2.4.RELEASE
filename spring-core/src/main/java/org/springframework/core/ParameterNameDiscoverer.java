@@ -38,6 +38,8 @@ import org.springframework.lang.Nullable;
 public interface ParameterNameDiscoverer {
 
 	/**
+	 * 获取方法参数，可能是 proxy 代理的方法
+	 *
 	 * Return parameter names for a method, or {@code null} if they cannot be determined.
 	 * <p>Individual entries in the array may be {@code null} if parameter names are only
 	 * available for some parameters of the given method but not for others. However,
@@ -50,6 +52,8 @@ public interface ParameterNameDiscoverer {
 	String[] getParameterNames(Method method);
 
 	/**
+	 * 获取构造器参数，可能是 proxy 代理类
+	 *
 	 * Return parameter names for a constructor, or {@code null} if they cannot be determined.
 	 * <p>Individual entries in the array may be {@code null} if parameter names are only
 	 * available for some parameters of the given constructor but not for others. However,

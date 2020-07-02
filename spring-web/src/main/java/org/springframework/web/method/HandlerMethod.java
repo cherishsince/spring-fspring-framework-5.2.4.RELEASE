@@ -563,6 +563,8 @@ public class HandlerMethod {
 
 
 	/**
+	 * 基于实际返回值的HandlerMethod返回类型的MethodParameter。
+	 *
 	 * A MethodParameter for a HandlerMethod return type based on an actual return value.
 	 */
 	private class ReturnValueMethodParameter extends HandlerMethodParameter {

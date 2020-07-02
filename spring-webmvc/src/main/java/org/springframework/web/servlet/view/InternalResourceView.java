@@ -137,23 +137,23 @@ public class InternalResourceView extends AbstractUrlBasedView {
 	@Override
 	protected void renderMergedOutputModel(
 			Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
+		// 公开模型对象作为请求属性。
 		// Expose the model object as request attributes.
 		exposeModelAsRequestAttributes(model, request);
-
+		// 公开帮助程序作为请求属性（如果有）。
 		// Expose helpers as request attributes, if any.
 		exposeHelpers(request);
-
+		// 确定请求分配器的路径。
 		// Determine the path for the request dispatcher.
 		String dispatcherPath = prepareForRendering(request, response);
-
+		// 获取目标资源（通常是JSP）的RequestDispatcher。
 		// Obtain a RequestDispatcher for the target resource (typically a JSP).
 		RequestDispatcher rd = getRequestDispatcher(request, dispatcherPath);
 		if (rd == null) {
 			throw new ServletException("Could not get RequestDispatcher for [" + getUrl() +
 					"]: Check that the corresponding file exists within your web application archive!");
 		}
-
+		// 如果已经包含或响应已经提交，请执行包含，否则转发。
 		// If already included or response already committed, perform include, else forward.
 		if (useInclude(request, response)) {
 			response.setContentType(getContentType());

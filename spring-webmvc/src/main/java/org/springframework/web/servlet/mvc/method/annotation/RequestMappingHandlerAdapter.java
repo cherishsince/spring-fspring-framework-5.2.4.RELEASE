@@ -795,12 +795,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			// No synchronization on session demanded at all...
 			mav = invokeHandlerMethod(request, response, handlerMethod);
 		}
-
+		// 没有 Cache-Control 进入
 		if (!response.containsHeader(HEADER_CACHE_CONTROL)) {
 			if (getSessionAttributesHandler(handlerMethod).hasSessionAttributes()) {
 				applyCacheSeconds(response, this.cacheSecondsForSessionAttributeHandlers);
 			}
 			else {
+				// 准备 response 实例
 				prepareResponse(response);
 			}
 		}
@@ -878,12 +879,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				});
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
-
+			// 调用 handler 处理请求
 			invocableMethod.invokeAndHandle(webRequest, mavContainer);
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;
 			}
-
+			// 创建 ModalAndView 返回
 			return getModelAndView(mavContainer, modelFactory, webRequest);
 		}
 		finally {
@@ -987,7 +988,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	@Nullable
 	private ModelAndView getModelAndView(ModelAndViewContainer mavContainer,
 			ModelFactory modelFactory, NativeWebRequest webRequest) throws Exception {
-
+		// 更新 modal 模型
 		modelFactory.updateModel(webRequest, mavContainer);
 		if (mavContainer.isRequestHandled()) {
 			return null;

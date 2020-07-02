@@ -37,7 +37,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 public class HandlerMethodReturnValueHandlerComposite implements HandlerMethodReturnValueHandler {
 
 	protected final Log logger = LogFactory.getLog(getClass());
-
+	// 15个 返回值解析器
 	private final List<HandlerMethodReturnValueHandler> returnValueHandlers = new ArrayList<>();
 
 
@@ -74,7 +74,7 @@ public class HandlerMethodReturnValueHandlerComposite implements HandlerMethodRe
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+		// 查找返回值的 handler
 		HandlerMethodReturnValueHandler handler = selectHandler(returnValue, returnType);
 		if (handler == null) {
 			throw new IllegalArgumentException("Unknown return value type: " + returnType.getParameterType().getName());

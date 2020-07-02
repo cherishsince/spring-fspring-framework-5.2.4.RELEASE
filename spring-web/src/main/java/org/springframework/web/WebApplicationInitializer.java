@@ -20,6 +20,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 /**
+ * 在Servlet 3.0+环境中实现的接口，以便以编程方式配置{@link ServletContext}，
+ * 这与传统的基于{@code web.xml}的方法相反（或可能与之结合）。
+ *
  * Interface to be implemented in Servlet 3.0+ environments in order to configure the
  * {@link ServletContext} programmatically -- as opposed to (or possibly in conjunction
  * with) the traditional {@code web.xml}-based approach.
@@ -177,6 +180,10 @@ import javax.servlet.ServletException;
 public interface WebApplicationInitializer {
 
 	/**
+	 * 使用初始化此Web应用程序所需的所有Servlet，过滤器，
+	 * 侦听器上下文参数和属性配置给定的{@link ServletContext}。
+	 * 请参见示例{@linkplain WebApplicationInitializer以上}。
+	 *
 	 * Configure the given {@link ServletContext} with any servlets, filters, listeners
 	 * context-params and attributes necessary for initializing this web application. See
 	 * examples {@linkplain WebApplicationInitializer above}.

@@ -46,7 +46,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class ModelAndView {
 
-	/** View instance or view name String. */
+	/** 视图实例或视图名称String。 View instance or view name String. */
 	@Nullable
 	private Object view;
 

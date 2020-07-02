@@ -33,6 +33,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.HandlerMethod;
 
 /**
+ * {@link HandlerMethod}的扩展，它通过{@link HandlerMethodArgumentResolver}
+ * 列表从当前HTTP请求中解析的参数值调用基础方法。
+ *
  * Extension of {@link HandlerMethod} that invokes the underlying method with
  * argument values resolved from the current HTTP request through a list of
  * {@link HandlerMethodArgumentResolver}.
@@ -130,11 +133,12 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	@Nullable
 	public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		// 获取方法参数
 		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Arguments: " + Arrays.toString(args));
 		}
+		// 反射调用方法
 		return doInvoke(args);
 	}
 
@@ -146,17 +150,17 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		// 获取方法参数
 		MethodParameter[] parameters = getMethodParameters();
 		if (ObjectUtils.isEmpty(parameters)) {
 			return EMPTY_ARGS;
 		}
-
+		// 方法参数的object[]
 		Object[] args = new Object[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
 			MethodParameter parameter = parameters[i];
 			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
-			args[i] = findProvidedArgument(parameter, providedArgs);
+			args[i] = findProvidedArgument(parameter, providedArgs); // 查找外部提供的参数(providedArgs)如果有合适的就返回
 			if (args[i] != null) {
 				continue;
 			}
@@ -185,8 +189,10 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 */
 	@Nullable
 	protected Object doInvoke(Object... args) throws Exception {
+		// 设置方法可访问的
 		ReflectionUtils.makeAccessible(getBridgedMethod());
 		try {
+			// 反射调用
 			return getBridgedMethod().invoke(getBean(), args);
 		}
 		catch (IllegalArgumentException ex) {

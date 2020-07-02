@@ -95,16 +95,16 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	@Nullable
 	public final Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
-
+		// 获取参数，接收参数的要求 如：name、require 这些
 		NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
 		MethodParameter nestedParameter = parameter.nestedIfOptional();
-
+		// 解析 name 的value值
 		Object resolvedName = resolveStringValue(namedValueInfo.name);
 		if (resolvedName == null) {
 			throw new IllegalArgumentException(
 					"Specified name must not resolve to null: [" + namedValueInfo.name + "]");
 		}
-
+		// request 中获取参数，然后返回(获取的一般是两种，二进制，string)
 		Object arg = resolveName(resolvedName.toString(), nestedParameter, webRequest);
 		if (arg == null) {
 			if (namedValueInfo.defaultValue != null) {
@@ -120,8 +120,10 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 		}
 
 		if (binderFactory != null) {
+			// WebDataBinder 用于绑定，和属性转换的(他是 TypeConvert 的子类)
 			WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
 			try {
+				// 转换参数类型，这一步将 request 中的值，转换成我们想接受的类型
 				arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
 			}
 			catch (ConversionNotSupportedException ex) {
@@ -133,7 +135,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 						namedValueInfo.name, parameter, ex.getCause());
 			}
 		}
-
+		// 钩子方法，在解析值后调用。
 		handleResolvedValue(arg, namedValueInfo.name, parameter, mavContainer, webRequest);
 
 		return arg;
@@ -185,7 +187,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	private Object resolveStringValue(String value) {
 		if (this.configurableBeanFactory == null) {
 			return value;
-		}
+		} // 这里是占位符解析
 		String placeholdersResolved = this.configurableBeanFactory.resolveEmbeddedValue(value);
 		BeanExpressionResolver exprResolver = this.configurableBeanFactory.getBeanExpressionResolver();
 		if (exprResolver == null || this.expressionContext == null) {
@@ -251,6 +253,8 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	}
 
 	/**
+	 * 在解析值后调用。
+	 *
 	 * Invoked after a value is resolved.
 	 * @param arg the resolved argument value
 	 * @param name the argument name
@@ -263,7 +267,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	}
 
 
-	/**
+	/** 表示有关命名值的信息，包括名称，是否为必需和默认值。 @Param(require=true)
 	 * Represents the information about a named value, including name, whether it's required and a default value.
 	 */
 	protected static class NamedValueInfo {

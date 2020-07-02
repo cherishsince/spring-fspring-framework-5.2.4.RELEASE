@@ -20,6 +20,8 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.lang.Nullable;
 
 /**
+ * 一种能够根据上下文对象求值的表达式。
+ *
  * An expression capable of evaluating itself against context objects.
  * Encapsulates the details of a previously parsed expression string.
  * Provides a common abstraction for expression evaluation.

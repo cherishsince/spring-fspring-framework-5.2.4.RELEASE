@@ -761,7 +761,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		// contextClass 必须是 ConfigurableWebApplicationContext 子类
 		if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) {
 			throw new ApplicationContextException(
-					"Fatal initialization error in servlet with name '" + getServletName() +
+					"Fatal initializat ion error in servlet with name '" + getServletName() +
 					"': custom WebApplicationContext class [" + contextClass.getName() +
 					"] is not of type ConfigurableWebApplicationContext");
 		}

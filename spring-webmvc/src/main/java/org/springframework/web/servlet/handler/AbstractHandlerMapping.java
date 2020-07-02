@@ -525,16 +525,21 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 				(HandlerExecutionChain) handler : new HandlerExecutionChain(handler));
 		// 获得请求路径
 		String lookupPath = this.urlPathHelper.getLookupPathForRequest(request, LOOKUP_PATH);
-		// 遍历 adaptedInterceptors 数组，获得请求匹配的拦截器
+
+		//
+		// tips: 这里拦截器分为两大类，HandlerInterceptor、MappedInterceptor
+		// HandlerInterceptor: 全局的拦截
+		// MappedInterceptor: exclude、include 操作
 		for (HandlerInterceptor interceptor : this.adaptedInterceptors) {
 			if (interceptor instanceof MappedInterceptor) {
 				// MappedInterceptor 需要按匹配获取
 				MappedInterceptor mappedInterceptor = (MappedInterceptor) interceptor;
+				// MappedInterceptor 用于拦截url的，可以排除一些url和包含一些url
 				if (mappedInterceptor.matches(lookupPath, this.pathMatcher)) {
 					chain.addInterceptor(mappedInterceptor.getInterceptor());
 				}
 			} else {
-				// 不是 MappedInterceptor，那么就是 HandlerInterceptor 全局的拦截这种
+				// HandlerInterceptor 是全局的拦截器
 				chain.addInterceptor(interceptor);
 			}
 		}

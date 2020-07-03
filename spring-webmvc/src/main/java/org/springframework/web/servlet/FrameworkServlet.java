@@ -610,7 +610,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	@Override
 	protected final void initServletBean() throws ServletException {
 		// 记录日志信息
-		getServletContext().log("Initializing Spring " + getClass().getSimpleName() + " '" + getServletName() + "'");
+ 		getServletContext().log("Initializing Spring " + getClass().getSimpleName() + " '" + getServletName() + "'");
 		if (logger.isInfoEnabled()) {
 			logger.info("Initializing Servlet '" + getServletName() + "'");
 		}

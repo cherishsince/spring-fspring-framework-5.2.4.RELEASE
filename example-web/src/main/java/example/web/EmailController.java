@@ -20,12 +20,12 @@ public class EmailController {
         pattern = Pattern.compile(EMAIL_REGEX);
     }
 
-    @GetMapping("/form")
+    @GetMapping(value = "/form", name = "ss1")
     public ModelAndView showIndex() {
         return new ModelAndView("index");
     }
 
-    @PostMapping("/validate")
+    @PostMapping(value = "/validate", name = "ss2")
     public ModelAndView validateEmail(@RequestParam String email) {
         ModelAndView modelAndView = new ModelAndView();
         boolean isValid = validate(email);

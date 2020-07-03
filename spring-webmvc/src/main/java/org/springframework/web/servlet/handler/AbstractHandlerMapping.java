@@ -532,7 +532,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 		// MappedInterceptor: exclude、include 操作
 		for (HandlerInterceptor interceptor : this.adaptedInterceptors) {
 			if (interceptor instanceof MappedInterceptor) {
-				// MappedInterceptor 需要按匹配获取
+				// 拦截器，拦截器优先在 chain 前允许
 				MappedInterceptor mappedInterceptor = (MappedInterceptor) interceptor;
 				// MappedInterceptor 用于拦截url的，可以排除一些url和包含一些url
 				if (mappedInterceptor.matches(lookupPath, this.pathMatcher)) {

@@ -56,6 +56,9 @@ import org.springframework.web.util.UrlPathHelper;
  */
 public final class RequestMappingInfo implements RequestCondition<RequestMappingInfo> {
 
+	/**
+	 * @RquestMapping() 中的 name 属性
+	 */
 	@Nullable
 	private final String name;
 
@@ -218,10 +221,12 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 	@Override
 	@Nullable
 	public RequestMappingInfo getMatchingCondition(HttpServletRequest request) {
+		// 匹配是：post、get xxx 是不是支持的类型
 		RequestMethodsRequestCondition methods = this.methodsCondition.getMatchingCondition(request);
 		if (methods == null) {
 			return null;
 		}
+		// 参数匹配
 		ParamsRequestCondition params = this.paramsCondition.getMatchingCondition(request);
 		if (params == null) {
 			return null;
@@ -246,12 +251,14 @@ public final class RequestMappingInfo implements RequestCondition<RequestMapping
 		if (custom == null) {
 			return null;
 		}
-
+		// 创建一个 RequestMappingInfo，以为谁 Builder 模式，所以需要创建一个
 		return new RequestMappingInfo(this.name, patterns,
 				methods, params, headers, consumes, produces, custom.getCondition());
 	}
 
 	/**
+	 * 在请求的上下文中将“此”信息（即当前实例）与其他信息进行比较。
+	 *
 	 * Compares "this" info (i.e. the current instance) with another info in the context of a request.
 	 * <p>Note: It is assumed both instances have been obtained via
 	 * {@link #getMatchingCondition(HttpServletRequest)} to ensure they have conditions with

@@ -36,6 +36,8 @@ import java.util.Map;
 public interface PathMatcher {
 
 	/**
+	 * 给定的{@code path}是否表示可以通过此接口的实现匹配的模式？
+	 *
 	 * Does the given {@code path} represent a pattern that can be matched
 	 * by an implementation of this interface?
 	 * <p>If the return value is {@code false}, then the {@link #match}

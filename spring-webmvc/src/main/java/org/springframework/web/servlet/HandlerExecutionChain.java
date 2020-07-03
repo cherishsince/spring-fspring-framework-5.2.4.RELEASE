@@ -145,8 +145,10 @@ public class HandlerExecutionChain {
 		if (!ObjectUtils.isEmpty(interceptors)) {
 			for (int i = 0; i < interceptors.length; i++) {
 				HandlerInterceptor interceptor = interceptors[i];
+				// 调用拦截器，preHandle 方法
 				if (!interceptor.preHandle(request, response, this.handler)) {
 					triggerAfterCompletion(request, response, null);
+					// 如果返回false，直接调用 AfterCompletion
 					return false;
 				}
 				this.interceptorIndex = i;

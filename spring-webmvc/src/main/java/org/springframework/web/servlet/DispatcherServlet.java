@@ -985,13 +985,21 @@ public class DispatcherServlet extends FrameworkServlet {
 		request.setAttribute(THEME_RESOLVER_ATTRIBUTE, this.themeResolver);
 		request.setAttribute(THEME_SOURCE_ATTRIBUTE, getThemeSource());
 
+		// tips: 下面是快照信息，
+		// session 保存的就是 FlashMap，session 共享就是同个FlashMap实现的，
+		// Session可以保存多个FlashMap，一个FlashMap保存着一套Redirect转发所传递的参数；
+		// 还可以保存Redirect后的目标路径和通过url传递的参数，这两项内容主要用来从Session保存的多个FlashMap中查找当前的FalshMap。
 		if (this.flashMapManager != null) {
-			FlashMap inputFlashMap = this.flashMapManager.retrieveAndUpdate(request, response); // 找回并更新快照
-			if (inputFlashMap != null) { // 将快照信息，unmodifiableMap 不允许在修改了，设置到请求的属性里面
+			// 找回并更新快照
+			FlashMap inputFlashMap = this.flashMapManager.retrieveAndUpdate(request, response);
+			if (inputFlashMap != null) {
+				// 将快照信息，unmodifiableMap 不允许在修改了，设置到请求的属性里面
 				request.setAttribute(INPUT_FLASH_MAP_ATTRIBUTE, Collections.unmodifiableMap(inputFlashMap));
 			}
-			request.setAttribute(OUTPUT_FLASH_MAP_ATTRIBUTE, new FlashMap()); // 输出的快照信息
-			request.setAttribute(FLASH_MAP_MANAGER_ATTRIBUTE, this.flashMapManager); // 设置快照管理 flashMapManager
+			// 输出的快照信息
+			request.setAttribute(OUTPUT_FLASH_MAP_ATTRIBUTE, new FlashMap());
+			// 设置快照管理 flashMapManager
+			request.setAttribute(FLASH_MAP_MANAGER_ATTRIBUTE, this.flashMapManager);
 		}
 
 		try {
@@ -1086,7 +1094,8 @@ public class DispatcherServlet extends FrameworkServlet {
 				// Determine handler adapter for the current request.
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
-				// 如果处理程序支持，则处理最后修改的标头。 TODO
+				// TODO 这波操作没看懂
+				// 如果处理程序支持，则处理最后修改的标头。
 				// Process last-modified header, if supported by the handler.
 				String method = request.getMethod();
 				boolean isGet = "GET".equals(method);
@@ -1096,17 +1105,19 @@ public class DispatcherServlet extends FrameworkServlet {
 						return;
 					}
 				}
-				// HandlerExecutionChain 前置处理
+
+				// 前置处理，调用拦截器(拦截器请求)
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
+
 				// 真正的调用 handler 方法，并返回视图
 				// Actually invoke the handler.
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
-				// 视图
+				// 默认试图
 				applyDefaultViewName(processedRequest, mv);
 				// 后置处理 拦截器
 				mappedHandler.applyPostHandle(processedRequest, response, mv);

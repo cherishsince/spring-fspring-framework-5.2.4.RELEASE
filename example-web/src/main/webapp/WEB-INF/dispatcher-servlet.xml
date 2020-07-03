@@ -16,4 +16,11 @@
         <property name="prefix" value="/views/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean class="example.web.interceptor.MyInterceptor" id="myInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
 </beans>

@@ -61,6 +61,9 @@ public class PathMatchConfigurer {
 	@Nullable
 	private Map<String, Predicate<Class<?>>> pathPrefixes;
 
+	public void PathMatchConfigurer() {
+
+	}
 
 	/**
 	 * Whether to use suffix pattern match (".*") when matching patterns to

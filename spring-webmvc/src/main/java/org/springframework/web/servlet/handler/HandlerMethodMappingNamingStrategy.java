@@ -42,7 +42,7 @@ import org.springframework.web.method.HandlerMethod;
 public interface HandlerMethodMappingNamingStrategy<T> {
 
 	/**
-	 * 获得名字
+	 * 确定给定HandlerMethod和映射的名称。
 	 *
 	 * Determine the name for the given HandlerMethod and mapping.
 	 * @param handlerMethod the handler method

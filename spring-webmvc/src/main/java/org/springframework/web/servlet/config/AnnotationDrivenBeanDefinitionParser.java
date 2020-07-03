@@ -16,11 +16,16 @@
 
 package org.springframework.web.servlet.config;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.HandlerTypePredicate;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.FactoryBean;

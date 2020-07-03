@@ -776,23 +776,32 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		// controller 返回的 model 和 view
 		ModelAndView mav;
 		checkRequest(request);
-		// todo synchronize
+
+		// 如果需要，在同步块中执行invokeHandlerMethod。
 		// Execute invokeHandlerMethod in synchronized block if required.
+
+		// 是否需要 session 同步，对同一个会话加 synchronized 调用
+		// todo：使用场景，不过现在是基本不用
 		if (this.synchronizeOnSession) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
 				Object mutex = WebUtils.getSessionMutex(session);
 				synchronized (mutex) {
+					// session 同步调用
 					mav = invokeHandlerMethod(request, response, handlerMethod);
 				}
 			}
 			else {
+				// 这里是首次打开的时候，因为还没有session，所以不需要同步
 				// No HttpSession available -> no mutex necessary
 				mav = invokeHandlerMethod(request, response, handlerMethod);
 			}
 		}
 		else {
+			// 完全不需要会话同步...
 			// No synchronization on session demanded at all...
+
+			// 不需要 session 同步进入这里（默认进入这里）
 			mav = invokeHandlerMethod(request, response, handlerMethod);
 		}
 		// 没有 Cache-Control 进入
@@ -842,9 +851,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		// 保证一下 request response
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		try {
-			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod); // 处理 @InitBinder
-			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory); // 处理 @ModalAttribute
+			// 处理 @InitBinder(使用极少)
+			// https://blog.csdn.net/qq_38016931/article/details/82080940
+			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
+			// 处理 @ModalAttribute(现在前后端分离了，使用也很少了)
+			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
 
+			// 通过 HandlerMethod 创建 ServletInvocableHandlerMethod
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
 			if (this.argumentResolvers != null) { // argumentResolvers 是属性解析，做属性解析和转换的
 				invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);

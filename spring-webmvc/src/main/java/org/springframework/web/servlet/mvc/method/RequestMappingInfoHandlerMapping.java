@@ -92,6 +92,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	 */
 	@Override
 	protected RequestMappingInfo getMatchingMapping(RequestMappingInfo info, HttpServletRequest request) {
+		// 根据 request 判断是否符合条件
 		return info.getMatchingCondition(request);
 	}
 
@@ -114,7 +115,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 		}
 	}
 
-	/**
+	/** 在请求中公开URI模板变量，矩阵变量和可生产的媒体类型。
 	 * Expose URI template variables, matrix variables, and producible media types in the request.
 	 * @see HandlerMapping#URI_TEMPLATE_VARIABLES_ATTRIBUTE
 	 * @see HandlerMapping#MATRIX_VARIABLES_ATTRIBUTE
@@ -126,7 +127,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
 		String bestPattern;
 		Map<String, String> uriVariables;
-
+		// 获取 patterns
 		Set<String> patterns = info.getPatternsCondition().getPatterns();
 		if (patterns.isEmpty()) {
 			bestPattern = lookupPath;

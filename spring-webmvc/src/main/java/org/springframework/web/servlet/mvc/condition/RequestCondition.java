@@ -37,6 +37,9 @@ import org.springframework.lang.Nullable;
 public interface RequestCondition<T> {
 
 	/**
+	 * 将此条件与另一个条件（例如来自类型级别和方法级别的
+	 * {@code @RequestMapping}批注的条件）组合在一起。
+	 *
 	 * Combine this condition with another such as conditions from a
 	 * type-level and method-level {@code @RequestMapping} annotation.
 	 * @param other the condition to combine with.
@@ -46,6 +49,8 @@ public interface RequestCondition<T> {
 	T combine(T other);
 
 	/**
+	 * 检查条件是否与请求匹配，返回可能为当前请求创建的新实例。
+	 *
 	 * Check if the condition matches the request returning a potentially new
 	 * instance created for the current request. For example a condition with
 	 * multiple URL patterns may return a new instance only with those patterns

@@ -33,6 +33,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 /**
+ * 用户保存扫描后的信息，@ControllerAdvice
+ *
  * Encapsulates information about an {@link ControllerAdvice @ControllerAdvice}
  * Spring-managed bean without necessarily requiring it to be instantiated.
  *
@@ -263,6 +265,7 @@ public class ControllerAdviceBean implements Ordered {
 		List<ControllerAdviceBean> adviceBeans = new ArrayList<>();
 		for (String name : BeanFactoryUtils.beanNamesForTypeIncludingAncestors(context, Object.class)) {
 			if (!ScopedProxyUtils.isScopedTarget(name)) {
+				// 查找 annotation @ControllerAdvice
 				ControllerAdvice controllerAdvice = context.findAnnotationOnBean(name, ControllerAdvice.class);
 				if (controllerAdvice != null) {
 					// Use the @ControllerAdvice annotation found by findAnnotationOnBean()
@@ -271,6 +274,7 @@ public class ControllerAdviceBean implements Ordered {
 				}
 			}
 		}
+		// ControllerAdviceBean 进行排序
 		OrderComparator.sort(adviceBeans);
 		return adviceBeans;
 	}

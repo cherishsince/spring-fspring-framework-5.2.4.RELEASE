@@ -33,6 +33,8 @@ import org.springframework.web.server.ServerErrorException;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
+ * 这个是异步调用有关
+ *
  * Extension of {@link HandlerMethod} that invokes the underlying method via
  * {@link InvocableHandlerMethod} but uses sync argument resolvers only and
  * thus can return directly a {@link HandlerResult} with no async wrappers.

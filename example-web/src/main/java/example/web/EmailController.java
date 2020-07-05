@@ -1,9 +1,7 @@
 package example.web;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.regex.Matcher;
@@ -38,6 +36,13 @@ public class EmailController {
         }
         return modelAndView;
     }
+
+    @ResponseBody
+	@GetMapping(value = "/data/{id}")
+	public String pathVail(@PathVariable("id") String id) {
+		System.err.println(id);
+		return "index";
+	}
 
     private boolean validate(String email) {
         matcher = pattern.matcher(email);

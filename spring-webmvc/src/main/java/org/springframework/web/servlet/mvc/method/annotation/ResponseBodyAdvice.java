@@ -24,6 +24,9 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.lang.Nullable;
 
 /**
+ * 允许在执行{@code @ResponseBody}或{@code ResponseEntity}
+ * 控制器方法之后但在使用{@code HttpMessageConverter}编写正文之前自定义响应。
+ *
  * Allows customizing the response after the execution of an {@code @ResponseBody}
  * or a {@code ResponseEntity} controller method but before the body is written
  * with an {@code HttpMessageConverter}.
@@ -40,6 +43,8 @@ import org.springframework.lang.Nullable;
 public interface ResponseBodyAdvice<T> {
 
 	/**
+	 * 此组件是否支持，给定的控制器方法返回类型，和所选的{@code HttpMessageConverter}类型。
+	 *
 	 * Whether this component supports the given controller method return type
 	 * and the selected {@code HttpMessageConverter} type.
 	 * @param returnType the return type
@@ -50,6 +55,8 @@ public interface ResponseBodyAdvice<T> {
 	boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType);
 
 	/**
+	 * 在选择{@code HttpMessageConverter}之后且在调用其write方法之前调用。
+	 *
 	 * Invoked after an {@code HttpMessageConverter} is selected and just before
 	 * its write method is invoked.
 	 * @param body the body to be written

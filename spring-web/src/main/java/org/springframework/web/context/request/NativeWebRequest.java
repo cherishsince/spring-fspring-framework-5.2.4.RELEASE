@@ -19,6 +19,8 @@ package org.springframework.web.context.request;
 import org.springframework.lang.Nullable;
 
 /**
+ * {@linkwebrequest}接口的扩展，以通用方式公开本机请求和响应对象。
+ *
  * Extension of the {@link WebRequest} interface, exposing the
  * native request and response objects in a generic fashion.
  *

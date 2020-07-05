@@ -70,6 +70,8 @@ public class MappingJackson2HttpMessageConverter extends AbstractJackson2HttpMes
 
 
 	/**
+	 * 指定用于此视图的JSON输出的自定义前缀。 默认为无。
+	 *
 	 * Specify a custom prefix to use for this view's JSON output.
 	 * Default is none.
 	 * @see #setPrefixJson

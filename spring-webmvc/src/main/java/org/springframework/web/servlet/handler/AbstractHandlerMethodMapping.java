@@ -421,10 +421,12 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Nullable
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
+		// Match 里面保存了一个 object，就是我们的 RequestMappingInfo
 		List<Match> matches = new ArrayList<>();
 		// 从 MappingRegistry 中查找，看 url 是否存在，这里查找的是 urlLookup
 		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
 		if (directPathMatches != null) {
+			// 从所有的 RequestMappingInfo 中进行匹配
 			addMatchingMappings(directPathMatches, matches, request);
 		}
 		if (matches.isEmpty()) {
@@ -432,6 +434,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			// No choice but to go through all mappings...
 			addMatchingMappings(this.mappingRegistry.getMappings().keySet(), matches, request);
 		}
+
+		// tips:
+		// 到这里，已经匹配到了 RequestMappingInfo
+		// 下面就是开始找，这个url对于的方法了，HandlerMethod
+		// (一般只会返回一个 Match，方法重载的情况，需要进行匹配)
 
 		if (!matches.isEmpty()) {
 			// 对 matches 进行排序

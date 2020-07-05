@@ -1190,7 +1190,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			}
 			//
 			logResult(request, response, failureCause, asyncManager);
-			// 发布一个 request 事件(没完成一个 request 发送一次)
+			// 发布一个 request 事件(每完成一个 request 发送一次)
 			publishRequestHandledEvent(request, response, startTime, failureCause);
 		}
 	}

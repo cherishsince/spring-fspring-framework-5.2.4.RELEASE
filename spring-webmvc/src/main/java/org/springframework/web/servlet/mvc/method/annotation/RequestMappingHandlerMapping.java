@@ -187,7 +187,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 		this.config.setTrailingSlashMatch(useTrailingSlashMatch());
 		this.config.setRegisteredSuffixPatternMatch(useRegisteredSuffixPatternMatch());
 		this.config.setContentNegotiationManager(getContentNegotiationManager());
-
+		// <1> 调用父类的 afterPropertiesSet 到了 AbstractHandlerMethodMapping 中
+		// 基本都在父类完成，加载 @Controller 相关注解的
 		super.afterPropertiesSet();
 	}
 
@@ -254,21 +255,21 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	@Override
 	@Nullable
 	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
-		// 创建 Method RequestMappingInfo
+		// <1> 创建 Method RequestMappingInfo
 		RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
-			// 创建 Class RequestMappingInfo
+			// <2> 创建 Class RequestMappingInfo
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
-				// 将 Method 的 RequestMappingInfo 合并到 Class RequestMappingInfo 中
+				// <2.1> 将 Method 的 RequestMappingInfo 合并到 Class RequestMappingInfo 中
 				info = typeInfo.combine(info);
 			}
 //			Map<String, Predicate<Class<?>>> pathPrefixes = new LinkedHashMap<>();
 //			pathPrefixes.put("/v1", HandlerTypePredicate.forAnnotation(org.springframework.stereotype.Controller.class));
-			// 这里是解析的 pathPrefixes，可以设置 @Controller @RestController 这种前缀
+			// <3> 这里是解析的 pathPrefixes，可以设置 @Controller @RestController 这种前缀
 			String prefix = getPathPrefix(handlerType);
 			if (prefix != null) {
-				// build 一个 RequestMappingInfo 然后合并
+				// <4> build 一个 RequestMappingInfo 然后合并
 				// 因为需要处理 prefix path
 				info = RequestMappingInfo.paths(prefix).options(this.config).build().combine(info);
 			}
@@ -299,12 +300,12 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 */
 	@Nullable
 	private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
-		// 查找合并 @RequestMapping 注解
+		// <1> 查找合并 @RequestMapping 注解
 		RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
-		// element 是不是一个 class 对象
+		// <2> element 是不是一个 class 对象
 		RequestCondition<?> condition = (element instanceof Class ?
 				getCustomTypeCondition((Class<?>) element) : getCustomMethodCondition((Method) element));
-		// 不为空创建 RequestMappingInfo 对象返回，保存了方法参数，返回的类型，url等
+		// <3> 不为空创建 RequestMappingInfo 对象返回，保存了方法参数，返回的类型，url等
 		return (requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null);
 	}
 

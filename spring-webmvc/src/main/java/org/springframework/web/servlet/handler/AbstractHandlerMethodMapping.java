@@ -224,13 +224,16 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @see #handlerMethodsInitialized
 	 */
 	protected void initHandlerMethods() {
+		// <1> getCandidateBeanNames() 获取符合条件的 beanName，
+		// 一般情况，获取的是全部的 beanName
 		for (String beanName : getCandidateBeanNames()) {
-			// 过滤掉代理类
+			// <1.1> 过滤掉代理类
 			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
-				// 处理符合条件的 bean
+				// <1.2> 处理符合条件的 bean
 				processCandidateBean(beanName);
 			}
 		}
+		// <2> 钩子方法，本类里面只有日志打印，打印本次加载了多少个 HandlerMethods
 		handlerMethodsInitialized(getHandlerMethods());
 	}
 
@@ -260,7 +263,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	protected void processCandidateBean(String beanName) {
 		Class<?> beanType = null;
 		try {
-			// 获取 beanName 类型
+			// <1> 获取 beanName 类型
 			beanType = obtainApplicationContext().getType(beanName);
 		}
 		catch (Throwable ex) {
@@ -269,31 +272,34 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 		}
-		// isHandler 检查 @Controller @RequestMapping 这俩个注解
+		// <2> isHandler 检查 @Controller @RequestMapping 这俩个注解
 		if (beanType != null && isHandler(beanType)) {
+			// <2.1> 去查找 @RequestMapping 相关的注解方法
 			detectHandlerMethods(beanName);
 		}
 	}
 
 	/**
+	 * 在指定的处理程序bean中查找处理程序方法。
+	 *
 	 * Look for handler methods in the specified handler bean.
 	 * @param handler either a bean name or an actual handler instance
 	 * @see #getMappingForMethod
 	 */
 	protected void detectHandlerMethods(Object handler) {
-		// handler 是 beanName(String)，获取 beanName 的 class
+		// <1> handler 是 beanName(String)，获取 beanName 的 class
 		Class<?> handlerType = (handler instanceof String ?
 				obtainApplicationContext().getType((String) handler) : handler.getClass());
 		// handlerType 不为空进入
 		if (handlerType != null) {
-			// handlerType 可能是一个 proxy 的代理类，所有需要获取 source 原始的 class
+			// <1.1> handlerType 可能是一个 proxy 的代理类，所有需要获取 source 原始的 class
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
-			// 查找方法，然后映射 url 和 method 的关系
+			// <1.2> 查找方法，然后映射 url 和 method 的关系
 			// map 保存的关系 Method -> RequestMappingInfo
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> {
 						try {
-							// 映射 url 和 Method，返回一个 RequestMappingInfo
+							// <1.3> 映射 url 和 Method，返回一个 RequestMappingInfo
 							// RequestMappingInfo 保存的就是映射的关系
 							return getMappingForMethod(method, userType);
 						}
@@ -305,11 +311,11 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			if (logger.isTraceEnabled()) {
 				logger.trace(formatMappings(userType, methods));
 			}
-			// 循环注册每个 method 和 RequestMappingInfo 关系
+			// <2> 循环注册每个 method 和 RequestMappingInfo 关系
 			methods.forEach((method, mapping) -> {
-				// 处理 cglib 代理的 method
+				// <2.1> 处理 cglib 代理的 method
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
-				// 注册 beanName 和 Method 和 RequestMappingInfo 关系
+				// <2.3> 注册 beanName 和 Method 和 RequestMappingInfo 关系
 				registerHandlerMethod(handler, invocableMethod, mapping);
 			});
 		}

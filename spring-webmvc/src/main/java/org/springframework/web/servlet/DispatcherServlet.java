@@ -1145,7 +1145,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					new NestedServletException("Handler processing failed", err));
 		}
 		finally {
-			// 判断是不是当前的 handle start
+			// 判断是不是当前是不是异步的
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				// 调用拦截器最后的 afterCompletion 方法
 				// Instead of postHandle and afterCompletion
@@ -1179,6 +1179,9 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * 处理程序选择和处理程序调用的结果，
+	 * 该结果可以是ModelAndView或要解析为ModelAndView的异常。
+	 *
 	 * Handle the result of handler selection and handler invocation, which is
 	 * either a ModelAndView or an Exception to be resolved to a ModelAndView.
 	 */

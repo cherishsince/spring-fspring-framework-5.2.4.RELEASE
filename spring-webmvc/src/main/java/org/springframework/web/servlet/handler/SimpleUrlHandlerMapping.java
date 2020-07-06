@@ -135,7 +135,9 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	 */
 	@Override
 	public void initApplicationContext() throws BeansException {
+		// 调用父类方法，进行初始化
 		super.initApplicationContext();
+		// 将 urlMap 配置，注册处理器
 		registerHandlers(this.urlMap);
 	}
 
@@ -146,21 +148,27 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	 * @throws IllegalStateException if there is a conflicting handler registered
 	 */
 	protected void registerHandlers(Map<String, Object> urlMap) throws BeansException {
+		// 为空，则仅打印日志
 		if (urlMap.isEmpty()) {
 			logger.trace("No patterns in " + formatMappingName());
 		}
+		// 非空，则进行注册
 		else {
+			// 遍历 urlMap 数组，逐个注册处理器
 			urlMap.forEach((url, handler) -> {
 				// Prepend with slash if not already present.
 				if (!url.startsWith("/")) {
 					url = "/" + url;
 				}
 				// Remove whitespace from handler bean name.
+				// trim 方法，去掉头尾空格
 				if (handler instanceof String) {
 					handler = ((String) handler).trim();
 				}
+				// 核心代码，注册处理器
 				registerHandler(url, handler);
 			});
+			// 打印日志
 			if (logger.isDebugEnabled()) {
 				List<String> patterns = new ArrayList<>();
 				if (getRootHandler() != null) {

@@ -231,6 +231,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				processCandidateBean(beanName);
 			}
 		}
+		// <2> 初始化处理器的方法们。目前是空方法，暂无具体的实现
 		handlerMethodsInitialized(getHandlerMethods());
 	}
 
@@ -350,10 +351,13 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @return the created HandlerMethod
 	 */
 	protected HandlerMethod createHandlerMethod(Object handler, Method method) {
+		// <1> 如果 handler 类型为 String， 说明对应一个 Bean 对象，
+		// 例如 UserController 使用 @Controller 注解后，默认 handler 为它的 beanName ，即 `userController
 		if (handler instanceof String) {
 			return new HandlerMethod((String) handler,
 					obtainApplicationContext().getAutowireCapableBeanFactory(), method);
 		}
+		// <2> 如果 handler 类型非 String ，说明是一个已经是一个 handler 对象，就无需处理，直接创建 HandlerMethod 对象
 		return new HandlerMethod(handler, method);
 	}
 
@@ -652,6 +656,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		}
 
 		public void register(T mapping, Object handler, Method method) {
+			// mapping 是 RequestMappingInfo
+
 			// Assert that the handler method is not a suspending one.
 			if (KotlinDetector.isKotlinType(method.getDeclaringClass()) && KotlinDelegate.isSuspend(method)) {
 				throw new IllegalStateException("Unsupported suspending handler method detected: " + method);
@@ -711,6 +717,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			List<String> urls = new ArrayList<>(1);
 			for (String path : getMappingPathPatterns(mapping)) {
 				// PathMatcher 是否可以解析这个 path
+				// 例如，@RequestMapping("/user/login") 注解对应的路径，就是直接路径。
+				// 例如，@RequestMapping("/user/${id}") 注解对应的路径，不是直接路径。
 				if (!getPathMatcher().isPattern(path)) {
 					// 不可以添加 path
 					urls.add(path);
@@ -741,15 +749,17 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		}
 
 		public void unregister(T mapping) {
+			// 获得写锁
 			this.readWriteLock.writeLock().lock();
 			try {
+				// 从 registry 中移除
 				MappingRegistration<T> definition = this.registry.remove(mapping);
 				if (definition == null) {
 					return;
 				}
-
+				// 从 mappingLookup 中移除
 				this.mappingLookup.remove(definition.getMapping());
-
+				// 从 urlLookup 移除
 				for (String url : definition.getDirectUrls()) {
 					List<T> list = this.urlLookup.get(url);
 					if (list != null) {
@@ -759,12 +769,13 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 						}
 					}
 				}
-
+				// 从 nameLookup 移除
 				removeMappingName(definition);
-
+				// 从 corsLookup 中移除
 				this.corsLookup.remove(definition.getHandlerMethod());
 			}
 			finally {
+				// 释放写锁
 				this.readWriteLock.writeLock().unlock();
 			}
 		}
@@ -795,13 +806,21 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 
 	private static class MappingRegistration<T> {
-
+		/**
+		 * Mapping 对象
+		 */
 		private final T mapping;
-
+		/**
+		 * HandlerMethod 对象
+		 */
 		private final HandlerMethod handlerMethod;
-
+		/**
+		 * 直接 URL 数组
+		 */
 		private final List<String> directUrls;
-
+		/**
+		 * {@link #mapping} 的名字
+		 */
 		@Nullable
 		private final String mappingName;
 
@@ -840,9 +859,13 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * comparing the best match with a comparator in the context of the current request.
 	 */
 	private class Match {
-
+		/**
+		 * RequestMappingInfo
+		 */
 		private final T mapping;
-
+		/**
+		 * HandleMethod
+		 */
 		private final HandlerMethod handlerMethod;
 
 		public Match(T mapping, HandlerMethod handlerMethod) {

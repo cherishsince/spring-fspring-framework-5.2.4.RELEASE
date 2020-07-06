@@ -33,6 +33,8 @@ import org.springframework.lang.Nullable;
 public interface RequestAttributes {
 
 	/**
+	 * 指示请求范围的常数。
+	 *
 	 * Constant that indicates request scope.
 	 */
 	int SCOPE_REQUEST = 0;

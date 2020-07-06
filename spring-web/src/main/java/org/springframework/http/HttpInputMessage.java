@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * 表示HTTP输入消息，由{@linkplain #getHeaders（）标头}
+ * 和可读的{@linkplain #getBody（）主体}组成。
+ *
  * Represents an HTTP input message, consisting of {@linkplain #getHeaders() headers}
  * and a readable {@linkplain #getBody() body}.
  *
@@ -32,6 +35,8 @@ import java.io.InputStream;
 public interface HttpInputMessage extends HttpMessage {
 
 	/**
+	 * 返回消息 body 的 InputStream。
+	 *
 	 * Return the body of the message as an input stream.
 	 * @return the input stream body (never {@code null})
 	 * @throws IOException in case of I/O errors

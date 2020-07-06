@@ -40,6 +40,8 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 
 	public AbstractHandlerMethodAdapter() {
 		// no restriction of HTTP methods by default
+		// 调用 WebContentGenerator 类的构造方法
+		// 参数 restrictDefaultSupportedMethods 参数为 false ，表示不需要严格校验 HttpMethod
 		super(false);
 	}
 
@@ -70,6 +72,8 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 	}
 
 	/**
+	 * 给定处理程序方法，请返回此适配器是否支持它。
+	 *
 	 * Given a handler method, return whether or not this adapter can support it.
 	 * @param handlerMethod the handler method to check
 	 * @return whether or not this adapter can adapt the given method

@@ -25,6 +25,10 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.lang.Nullable;
 
 /**
+ * 允许在读取请求的主体并将其转换为Object之前自定义请求，
+ * 还允许在将生成的Object作为{@code @RequestBody}
+ * 或{@code HttpEntity}方法参数传递到控制器方法之前进行处理。
+ *
  * Allows customizing the request before its body is read and converted into an
  * Object and also allows for processing of the resulting Object before it is
  * passed into a controller method as an {@code @RequestBody} or an
@@ -51,6 +55,8 @@ public interface RequestBodyAdvice {
 			Class<? extends HttpMessageConverter<?>> converterType);
 
 	/**
+	 * 在读取和转换请求正文之前调用第二秒。
+	 *
 	 * Invoked second before the request body is read and converted.
 	 * @param inputMessage the request
 	 * @param parameter the target method parameter
@@ -63,6 +69,8 @@ public interface RequestBodyAdvice {
 			Type targetType, Class<? extends HttpMessageConverter<?>> converterType) throws IOException;
 
 	/**
+	 * 将请求正文转换为对象后调用的第三个（也是最后一个）。
+	 *
 	 * Invoked third (and last) after the request body is converted to an Object.
 	 * @param body set to the converter Object before the first advice is called
 	 * @param inputMessage the request
@@ -76,6 +84,8 @@ public interface RequestBodyAdvice {
 			Type targetType, Class<? extends HttpMessageConverter<?>> converterType);
 
 	/**
+	 * 如果主体为空，则调用第二（也是最后一个）。
+	 *
 	 * Invoked second (and last) if the body is empty.
 	 * @param body usually set to {@code null} before the first advice is called
 	 * @param inputMessage the request

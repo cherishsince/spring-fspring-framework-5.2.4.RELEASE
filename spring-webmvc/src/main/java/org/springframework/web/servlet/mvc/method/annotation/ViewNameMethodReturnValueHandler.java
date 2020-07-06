@@ -53,6 +53,7 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 	 * to use in order to recognize custom redirect prefixes in addition to "redirect:".
 	 * <p>Note that simply configuring this property will not make a custom redirect prefix work.
 	 * There must be a custom View that recognizes the prefix as well.
+	 *
 	 * @since 4.1
 	 */
 	public void setRedirectPatterns(@Nullable String... redirectPatterns) {
@@ -70,21 +71,25 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
+		// 判断是否支持这个类型
 		Class<?> paramType = returnType.getParameterType();
 		return (void.class == paramType || CharSequence.class.isAssignableFrom(paramType));
 	}
 
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
-			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
-
+								  ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+		// 如果是 String 类型
 		if (returnValue instanceof CharSequence) {
+			// 设置视图名到 mavContainer 中
 			String viewName = returnValue.toString();
 			mavContainer.setViewName(viewName);
+			// 如果是重定向，则标记到 mavContainer 中
 			if (isRedirectViewName(viewName)) {
 				mavContainer.setRedirectModelScenario(true);
 			}
 		}
+		// 如果是非 String 类型，而且非 void ，则抛出 UnsupportedOperationException 异常
 		else if (returnValue != null) {
 			// should not happen
 			throw new UnsupportedOperationException("Unexpected return type: " +
@@ -96,12 +101,17 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 	 * Whether the given view name is a redirect view reference.
 	 * The default implementation checks the configured redirect patterns and
 	 * also if the view name starts with the "redirect:" prefix.
+	 *
 	 * @param viewName the view name to check, never {@code null}
 	 * @return "true" if the given view name is recognized as a redirect view
 	 * reference; "false" otherwise.
 	 */
 	protected boolean isRedirectViewName(String viewName) {
-		return (PatternMatchUtils.simpleMatch(this.redirectPatterns, viewName) || viewName.startsWith("redirect:"));
+		// 是否是重定向试图
+		return (PatternMatchUtils.simpleMatch(
+				this.redirectPatterns, viewName)
+				|| viewName.startsWith("redirect:")
+		);
 	}
 
 }

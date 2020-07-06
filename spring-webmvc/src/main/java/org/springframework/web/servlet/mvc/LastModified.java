@@ -19,6 +19,9 @@ package org.springframework.web.servlet.mvc;
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * 支持最后修改的HTTP请求，以促进内容缓存。
+ * 与Servlet API的{@code getLastModified}方法具有相同的约定。
+ *
  * Supports last-modified HTTP requests to facilitate content caching.
  * Same contract as for the Servlet API's {@code getLastModified} method.
  *
@@ -43,6 +46,8 @@ import javax.servlet.http.HttpServletRequest;
 public interface LastModified {
 
 	/**
+	 * 与HttpServlet的{@code getLastModified}方法具有相同的约定。 在请求处理前<b> </ b>调用。
+	 *
 	 * Same contract as for HttpServlet's {@code getLastModified} method.
 	 * Invoked <b>before</b> request processing.
 	 * <p>The return value will be sent to the HTTP client as Last-Modified header,

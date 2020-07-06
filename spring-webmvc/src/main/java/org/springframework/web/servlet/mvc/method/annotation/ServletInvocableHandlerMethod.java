@@ -146,14 +146,20 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	}
 
 	/**
+	 * 设置{@linkresponsestatus}注释设置响应状态。
+	 *
 	 * Set the response status according to the {@link ResponseStatus} annotation.
 	 */
 	private void setResponseStatus(ServletWebRequest webRequest) throws IOException {
+		// 获得状态码。
+		// 此处，想要非空，需要通过 @ResponseStatus 注解方法
+		// (@ResponseStatus注解配合@ExceptionHandler注解使用会更好)
+		// https://blog.csdn.net/qq_36722039/article/details/80825117
 		HttpStatus status = getResponseStatus();
 		if (status == null) {
 			return;
 		}
-
+		// 设置响应的状态码
 		HttpServletResponse response = webRequest.getResponse();
 		if (response != null) {
 			String reason = getResponseStatusReason();
@@ -164,7 +170,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 				response.setStatus(status.value());
 			}
 		}
-
+		// 由RedirectView获取
 		// To be picked up by RedirectView
 		webRequest.getRequest().setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
 	}

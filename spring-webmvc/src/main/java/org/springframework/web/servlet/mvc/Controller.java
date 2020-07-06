@@ -23,6 +23,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
+ * 基本控制器接口，代表一个组件，该组件像{@code HttpServlet}
+ * 一样接收{@code HttpServletRequest}和{@code HttpServletResponse}实例，
+ * 但能够参与MVC工作流程。 控制器类似于Struts {@code Action}的概念。
+ * <p>
  * Base Controller interface, representing a component that receives
  * {@code HttpServletRequest} and {@code HttpServletResponse}
  * instances just like a {@code HttpServlet} but is able to
@@ -111,11 +115,15 @@ import org.springframework.web.servlet.ModelAndView;
 public interface Controller {
 
 	/**
+	 * 处理请求并返回DispatcherServlet将呈现的ModelAndView对象。
+	 * {@code null}返回值不是错误：它表明此对象已完成请求本身的处理，因此没有要呈现的ModelAndView。
+	 *
 	 * Process the request and return a ModelAndView object which the DispatcherServlet
 	 * will render. A {@code null} return value is not an error: it indicates that
 	 * this object completed request processing itself and that there is therefore no
 	 * ModelAndView to render.
-	 * @param request current HTTP request
+	 *
+	 * @param request  current HTTP request
 	 * @param response current HTTP response
 	 * @return a ModelAndView to render, or {@code null} if handled directly
 	 * @throws Exception in case of errors

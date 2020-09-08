@@ -110,9 +110,12 @@ public class HandlerExecutionChain {
 	}
 
 	private List<HandlerInterceptor> initInterceptorList() {
+		// tips: 虽然代码有点长，但是逻辑很简单。实际上，我们将 interceptorList 是 interceptors 的配置。
 		if (this.interceptorList == null) {
 			this.interceptorList = new ArrayList<>();
+			// 如果 interceptors 非空，则添加到 interceptorList 中
 			if (this.interceptors != null) {
+				//
 				// An interceptor array specified through the constructor
 				CollectionUtils.mergeArrayIntoCollection(this.interceptors, this.interceptorList);
 			}
@@ -127,9 +130,11 @@ public class HandlerExecutionChain {
 	 */
 	@Nullable
 	public HandlerInterceptor[] getInterceptors() {
+		// 将 interceptorList 初始化到 interceptors 中
 		if (this.interceptors == null && this.interceptorList != null) {
 			this.interceptors = this.interceptorList.toArray(new HandlerInterceptor[0]);
 		}
+		// 返回 interceptors 数组
 		return this.interceptors;
 	}
 
@@ -151,9 +156,11 @@ public class HandlerExecutionChain {
 					// 如果返回false，直接调用 AfterCompletion
 					return false;
 				}
+				// 记录调用位置
 				this.interceptorIndex = i;
 			}
 		}
+		// <4> 返回 true ，前置处理成功
 		return true;
 	}
 
@@ -201,6 +208,7 @@ public class HandlerExecutionChain {
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {
 			for (int i = interceptors.length - 1; i >= 0; i--) {
+				// 只调用 AsyncHandlerInterceptor 拦截器
 				if (interceptors[i] instanceof AsyncHandlerInterceptor) {
 					try {
 						AsyncHandlerInterceptor asyncInterceptor = (AsyncHandlerInterceptor) interceptors[i];

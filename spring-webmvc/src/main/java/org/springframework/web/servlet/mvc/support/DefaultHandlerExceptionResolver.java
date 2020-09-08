@@ -377,7 +377,9 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 	 */
 	protected ModelAndView handleConversionNotSupported(ConversionNotSupportedException ex,
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler) throws IOException {
+		// tips：处理没有 conversion 转换器
 
+		// 发送服务异常，页面处理
 		sendServerError(ex, request, response);
 		return new ModelAndView();
 	}
@@ -540,12 +542,15 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 	}
 
 	/**
+	 * 调用以发送服务器错误。 将状态设置为500，
+	 * 还将请求属性“ javax.servlet.error.exception”设置为Exception。
+	 *
 	 * Invoked to send a server error. Sets the status to 500 and also sets the
 	 * request attribute "javax.servlet.error.exception" to the Exception.
 	 */
 	protected void sendServerError(Exception ex, HttpServletRequest request, HttpServletResponse response)
 			throws IOException {
-
+		// 发送服务异常
 		request.setAttribute("javax.servlet.error.exception", ex);
 		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	}

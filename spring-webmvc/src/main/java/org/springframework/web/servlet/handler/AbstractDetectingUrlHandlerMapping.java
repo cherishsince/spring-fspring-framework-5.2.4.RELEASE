@@ -32,7 +32,9 @@ import org.springframework.util.ObjectUtils;
  * @see #determineUrlsForHandler
  */
 public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHandlerMapping {
-
+	/**
+	 * 是否只扫描可访问的 Handler 们
+	 */
 	private boolean detectHandlersInAncestorContexts = false;
 
 

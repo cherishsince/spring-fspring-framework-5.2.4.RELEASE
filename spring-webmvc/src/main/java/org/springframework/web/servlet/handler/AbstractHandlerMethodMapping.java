@@ -715,8 +715,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			if (existingHandlerMethod != null && !existingHandlerMethod.equals(handlerMethod)) {
 				throw new IllegalStateException(
 						"Ambiguous mapping. Cannot map '" + handlerMethod.getBean() + "' method \n" +
-						handlerMethod + "\nto " + mapping + ": There is already '" +
-						existingHandlerMethod.getBean() + "' bean method\n" + existingHandlerMethod + " mapped.");
+								handlerMethod + "\nto " + mapping + ": There is already '" +
+								existingHandlerMethod.getBean() + "' bean method\n" + existingHandlerMethod + " mapped.");
 			}
 		}
 
@@ -819,7 +819,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		private final String mappingName;
 
 		public MappingRegistration(T mapping, HandlerMethod handlerMethod,
-				@Nullable List<String> directUrls, @Nullable String mappingName) {
+								   @Nullable List<String> directUrls, @Nullable String mappingName) {
 
 			Assert.notNull(mapping, "Mapping must not be null");
 			Assert.notNull(handlerMethod, "HandlerMethod must not be null");

@@ -27,6 +27,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
 
 /**
+ * 实现 MultipartResolver 接口，使用 Servlet 3.0
+ * 标准的上传 API 的 MultipartResolver 实现类。
+ *
  * Standard implementation of the {@link MultipartResolver} interface,
  * based on the Servlet 3.0 {@link javax.servlet.http.Part} API.
  * To be added as "multipartResolver" bean to a Spring DispatcherServlet context,
@@ -60,7 +63,7 @@ import org.springframework.web.multipart.MultipartResolver;
  */
 public class StandardServletMultipartResolver implements MultipartResolver {
 	/**
-	 * 延迟解析
+	 * 延迟解析（什么意思呢？就是是否在需要获得对应文件时，在进行文件的解析）
 	 */
 	private boolean resolveLazily = false;
 

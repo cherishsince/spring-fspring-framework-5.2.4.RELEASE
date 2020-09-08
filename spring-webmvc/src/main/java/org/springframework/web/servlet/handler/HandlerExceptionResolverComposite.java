@@ -28,6 +28,9 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
+ * {@link HandlerExceptionResolver}委托给
+ * 其他{@link HandlerExceptionResolver HandlerExceptionResolver}的列表。
+ *
  * A {@link HandlerExceptionResolver} that delegates to a list of other
  * {@link HandlerExceptionResolver HandlerExceptionResolvers}.
  *
@@ -36,9 +39,14 @@ import org.springframework.web.servlet.ModelAndView;
  */
 public class HandlerExceptionResolverComposite implements HandlerExceptionResolver, Ordered {
 
+	/**
+	 * resolvers 数组
+	 */
 	@Nullable
 	private List<HandlerExceptionResolver> resolvers;
-
+	/**
+	 * 最低优先级
+	 */
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
 

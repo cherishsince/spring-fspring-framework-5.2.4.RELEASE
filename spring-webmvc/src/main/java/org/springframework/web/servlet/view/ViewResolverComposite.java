@@ -35,6 +35,8 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
 
 /**
+ * 一个{@链接org.springframework.web.servlet.ViewResolver}委托给其他人。
+ *
  * A {@link org.springframework.web.servlet.ViewResolver} that delegates to others.
  *
  * @author Sebastien Deleuze
@@ -44,6 +46,9 @@ import org.springframework.web.servlet.ViewResolver;
 public class ViewResolverComposite implements ViewResolver, Ordered, InitializingBean,
 		ApplicationContextAware, ServletContextAware {
 
+	/**
+	 * 注册的 ViewResolver 集合
+	 */
 	private final List<ViewResolver> viewResolvers = new ArrayList<>();
 
 	private int order = Ordered.LOWEST_PRECEDENCE;
@@ -95,6 +100,8 @@ public class ViewResolverComposite implements ViewResolver, Ordered, Initializin
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		// 扫描所有 ViewResolver 的 InitializingBean 接口，调用 afterPropertiesSet()
+		// 疑问？为啥 Spring 容器自己不调用呢？
 		for (ViewResolver viewResolver : this.viewResolvers) {
 			if (viewResolver instanceof InitializingBean) {
 				((InitializingBean) viewResolver).afterPropertiesSet();
@@ -105,8 +112,11 @@ public class ViewResolverComposite implements ViewResolver, Ordered, Initializin
 	@Override
 	@Nullable
 	public View resolveViewName(String viewName, Locale locale) throws Exception {
+		// 遍历 viewResolvers 数组，逐个进行解析，但凡成功，则返回该 View 对象
 		for (ViewResolver viewResolver : this.viewResolvers) {
+			// 执行解析
 			View view = viewResolver.resolveViewName(viewName, locale);
+			// 解析成功，则返回该 View 对象
 			if (view != null) {
 				return view;
 			}

@@ -97,6 +97,8 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 
 
 	/**
+	 * 初始化一个 root web application context
+	 *
 	 * Initialize the root web application context.
 	 */
 	@Override
@@ -106,6 +108,8 @@ public class ContextLoaderListener extends ContextLoader implements ServletConte
 
 
 	/**
+	 * 关闭 root web application
+	 *
 	 * Close the root web application context.
 	 */
 	@Override

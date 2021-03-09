@@ -220,6 +220,8 @@ public class ModelAndView {
 	}
 
 	/**
+	 * 指示此{@code ModelAndView}是否具有视图，无论是视图名称还是直接的{@link View}实例。
+	 *
 	 * Indicate whether or not this {@code ModelAndView} has a view, either
 	 * as a view name or as a direct {@link View} instance.
 	 */

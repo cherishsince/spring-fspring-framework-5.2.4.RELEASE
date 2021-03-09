@@ -864,7 +864,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	@Nullable
 	protected ModelAndView invokeHandlerMethod(HttpServletRequest request,
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
-		// 保证一下 request response
+		// 保存一下 request response
 		ServletWebRequest webRequest = new ServletWebRequest(request, response);
 		try {
 			// 处理 @InitBinder(使用极少)
@@ -913,7 +913,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
 			// 调用 handler 处理请求
+			// 调用 handler 处理请求
+			// 调用 handler 处理请求
 			invocableMethod.invokeAndHandle(webRequest, mavContainer);
+
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;
 			}

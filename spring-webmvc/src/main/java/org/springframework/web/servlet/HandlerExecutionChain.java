@@ -151,9 +151,9 @@ public class HandlerExecutionChain {
 			for (int i = 0; i < interceptors.length; i++) {
 				HandlerInterceptor interceptor = interceptors[i];
 				// 调用拦截器，preHandle 方法
+				// 如果返回false，直接调用 AfterCompletion
 				if (!interceptor.preHandle(request, response, this.handler)) {
 					triggerAfterCompletion(request, response, null);
-					// 如果返回false，直接调用 AfterCompletion
 					return false;
 				}
 				// 记录调用位置
@@ -165,6 +165,8 @@ public class HandlerExecutionChain {
 	}
 
 	/**
+	 * 应用注册拦截器的postHandle方法。
+	 *
 	 * Apply postHandle methods of registered interceptors.
 	 */
 	void applyPostHandle(HttpServletRequest request, HttpServletResponse response, @Nullable ModelAndView mv)

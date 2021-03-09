@@ -1171,10 +1171,12 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * 我们需要视图名称翻译吗？
+	 *
 	 * Do we need view name translation?
 	 */
 	private void applyDefaultViewName(HttpServletRequest request, @Nullable ModelAndView mv) throws Exception {
-		// 无试图进入，设置默认的试图
+		// 无视图进入，设置默认的试图
 		if (mv != null && !mv.hasView()) {
 			// 获得默认视图
 			String defaultViewName = getDefaultViewName(request);

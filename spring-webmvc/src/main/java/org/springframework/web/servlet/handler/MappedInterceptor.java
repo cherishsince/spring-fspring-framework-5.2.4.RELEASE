@@ -147,6 +147,8 @@ public final class MappedInterceptor implements HandlerInterceptor {
 
 
 	/**
+	 * 确定给定查找路径的匹配项。
+	 *
 	 * Determine a match for the given lookup path.
 	 * @param lookupPath the current request path
 	 * @param pathMatcher a path matcher for path pattern matching

@@ -952,6 +952,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// <3> 到这里所有的 singleton 都已经初始化完了(懒加载的除外)，
 		// 如果Bean 实现了 SmartInitializingSingleton 接口，这里需要进行回调
 		// Trigger post-initialization callback for all applicable beans...
+
+		// tip: 是{@link InitializingBean}的替代方法，后者在bean的本地构造阶段结束时立即触发。
 		for (String beanName : beanNames) {
 			Object singletonInstance = getSingleton(beanName);
 			// <3.1> 判断 bean 是否实现了 SmartInitializingSingleton

@@ -220,7 +220,6 @@ public abstract class AbstractFactoryBean<T>
 		}
 	}
 
-
 	/**
 	 * This abstract method declaration mirrors the method in the FactoryBean
 	 * interface, for a consistent offering of abstract template methods.

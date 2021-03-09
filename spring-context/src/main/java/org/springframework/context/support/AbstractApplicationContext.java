@@ -711,8 +711,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 		}
 
-		// <2>、初始化属性来源
-		// Initialize any placeholder property sources in the context environment.
+		// <2>、初始化属性，需要子类实现
+		// initialize any placeholder property sources in the context environment.
 		initPropertySources();
 
 		// <3>、校验必填的 properties
@@ -767,6 +767,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 配置工厂的标准上下文特征，例如上下文的ClassLoader和后处理器。
+	 *
 	 * Configure the factory's standard context characteristics,
 	 * such as the context's ClassLoader and post-processors.
 	 *

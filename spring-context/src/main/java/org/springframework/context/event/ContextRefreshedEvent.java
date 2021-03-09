@@ -19,6 +19,8 @@ package org.springframework.context.event;
 import org.springframework.context.ApplicationContext;
 
 /**
+ * {@code ApplicationContext}初始化或刷新时引发的事件。
+ *
  * Event raised when an {@code ApplicationContext} gets initialized or refreshed.
  *
  * @author Juergen Hoeller
@@ -29,6 +31,8 @@ import org.springframework.context.ApplicationContext;
 public class ContextRefreshedEvent extends ApplicationContextEvent {
 
 	/**
+	 * 创建一个新的ContextRefreshedEvent。
+	 *
 	 * Create a new ContextRefreshedEvent.
 	 * @param source the {@code ApplicationContext} that has been initialized
 	 * or refreshed (must not be {@code null})

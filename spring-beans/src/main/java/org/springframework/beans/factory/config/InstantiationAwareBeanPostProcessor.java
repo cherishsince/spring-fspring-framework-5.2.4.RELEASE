@@ -52,6 +52,9 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	/**
 	 * 实例化之前
 	 *
+	 * 在目标bean被实例化之前，应用此BeanPostProcessor <i>。
+	 * 返回的bean对象可以是代替目标bean使用的代理，从而有效地抑制了目标bean的默认实例化。
+	 *
 	 * Apply this BeanPostProcessor <i>before the target bean gets instantiated</i>.
 	 * The returned bean object may be a proxy to use instead of the target bean,
 	 * effectively suppressing default instantiation of the target bean.
@@ -82,6 +85,9 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 
 	/**
 	 * 实例化之后
+	 *
+	 * 通过构造函数或工厂方法在实例化bean之后但在发生Spring属性填充（通过显式属性或自动装配）之前执行操作。
+	 * <p>这是在Spring自动装配开始之前在给定bean实例上执行自定义字段注入的理想回调。
 	 *
 	 * Perform operations after the bean has been instantiated, via a constructor or factory method,
 	 * but before Spring property population (from explicit properties or autowiring) occurs.
